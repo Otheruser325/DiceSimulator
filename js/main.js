@@ -207,43 +207,51 @@ function createInteractiveText(x, y, initialText, onClick) {
 }
 
 function createInputField(id, x, y) {
-    const inputField = document.getElementById(id);
+    let inputField = document.getElementById(id);
+
+    if (!inputField) {
+        inputField = document.createElement('input');
+        inputField.id = id;
+        inputField.type = 'text';
+        inputField.style.position = 'absolute';
+        inputField.style.zIndex = '1000';
+        document.body.appendChild(inputField);
+    }
+
     inputField.style.left = `${x}px`;
     inputField.style.top = `${y}px`;
     inputField.style.display = 'block';
     inputField.focus();
+    return inputField;
 }
 
 function hideInputFields() {
-    document.getElementById('sideInputField').style.display = 'none';
-    document.getElementById('luckFactorInputField').style.display = 'none';
+    const sideInputField = document.getElementById('sideInputField');
+    const luckFactorInputField = document.getElementById('luckFactorInputField');
+    
+    if (sideInputField) sideInputField.style.display = 'none';
+    if (luckFactorInputField) luckFactorInputField.style.display = 'none';
 }
 
 function handleSideInput() {
-    const x = config.width / 2 - 50; // Adjust x position as needed
-    const y = config.height / 2 - 50; // Adjust y position as needed
-    createInputField('sideInputField', x, y);
+    const x = config.width / 2 - 50;
+    const y = config.height / 2 - 50;
+    const inputField = createInputField('sideInputField', x, y);
 
-    const inputField = document.getElementById('sideInputField');
-    inputField.focus();
-    
     // Attach an event listener to capture input value when focus is lost
-    inputField.addEventListener('blur', () => {
+    inputField.addEventListener('focusout', () => {
         sideInput.text = inputField.value;
         hideInputFields();
     }, { once: true });
 }
 
 function handleLuckFactorInput() {
-    const x = config.width / 2 - 50; // Adjust x position as needed
-    const y = config.height / 2 + 50; // Adjust y position as needed
-    createInputField('luckFactorInputField', x, y);
-
-    const inputField = document.getElementById('luckFactorInputField');
-    inputField.focus();
+    const x = config.width / 2 - 50;
+    const y = config.height / 2 + 50;
+    const inputField = createInputField('luckFactorInputField', x, y);
 
     // Attach an event listener to capture input value when focus is lost
-    inputField.addEventListener('blur', () => {
+    inputField.addEventListener('focusout', () => {
         luckFactorInput.text = inputField.value;
         hideInputFields();
     }, { once: true });
