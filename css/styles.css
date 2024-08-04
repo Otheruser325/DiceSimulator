@@ -27,8 +27,8 @@ html, body {
 button {
     display: block;
     margin: 10px;
-    padding: 10px 20px;
-    font-size: 16px;
+    padding: 15px 30px; /* Increased padding for better size */
+    font-size: 18px; /* Increased font size for readability */
     cursor: pointer;
     border: none;
     background-color: #333;
@@ -41,5 +41,7 @@ button {
     top: 10px;
     left: 10px;
     font-size: 20px;
-    padding: 15px 25px;
+    padding: 20px 30px; /* Increased padding for better size */
+    background-color: #f00; /* Distinguish the back button */
+    color: #fff;
 }
