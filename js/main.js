@@ -260,8 +260,10 @@ function rollRandomDice() {
         return;
     }
 
-    // Play dice sound effect
-    this.diceSound.play();
+    // Play dice sound effect if SFX is turned on
+    if (this.sfxEnabled) {
+        this.diceSound.play();
+    }
 
     const dice = diceArray[Phaser.Math.Between(0, diceArray.length - 1)];
     const result = Phaser.Math.Between(1, dice.sides);
@@ -274,8 +276,10 @@ function rollSelectedDice() {
         return;
     }
 
-    // Play dice sound effect
-    this.diceSound.play();
+    // Play dice sound effect if SFX is turned on
+    if (this.sfxEnabled) {
+        this.diceSound.play();
+    }
 
     const dice = diceArray[selectedDiceIndex];
     const result = Phaser.Math.Between(1, dice.sides);
@@ -296,8 +300,10 @@ function rollCustomDice() {
         return;
     }
 
-    // Play dice sound effect
-    this.diceSound.play();
+    // Play dice sound effect if SFX is turned on
+    if (this.sfxEnabled) {
+        this.diceSound.play();
+    }
 
     const dice = customDiceArray[selectedDiceIndex];
     const result = rollWithLuckFactor(dice.sides, dice.luckFactor);
@@ -310,8 +316,10 @@ function rollCustomRandomDice() {
         return;
     }
 
-    // Play dice sound effect
-    this.diceSound.play();
+    // Play dice sound effect if SFX is turned on
+    if (this.sfxEnabled) {
+        this.diceSound.play();
+    }
 
     const randomIndex = Phaser.Math.Between(0, customDiceArray.length - 1);
     const dice = customDiceArray[randomIndex];
