@@ -278,7 +278,7 @@ function rollCustomDice() {
     this.diceSound.play();
 
     const dice = customDiceArray[selectedDiceIndex];
-    const result = Phaser.Math.Between(1, dice.sides);
+    const result = rollWithLuckFactor(dice.sides, dice.luckFactor);
     this.resultText.setText(`Rolled Custom ${dice.type}: ${result}`);
 }
 
@@ -293,8 +293,24 @@ function rollCustomRandomDice() {
 
     const randomIndex = Phaser.Math.Between(0, customDiceArray.length - 1);
     const dice = customDiceArray[randomIndex];
-    const result = Phaser.Math.Between(1, dice.sides);
+    const result = rollWithLuckFactor(dice.sides, dice.luckFactor);
     this.resultText.setText(`Rolled Custom ${dice.type}: ${result}`);
+}
+
+function rollWithLuckFactor(sides, luckFactor) {
+    let roll = Phaser.Math.Between(1, sides);
+
+    if (luckFactor < 1) {
+        // Increase likelihood of lower rolls
+        roll = Math.floor((roll / sides) * (sides * luckFactor));
+        roll = Phaser.Math.Clamp(roll, 1, sides);
+    } else if (luckFactor > 1) {
+        // Increase likelihood of higher rolls
+        roll = Math.floor((roll + (sides - roll) * (luckFactor - 1)) / luckFactor);
+        roll = Phaser.Math.Clamp(roll, 1, sides);
+    }
+
+    return roll;
 }
 
 function fetchCustomDices() {
