@@ -38,6 +38,7 @@ function create() {
     // Load sound effects
     this.diceSound = this.sound.add('diceSound');
     this.switchSound = this.sound.add('switchSound');
+    this.sfxEnabled = true;
 
     // Create UI buttons
     this.playButton = createButton.call(this, 'Play', config.width / 2, config.height / 2 - 150, showSimulation);
@@ -145,6 +146,27 @@ function showSettings() {
     hideAllUI.call(this);
     backButton.setVisible(true);
     settingsText.setVisible(true);
+
+    // Add toggle button for sound effects
+    if (!this.sfxToggleButton) {
+        this.sfxToggleButton = createButton.call(this, 'Toggle SFX', config.width / 2, config.height / 2 + 100, toggleSFX);
+    } else {
+        this.sfxToggleButton.setVisible(true);
+        this.sfxToggleButton.setText(this.sfxEnabled ? 'SFX: On' : 'SFX: Off');
+    }
+}
+
+function toggleSFX() {
+    this.sfxEnabled = !this.sfxEnabled;
+    this.sfxToggleButton.setText(this.sfxEnabled ? 'SFX: On' : 'SFX: Off');
+
+    if (this.diceSound) {
+        this.diceSound.setMute(!this.sfxEnabled);
+    }
+
+    if (this.switchSound) {
+        this.switchSound.setMute(!this.sfxEnabled);
+    }
 }
 
 function showMainMenu() {
