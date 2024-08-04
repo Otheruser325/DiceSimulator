@@ -13,7 +13,9 @@ const config = {
 const game = new Phaser.Game(config);
 
 let diceArray = [];
-let rollButton;
+let rollRandomButton;
+let rollSelectedButton;
+let selectedDiceIndex = 0;
 
 function preload() {
     this.load.json('dices', 'config/dices.json');
@@ -22,29 +24,63 @@ function preload() {
 function create() {
     diceArray = this.cache.json.get('dices');
     
-    rollButton = this.add.text(400, 300, 'Roll Random Dice', {
+    // Button to roll a random dice
+    rollRandomButton = this.add.text(400, 200, 'Roll Random Dice', {
         fontSize: '32px',
         fill: '#fff',
         backgroundColor: '#333',
         padding: { x: 20, y: 10 }
-    }).setInteractive().on('pointerdown', rollDice, this);
+    }).setInteractive().on('pointerdown', rollRandomDice, this);
 
-    document.getElementById('roll-dice').addEventListener('click', rollDice.bind(this));
+    // Button to roll a selected dice
+    rollSelectedButton = this.add.text(400, 300, 'Roll Selected Dice', {
+        fontSize: '32px',
+        fill: '#fff',
+        backgroundColor: '#333',
+        padding: { x: 20, y: 10 }
+    }).setInteractive().on('pointerdown', rollSelectedDice, this);
+
+    // Button to switch dice type
+    switchDiceButton = this.add.text(400, 400, 'Switch Dice Type', {
+        fontSize: '32px',
+        fill: '#fff',
+        backgroundColor: '#333',
+        padding: { x: 20, y: 10 }
+    }).setInteractive().on('pointerdown', switchDiceType, this);
+
+    document.getElementById('result').innerText = '';
 }
 
 function update() {
-    // This could be used for real-time updates, if needed
+    // Optional: Update game state here if needed
 }
 
-function rollDice() {
+function rollRandomDice() {
     if (diceArray.length === 0) {
         console.error('No dice available!');
         return;
     }
-
     const randomIndex = Phaser.Math.Between(0, diceArray.length - 1);
     const dice = diceArray[randomIndex];
     const result = Phaser.Math.Between(1, dice.sides);
+    document.getElementById('result').innerText = `Rolled ${dice.type}: ${result}`;
+}
 
-    document.getElementById('result').innerText = `Rolled a ${dice.type}: ${result}`;
+function rollSelectedDice() {
+    if (diceArray.length === 0) {
+        console.error('No dice available!');
+        return;
+    }
+    const dice = diceArray[selectedDiceIndex];
+    const result = Phaser.Math.Between(1, dice.sides);
+    document.getElementById('result').innerText = `Rolled ${dice.type}: ${result}`;
+}
+
+function switchDiceType() {
+    if (diceArray.length === 0) {
+        console.error('No dice available!');
+        return;
+    }
+    selectedDiceIndex = (selectedDiceIndex + 1) % diceArray.length;
+    document.getElementById('result').innerText = `Selected Dice: ${diceArray[selectedDiceIndex].type}`;
 }
