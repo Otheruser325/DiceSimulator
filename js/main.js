@@ -20,10 +20,16 @@ let selectedDiceIndex = 0;
 
 function preload() {
     this.load.json('dices', 'config/dices.json');
+    this.load.audio('diceSound', 'assets/sfx/dice.mp3');
+    this.load.audio('switchSound', 'assets/sfx/switch.mp3');
 }
 
 function create() {
     diceArray = this.cache.json.get('dices');
+    
+    // Load sound effects
+    this.diceSound = this.sound.add('diceSound');
+    this.switchSound = this.sound.add('switchSound');
     
     // Button to roll a random dice
     rollRandomButton = this.add.text(400, 200, 'Roll Random Dice', {
@@ -65,6 +71,10 @@ function rollRandomDice() {
         console.error('No dice available!');
         return;
     }
+    
+    // Play dice sound effect
+    this.diceSound.play();
+
     const randomIndex = Phaser.Math.Between(0, diceArray.length - 1);
     const dice = diceArray[randomIndex];
     const result = Phaser.Math.Between(1, dice.sides);
@@ -76,6 +86,10 @@ function rollSelectedDice() {
         console.error('No dice available!');
         return;
     }
+    
+    // Play dice sound effect
+    this.diceSound.play();
+
     const dice = diceArray[selectedDiceIndex];
     const result = Phaser.Math.Between(1, dice.sides);
     this.resultText.setText(`Rolled ${dice.type}: ${result}`);
@@ -86,6 +100,10 @@ function switchDiceType() {
         console.error('No dice available!');
         return;
     }
+    
+    // Play switch sound effect
+    this.switchSound.play();
+
     selectedDiceIndex = (selectedDiceIndex + 1) % diceArray.length;
     this.resultText.setText(`Selected Dice: ${diceArray[selectedDiceIndex].type}`);
 }
