@@ -224,9 +224,12 @@ function handleSideInput() {
     const y = config.height / 2 - 50; // Adjust y position as needed
     createInputField('sideInputField', x, y);
 
-    // Attach an event listener to capture input value
-    document.getElementById('sideInputField').addEventListener('blur', () => {
-        sideInput.text = document.getElementById('sideInputField').value;
+    const inputField = document.getElementById('sideInputField');
+    inputField.focus();
+    
+    // Attach an event listener to capture input value when focus is lost
+    inputField.addEventListener('blur', () => {
+        sideInput.text = inputField.value;
         hideInputFields();
     }, { once: true });
 }
@@ -236,9 +239,12 @@ function handleLuckFactorInput() {
     const y = config.height / 2 + 50; // Adjust y position as needed
     createInputField('luckFactorInputField', x, y);
 
-    // Attach an event listener to capture input value
-    document.getElementById('luckFactorInputField').addEventListener('blur', () => {
-        luckFactorInput.text = document.getElementById('luckFactorInputField').value;
+    const inputField = document.getElementById('luckFactorInputField');
+    inputField.focus();
+
+    // Attach an event listener to capture input value when focus is lost
+    inputField.addEventListener('blur', () => {
+        luckFactorInput.text = inputField.value;
         hideInputFields();
     }, { once: true });
 }
@@ -347,12 +353,12 @@ function rollWithLuckFactor(sides, luckFactor) {
     let roll = Phaser.Math.Between(1, sides);
 
     if (luckFactor < 1) {
-        // Increase likelihood of lower rolls
-        roll = Math.floor((roll / sides) * (sides * luckFactor));
+        // Decrease likelihood of higher rolls (more likely to get lower numbers)
+        roll = Math.floor(roll * luckFactor);
         roll = Phaser.Math.Clamp(roll, 1, sides);
     } else if (luckFactor > 1) {
-        // Increase likelihood of higher rolls
-        roll = Math.floor((roll + (sides - roll) * (luckFactor - 1)) / luckFactor);
+        // Increase likelihood of higher rolls (more likely to get higher numbers)
+        roll = Math.ceil(roll * luckFactor / (luckFactor + (sides - roll)));
         roll = Phaser.Math.Clamp(roll, 1, sides);
     }
 
@@ -366,4 +372,51 @@ function fetchCustomDices() {
             customDiceArray = data;
         })
         .catch(error => console.error('Error fetching custom dice:', error));
+}
+
+function saveCustomDices() {
+    fetch('/customDices', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(customDiceArray)
+    })
+    .then(response => response.text())
+    .then(message => console.log(message))
+    .catch(error => console.error('Error saving custom dice:', error));
+}
+
+function showAlert(message, type = 'error') {
+    // Create alert element if not exists
+    let alertBox = document.getElementById('customAlert');
+    if (!alertBox) {
+        alertBox = document.createElement('div');
+        alertBox.id = 'customAlert';
+        alertBox.style.position = 'fixed';
+        alertBox.style.top = '10px';
+        alertBox.style.right = '10px';
+        alertBox.style.padding = '15px';
+        alertBox.style.borderRadius = '5px';
+        alertBox.style.color = '#fff';
+        alertBox.style.zIndex = '1000';
+        document.body.appendChild(alertBox);
+    }
+
+    // Set styles based on alert type
+    if (type === 'error') {
+        alertBox.style.backgroundColor = '#f00';
+    } else if (type === 'success') {
+        alertBox.style.backgroundColor = '#0f0';
+    } else {
+        alertBox.style.backgroundColor = '#00f';
+    }
+
+    alertBox.textContent = message;
+    alertBox.style.display = 'block';
+
+    // Hide alert after 3 seconds
+    setTimeout(() => {
+        alertBox.style.display = 'none';
+    }, 3000);
 }
