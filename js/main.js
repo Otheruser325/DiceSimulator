@@ -223,11 +223,16 @@ function createInputField(id, x, y) {
     inputField.style.display = 'block';
     inputField.focus();
 
-    // Listen for Enter key press
+    // Add event listeners
     inputField.addEventListener('keydown', (event) => {
         if (event.key === 'Enter') {
+            event.preventDefault(); // Prevent form submission if in a form
             handleInputSubmit(id);
         }
+    });
+
+    inputField.addEventListener('blur', () => {
+        handleInputSubmit(id);
     });
 
     return inputField;
@@ -243,9 +248,14 @@ function handleInputSubmit(id) {
     hideInputFields();
 }
 
-// Hide input fields when clicking outside
+function hideInputFields() {
+    document.getElementById('sideInputField')?.style.setProperty('display', 'none');
+    document.getElementById('luckFactorInputField')?.style.setProperty('display', 'none');
+}
+
 document.addEventListener('click', (event) => {
-    if (!event.target.matches('#sideInputField, #luckFactorInputField')) {
+    const inputFields = ['sideInputField', 'luckFactorInputField'];
+    if (!inputFields.includes(event.target.id)) {
         hideInputFields();
     }
 });
