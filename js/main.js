@@ -147,7 +147,7 @@ function showSimulation() {
     this.playButton.setVisible(false);
     this.helpButton.setVisible(false);
     this.settingsButton.setVisible(false);
-    
+
     rollRandomButton.setVisible(true);
     rollSelectedButton.setVisible(true);
     switchDiceButton.setVisible(true);
@@ -170,55 +170,75 @@ function showCreateDiceMenu() {
     backButton.setVisible(true);
 
     // Display create dice UI elements
-    sideInputText = this.add.text(config.width / 2, config.height / 2 - 100, 'Enter Dice Sides:', {
-        fontSize: '24px',
-        fill: '#fff',
-        fontFamily: 'Verdana'
-    }).setOrigin(0.5, 0.5);
+    if (!sideInputText) {
+        sideInputText = this.add.text(config.width / 2, config.height / 2 - 100, 'Enter Dice Sides:', {
+            fontSize: '24px',
+            fill: '#fff',
+            fontFamily: 'Verdana'
+        }).setOrigin(0.5, 0.5);
+    } else {
+        sideInputText.setVisible(true);
+    }
 
-    luckFactorText = this.add.text(config.width / 2, config.height / 2, 'Enter Luck Factor:', {
-        fontSize: '24px',
-        fill: '#fff',
-        fontFamily: 'Verdana'
-    }).setOrigin(0.5, 0.5);
+    if (!luckFactorText) {
+        luckFactorText = this.add.text(config.width / 2, config.height / 2, 'Enter Luck Factor:', {
+            fontSize: '24px',
+            fill: '#fff',
+            fontFamily: 'Verdana'
+        }).setOrigin(0.5, 0.5);
+    } else {
+        luckFactorText.setVisible(true);
+    }
 
-    sideInput = this.add.text(config.width / 2, config.height / 2 + 100, '', {
-        fontSize: '24px',
-        fill: '#fff',
-        backgroundColor: '#333',
-        padding: { x: 20, y: 10 },
-        fontFamily: 'Verdana'
-    }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', () => {
-        // Handle dice sides input
-        // This is a placeholder, ideally use Phaser's input plugin
-    });
+    if (!sideInput) {
+        sideInput = this.add.text(config.width / 2, config.height / 2 + 100, '', {
+            fontSize: '24px',
+            fill: '#fff',
+            backgroundColor: '#333',
+            padding: { x: 20, y: 10 },
+            fontFamily: 'Verdana'
+        }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', () => {
+            // Handle dice sides input
+            // Ideally, use Phaser's input plugin for text input
+        });
+    } else {
+        sideInput.setVisible(true);
+    }
 
-    luckFactorInput = this.add.text(config.width / 2, config.height / 2 + 200, '', {
-        fontSize: '24px',
-        fill: '#fff',
-        backgroundColor: '#333',
-        padding: { x: 20, y: 10 },
-        fontFamily: 'Verdana'
-    }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', () => {
-        // Handle luck factor input
-        // This is a placeholder, ideally use Phaser's input plugin
-    });
+    if (!luckFactorInput) {
+        luckFactorInput = this.add.text(config.width / 2, config.height / 2 + 200, '', {
+            fontSize: '24px',
+            fill: '#fff',
+            backgroundColor: '#333',
+            padding: { x: 20, y: 10 },
+            fontFamily: 'Verdana'
+        }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', () => {
+            // Handle luck factor input
+            // Ideally, use Phaser's input plugin for text input
+        });
+    } else {
+        luckFactorInput.setVisible(true);
+    }
 
-    createDiceSubmitButton = this.add.text(config.width / 2, config.height / 2 + 300, 'Create Dice', {
-        fontSize: '32px',
-        fill: '#fff',
-        backgroundColor: '#333',
-        padding: { x: 20, y: 10 },
-        fontFamily: 'Verdana'
-    }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', () => {
-        const sides = parseInt(sideInput.text);
-        const luckFactor = parseFloat(luckFactorInput.text);
-        if (sides && !isNaN(luckFactor)) {
-            createCustomDice(sides, luckFactor);
-            fetchCustomDices(); // Update custom dice array
-            showSimulation.call(this); // Return to game UI
-        }
-    });
+    if (!createDiceSubmitButton) {
+        createDiceSubmitButton = this.add.text(config.width / 2, config.height / 2 + 300, 'Create Dice', {
+            fontSize: '32px',
+            fill: '#fff',
+            backgroundColor: '#333',
+            padding: { x: 20, y: 10 },
+            fontFamily: 'Verdana'
+        }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', () => {
+            const sides = parseInt(sideInput.text);
+            const luckFactor = parseFloat(luckFactorInput.text);
+            if (sides && !isNaN(luckFactor)) {
+                createCustomDice(sides, luckFactor);
+                fetchCustomDices(); // Update custom dice array
+                showSimulation.call(this); // Return to game UI
+            }
+        });
+    } else {
+        createDiceSubmitButton.setVisible(true);
+    }
 }
 
 function showHelp() {
@@ -288,7 +308,11 @@ function rollSelectedDice() {
 }
 
 function switchDiceType() {
-    // Logic to switch between dice types
+    // Placeholder logic to switch between dice types
+    this.switchSound.play();
+    selectedDiceIndex = (selectedDiceIndex + 1) % diceArray.length;
+    const dice = diceArray[selectedDiceIndex];
+    this.resultText.setText(`Switched to ${dice.type}`);
 }
 
 function rollCustomDice() {
