@@ -58,8 +58,8 @@ function create() {
 function update() {}
 
 function createMainMenuButtons() {
-    // Create buttons for the main menu
-    this.add.text(config.width / 2, config.height / 2 - 150, 'Play', {
+    // Main menu buttons
+    this.playButton = this.add.text(config.width / 2, config.height / 2 - 150, 'Play', {
         fontSize: '32px',
         fill: '#fff',
         backgroundColor: '#333',
@@ -67,7 +67,7 @@ function createMainMenuButtons() {
         fontFamily: 'Verdana'
     }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', showSimulation, this);
 
-    this.add.text(config.width / 2, config.height / 2 - 50, 'Help', {
+    this.helpButton = this.add.text(config.width / 2, config.height / 2 - 50, 'Help', {
         fontSize: '32px',
         fill: '#fff',
         backgroundColor: '#333',
@@ -75,7 +75,7 @@ function createMainMenuButtons() {
         fontFamily: 'Verdana'
     }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', showHelp, this);
 
-    this.add.text(config.width / 2, config.height / 2 + 50, 'Settings', {
+    this.settingsButton = this.add.text(config.width / 2, config.height / 2 + 50, 'Settings', {
         fontSize: '32px',
         fill: '#fff',
         backgroundColor: '#333',
@@ -83,7 +83,6 @@ function createMainMenuButtons() {
         fontFamily: 'Verdana'
     }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', showSettings, this);
 
-    // Create the back button
     backButton = this.add.text(10, 10, 'Back', {
         fontSize: '24px',
         fill: '#fff',
@@ -94,7 +93,6 @@ function createMainMenuButtons() {
 }
 
 function createGameButtons() {
-    // Create buttons for the dice simulation UI
     rollRandomButton = this.add.text(config.width / 2, config.height / 2 - 150, 'Roll Random Dice', {
         fontSize: '32px',
         fill: '#fff',
@@ -146,7 +144,10 @@ function createGameButtons() {
 
 function showSimulation() {
     // Hide main menu buttons and show game UI
-    this.resultText.setText(''); // Clear any previous result
+    this.playButton.setVisible(false);
+    this.helpButton.setVisible(false);
+    this.settingsButton.setVisible(false);
+    
     rollRandomButton.setVisible(true);
     rollSelectedButton.setVisible(true);
     switchDiceButton.setVisible(true);
@@ -159,7 +160,6 @@ function showSimulation() {
 
 function showCreateDiceMenu() {
     // Hide main menu and game UI, show create dice UI
-    this.resultText.setText(''); // Clear any previous result
     rollRandomButton.setVisible(false);
     rollSelectedButton.setVisible(false);
     switchDiceButton.setVisible(false);
@@ -237,11 +237,11 @@ function showMainMenu() {
     createDiceButton.setVisible(false);
     rollCustomDiceButton.setVisible(false);
     rollCustomRandomDiceButton.setVisible(false);
-    sideInputText.setVisible(false);
-    luckFactorText.setVisible(false);
-    sideInput.setVisible(false);
-    luckFactorInput.setVisible(false);
-    createDiceSubmitButton.setVisible(false);
+    if (sideInputText) sideInputText.setVisible(false);
+    if (luckFactorText) luckFactorText.setVisible(false);
+    if (sideInput) sideInput.setVisible(false);
+    if (luckFactorInput) luckFactorInput.setVisible(false);
+    if (createDiceSubmitButton) createDiceSubmitButton.setVisible(false);
     backButton.setVisible(false);
     this.resultText.setVisible(false);
     createMainMenuButtons.call(this);
