@@ -206,14 +206,41 @@ function createInteractiveText(x, y, initialText, onClick) {
     }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', onClick, this);
 }
 
+function createInputField(id, x, y) {
+    const inputField = document.getElementById(id);
+    inputField.style.left = `${x}px`;
+    inputField.style.top = `${y}px`;
+    inputField.style.display = 'block';
+    inputField.focus();
+}
+
+function hideInputFields() {
+    document.getElementById('sideInputField').style.display = 'none';
+    document.getElementById('luckFactorInputField').style.display = 'none';
+}
+
 function handleSideInput() {
-    // Function to handle side input (e.g., show a virtual keyboard or input box)
-    // You may need to implement a virtual keyboard or use HTML input fields
+    const x = config.width / 2 - 50; // Adjust x position as needed
+    const y = config.height / 2 - 50; // Adjust y position as needed
+    createInputField('sideInputField', x, y);
+
+    // Attach an event listener to capture input value
+    document.getElementById('sideInputField').addEventListener('blur', () => {
+        sideInput.text = document.getElementById('sideInputField').value;
+        hideInputFields();
+    }, { once: true });
 }
 
 function handleLuckFactorInput() {
-    // Function to handle luck factor input (e.g., show a virtual keyboard or input box)
-    // You may need to implement a virtual keyboard or use HTML input fields
+    const x = config.width / 2 - 50; // Adjust x position as needed
+    const y = config.height / 2 + 50; // Adjust y position as needed
+    createInputField('luckFactorInputField', x, y);
+
+    // Attach an event listener to capture input value
+    document.getElementById('luckFactorInputField').addEventListener('blur', () => {
+        luckFactorInput.text = document.getElementById('luckFactorInputField').value;
+        hideInputFields();
+    }, { once: true });
 }
 
 function rollRandomDice() {
