@@ -21,7 +21,7 @@ let selectedDiceIndex = 0;
 function preload() {
     this.load.json('dices', 'config/dices.json');
     this.load.audio('diceSound', 'assets/sfx/dice.mp3');
-    this.load.audio('switchSound', 'assets/sfx/switch.mp3');
+    this.load.audio('switchSound', 'assets/sfx/button.mp3');
 }
 
 function create() {
