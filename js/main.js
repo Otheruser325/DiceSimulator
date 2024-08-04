@@ -43,7 +43,8 @@ function create() {
     // Display area for results
     this.resultText = this.add.text(config.width / 2, config.height / 2 + 100, '', {
         fontSize: '24px',
-        fill: '#fff'
+        fill: '#fff',
+        fontFamily: 'Verdana' // Phaser's default font family
     }).setOrigin(0.5, 0.5);
 
     // Initialize UI visibility
@@ -70,22 +71,19 @@ function createGameButtons() {
     rollRandomButton = this.add.text(config.width / 2, config.height / 2 - 100, 'Roll Random Dice', {
         fontSize: '32px',
         fill: '#fff',
-        backgroundColor: '#333',
-        padding: { x: 20, y: 10 }
+        fontFamily: 'Verdana'
     }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', rollRandomDice, this);
     
     rollSelectedButton = this.add.text(config.width / 2, config.height / 2, 'Roll Selected Dice', {
         fontSize: '32px',
         fill: '#fff',
-        backgroundColor: '#333',
-        padding: { x: 20, y: 10 }
+        fontFamily: 'Verdana'
     }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', rollSelectedDice, this);
 
     switchDiceButton = this.add.text(config.width / 2, config.height / 2 + 100, 'Switch Dice Type', {
         fontSize: '32px',
         fill: '#fff',
-        backgroundColor: '#333',
-        padding: { x: 20, y: 10 }
+        fontFamily: 'Verdana'
     }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', switchDiceType, this);
 }
 
