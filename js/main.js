@@ -198,21 +198,46 @@ function createDiceSubmit() {
     const sides = parseInt(sideInput.text);
     const luckFactor = parseFloat(luckFactorInput.text);
     if (sides && !isNaN(luckFactor)) {
-        createCustomDice(sides, luckFactor);
-        fetchCustomDices(); // Update custom dice array
-        showSimulation.call(this); // Return to game UI
+        const newDice = {
+            type: `d${sides}`,
+            sides: sides,
+            luckFactor: luckFactor
+        };
+
+        fetch('/customDices', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(newDice)
+        })
+        .then(response => {
+            if (response.ok) {
+                fetchCustomDices(); // Update custom dice array
+                showSimulation.call(this); // Return to game UI
+            } else {
+                console.error('Failed to create custom dice');
+            }
+        })
+        .catch(error => console.error('Error posting custom dice:', error));
     }
 }
 
 function createCustomDice(sides, luckFactor) {
+    if (sides < 6) {
+        console.error('Dice must have at least 6 sides.');
+        return;
+    }
+
     const dice = {
         type: `d${sides}`,
         sides: sides,
         luckFactor: luckFactor
     };
+
     customDiceArray.push(dice);
-    // Optionally save to server or localStorage here
-    // saveCustomDice(dice); // Uncomment if using server-side storage
+    // Save the dice to the server
+    saveCustomDice(dice); 
 }
 
 function rollRandomDice() {
@@ -281,6 +306,10 @@ function rollCustomRandomDice() {
 }
 
 function fetchCustomDices() {
-    // Fetch custom dice data from server or localStorage
-    // Example: fetch('/customDices').then(response => response.json()).then(data => { customDiceArray = data; });
+    fetch('/customDices')
+        .then(response => response.json())
+        .then(data => {
+            customDiceArray = data;
+        })
+        .catch(error => console.error('Error fetching custom dice:', error));
 }
