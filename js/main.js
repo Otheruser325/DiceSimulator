@@ -222,39 +222,44 @@ function createInputField(id, x, y) {
     inputField.style.top = `${y}px`;
     inputField.style.display = 'block';
     inputField.focus();
+
+    // Listen for Enter key press
+    inputField.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            handleInputSubmit(id);
+        }
+    });
+
     return inputField;
 }
 
-function hideInputFields() {
-    const sideInputField = document.getElementById('sideInputField');
-    const luckFactorInputField = document.getElementById('luckFactorInputField');
-    
-    if (sideInputField) sideInputField.style.display = 'none';
-    if (luckFactorInputField) luckFactorInputField.style.display = 'none';
+function handleInputSubmit(id) {
+    const inputField = document.getElementById(id);
+    if (id === 'sideInputField') {
+        sideInput.text = inputField.value;
+    } else if (id === 'luckFactorInputField') {
+        luckFactorInput.text = inputField.value;
+    }
+    hideInputFields();
 }
+
+// Hide input fields when clicking outside
+document.addEventListener('click', (event) => {
+    if (!event.target.matches('#sideInputField, #luckFactorInputField')) {
+        hideInputFields();
+    }
+});
 
 function handleSideInput() {
     const x = config.width / 2 - 50;
     const y = config.height / 2 - 50;
-    const inputField = createInputField('sideInputField', x, y);
-
-    // Attach an event listener to capture input value when focus is lost
-    inputField.addEventListener('focusout', () => {
-        sideInput.text = inputField.value;
-        hideInputFields();
-    }, { once: true });
+    createInputField('sideInputField', x, y);
 }
 
 function handleLuckFactorInput() {
     const x = config.width / 2 - 50;
     const y = config.height / 2 + 50;
-    const inputField = createInputField('luckFactorInputField', x, y);
-
-    // Attach an event listener to capture input value when focus is lost
-    inputField.addEventListener('focusout', () => {
-        luckFactorInput.text = inputField.value;
-        hideInputFields();
-    }, { once: true });
+    createInputField('luckFactorInputField', x, y);
 }
 
 function rollRandomDice() {
