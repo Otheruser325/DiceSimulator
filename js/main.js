@@ -58,7 +58,7 @@ function create() {
 function update() {}
 
 function createMainMenuButtons() {
-    // Create buttons
+    // Create buttons for the main menu
     this.add.text(config.width / 2, config.height / 2 - 150, 'Play', {
         fontSize: '32px',
         fill: '#fff',
@@ -83,30 +83,7 @@ function createMainMenuButtons() {
         fontFamily: 'Verdana'
     }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', showSettings, this);
 
-    createDiceButton = this.add.text(config.width / 2, config.height / 2 + 150, 'Create Dice', {
-        fontSize: '32px',
-        fill: '#fff',
-        backgroundColor: '#333',
-        padding: { x: 20, y: 10 },
-        fontFamily: 'Verdana'
-    }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', showCreateDiceMenu, this);
-
-    rollCustomDiceButton = this.add.text(config.width / 2, config.height / 2 + 250, 'Roll Custom Dice', {
-        fontSize: '32px',
-        fill: '#fff',
-        backgroundColor: '#333',
-        padding: { x: 20, y: 10 },
-        fontFamily: 'Verdana'
-    }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', rollCustomDice, this);
-
-    rollCustomRandomDiceButton = this.add.text(config.width / 2, config.height / 2 + 350, 'Roll Custom Random Dice', {
-        fontSize: '32px',
-        fill: '#fff',
-        backgroundColor: '#333',
-        padding: { x: 20, y: 10 },
-        fontFamily: 'Verdana'
-    }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', rollCustomRandomDice, this);
-
+    // Create the back button
     backButton = this.add.text(10, 10, 'Back', {
         fontSize: '24px',
         fill: '#fff',
@@ -117,6 +94,7 @@ function createMainMenuButtons() {
 }
 
 function createGameButtons() {
+    // Create buttons for the dice simulation UI
     rollRandomButton = this.add.text(config.width / 2, config.height / 2 - 150, 'Roll Random Dice', {
         fontSize: '32px',
         fill: '#fff',
@@ -140,6 +118,30 @@ function createGameButtons() {
         padding: { x: 20, y: 10 },
         fontFamily: 'Verdana'
     }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', switchDiceType, this).setVisible(false);
+
+    createDiceButton = this.add.text(config.width / 2, config.height / 2 + 250, 'Create Dice', {
+        fontSize: '32px',
+        fill: '#fff',
+        backgroundColor: '#333',
+        padding: { x: 20, y: 10 },
+        fontFamily: 'Verdana'
+    }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', showCreateDiceMenu, this).setVisible(false);
+
+    rollCustomDiceButton = this.add.text(config.width / 2, config.height / 2 + 350, 'Roll Custom Dice', {
+        fontSize: '32px',
+        fill: '#fff',
+        backgroundColor: '#333',
+        padding: { x: 20, y: 10 },
+        fontFamily: 'Verdana'
+    }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', rollCustomDice, this).setVisible(false);
+
+    rollCustomRandomDiceButton = this.add.text(config.width / 2, config.height / 2 + 450, 'Roll Custom Random Dice', {
+        fontSize: '32px',
+        fill: '#fff',
+        backgroundColor: '#333',
+        padding: { x: 20, y: 10 },
+        fontFamily: 'Verdana'
+    }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', rollCustomRandomDice, this).setVisible(false);
 }
 
 function showSimulation() {
@@ -148,6 +150,9 @@ function showSimulation() {
     rollRandomButton.setVisible(true);
     rollSelectedButton.setVisible(true);
     switchDiceButton.setVisible(true);
+    createDiceButton.setVisible(true);
+    rollCustomDiceButton.setVisible(true);
+    rollCustomRandomDiceButton.setVisible(true);
     this.resultText.setVisible(true);
     backButton.setVisible(true);
 }
@@ -158,6 +163,9 @@ function showCreateDiceMenu() {
     rollRandomButton.setVisible(false);
     rollSelectedButton.setVisible(false);
     switchDiceButton.setVisible(false);
+    createDiceButton.setVisible(false);
+    rollCustomDiceButton.setVisible(false);
+    rollCustomRandomDiceButton.setVisible(false);
     this.resultText.setVisible(false);
     backButton.setVisible(true);
 
@@ -226,6 +234,9 @@ function showMainMenu() {
     rollRandomButton.setVisible(false);
     rollSelectedButton.setVisible(false);
     switchDiceButton.setVisible(false);
+    createDiceButton.setVisible(false);
+    rollCustomDiceButton.setVisible(false);
+    rollCustomRandomDiceButton.setVisible(false);
     sideInputText.setVisible(false);
     luckFactorText.setVisible(false);
     sideInput.setVisible(false);
@@ -245,6 +256,39 @@ function createCustomDice(sides, luckFactor) {
     customDiceArray.push(dice);
     // Optionally save to server or localStorage here
     // saveCustomDice(dice); // Uncomment if using server-side storage
+}
+
+function rollRandomDice() {
+    if (diceArray.length === 0) {
+        console.error('No dice available!');
+        return;
+    }
+
+    // Play dice sound effect
+    this.diceSound.play();
+
+    const randomIndex = Phaser.Math.Between(0, diceArray.length - 1);
+    const dice = diceArray[randomIndex];
+    const result = Phaser.Math.Between(1, dice.sides);
+    this.resultText.setText(`Rolled Random ${dice.type}: ${result}`);
+}
+
+function rollSelectedDice() {
+    if (diceArray.length === 0) {
+        console.error('No dice available!');
+        return;
+    }
+
+    // Play dice sound effect
+    this.diceSound.play();
+
+    const dice = diceArray[selectedDiceIndex];
+    const result = Phaser.Math.Between(1, dice.sides);
+    this.resultText.setText(`Rolled Selected ${dice.type}: ${result}`);
+}
+
+function switchDiceType() {
+    // Logic to switch between dice types
 }
 
 function rollCustomDice() {
