@@ -149,7 +149,7 @@ function showSettings() {
 
     // Add toggle button for sound effects
     if (!this.sfxToggleButton) {
-        this.sfxToggleButton = createButton.call(this, 'Toggle SFX', config.width / 2, config.height / 2 + 100, toggleSFX);
+        this.sfxToggleButton = createButton.call(this, 'SFX: On', config.width / 2, config.height / 2 + 100, toggleSFX);
     } else {
         this.sfxToggleButton.setVisible(true);
         this.sfxToggleButton.setText(this.sfxEnabled ? 'SFX: On' : 'SFX: Off');
@@ -178,24 +178,13 @@ function showMainMenu() {
 }
 
 function hideAllUI() {
-    this.playButton.setVisible(false);
-    this.helpButton.setVisible(false);
-    this.settingsButton.setVisible(false);
-    rollRandomButton.setVisible(false);
-    rollSelectedButton.setVisible(false);
-    switchDiceButton.setVisible(false);
-    createDiceButton.setVisible(false);
-    rollCustomDiceButton.setVisible(false);
-    rollCustomRandomDiceButton.setVisible(false);
-    if (sideInputText) sideInputText.setVisible(false);
-    if (luckFactorText) luckFactorText.setVisible(false);
-    if (sideInput) sideInput.setVisible(false);
-    if (luckFactorInput) luckFactorInput.setVisible(false);
-    if (createDiceSubmitButton) createDiceSubmitButton.setVisible(false);
-    this.resultText.setVisible(false);
-    helpText.setVisible(false);
-    settingsText.setVisible(false);
-    backButton.setVisible(false);
+    // Hide all buttons and texts
+    [this.playButton, this.helpButton, this.settingsButton, rollRandomButton, rollSelectedButton, 
+    switchDiceButton, createDiceButton, rollCustomDiceButton, rollCustomRandomDiceButton,
+    sideInputText, luckFactorText, sideInput, luckFactorInput, createDiceSubmitButton, 
+    helpText, settingsText].forEach(element => {
+        if (element) element.setVisible(false);
+    });
 }
 
 function createInteractiveText(x, y, initialText, onClick) {
