@@ -38,116 +38,42 @@ function create() {
     this.diceSound = this.sound.add('diceSound');
     this.switchSound = this.sound.add('switchSound');
 
-    // Create main menu buttons
-    createMainMenuButtons.call(this);
+    // Create UI buttons
+    this.playButton = createButton.call(this, 'Play', config.width / 2, config.height / 2 - 150, showSimulation);
+    this.helpButton = createButton.call(this, 'Help', config.width / 2, config.height / 2 - 50, showHelp);
+    this.settingsButton = createButton.call(this, 'Settings', config.width / 2, config.height / 2 + 50, showSettings);
 
-    // Create game UI buttons
-    createGameButtons.call(this);
+    backButton = createButton.call(this, 'Back', 10, 10, showMainMenu, 24, '#f00').setVisible(false);
 
-    // Display area for results
+    rollRandomButton = createButton.call(this, 'Roll Random Dice', config.width / 2, config.height / 2 - 100, rollRandomDice).setVisible(false);
+    rollSelectedButton = createButton.call(this, 'Roll Selected Dice', config.width / 2, config.height / 2 - 50, rollSelectedDice).setVisible(false);
+    switchDiceButton = createButton.call(this, 'Switch Dice Type', config.width / 2, config.height / 2, switchDiceType).setVisible(false);
+    createDiceButton = createButton.call(this, 'Create Dice', config.width / 2, config.height / 2 + 50, showCreateDiceMenu).setVisible(false);
+    rollCustomDiceButton = createButton.call(this, 'Roll Custom Dice', config.width / 2, config.height / 2 + 100, rollCustomDice).setVisible(false);
+    rollCustomRandomDiceButton = createButton.call(this, 'Roll Custom Random Dice', config.width / 2, config.height / 2 + 150, rollCustomRandomDice).setVisible(false);
+
     this.resultText = this.add.text(config.width / 2, config.height / 2 + 200, '', {
         fontSize: '24px',
         fill: '#fff',
         fontFamily: 'Verdana'
-    }).setOrigin(0.5, 0.5);
-
-    // Initialize UI visibility
-    showMainMenu.call(this);
+    }).setOrigin(0.5, 0.5).setVisible(false);
 }
 
 function update() {}
 
-function createMainMenuButtons() {
-    // Main menu buttons
-    this.playButton = this.add.text(config.width / 2, config.height / 2 - 150, 'Play', {
-        fontSize: '32px',
+function createButton(text, x, y, onClick, fontSize = '32px', backgroundColor = '#333') {
+    return this.add.text(x, y, text, {
+        fontSize: fontSize,
         fill: '#fff',
-        backgroundColor: '#333',
+        backgroundColor: backgroundColor,
         padding: { x: 20, y: 10 },
         fontFamily: 'Verdana'
-    }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', showSimulation, this);
-
-    this.helpButton = this.add.text(config.width / 2, config.height / 2 - 50, 'Help', {
-        fontSize: '32px',
-        fill: '#fff',
-        backgroundColor: '#333',
-        padding: { x: 20, y: 10 },
-        fontFamily: 'Verdana'
-    }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', showHelp, this);
-
-    this.settingsButton = this.add.text(config.width / 2, config.height / 2 + 50, 'Settings', {
-        fontSize: '32px',
-        fill: '#fff',
-        backgroundColor: '#333',
-        padding: { x: 20, y: 10 },
-        fontFamily: 'Verdana'
-    }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', showSettings, this);
-
-    backButton = this.add.text(10, 10, 'Back', {
-        fontSize: '24px',
-        fill: '#fff',
-        backgroundColor: '#f00',
-        padding: { x: 10, y: 5 },
-        fontFamily: 'Verdana'
-    }).setOrigin(0, 0).setInteractive().on('pointerdown', showMainMenu, this).setVisible(false);
-}
-
-function createGameButtons() {
-    rollRandomButton = this.add.text(config.width / 2, config.height / 2 - 150, 'Roll Random Dice', {
-        fontSize: '32px',
-        fill: '#fff',
-        backgroundColor: '#333',
-        padding: { x: 20, y: 10 },
-        fontFamily: 'Verdana'
-    }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', rollRandomDice, this).setVisible(false);
-
-    rollSelectedButton = this.add.text(config.width / 2, config.height / 2, 'Roll Selected Dice', {
-        fontSize: '32px',
-        fill: '#fff',
-        backgroundColor: '#333',
-        padding: { x: 20, y: 10 },
-        fontFamily: 'Verdana'
-    }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', rollSelectedDice, this).setVisible(false);
-
-    switchDiceButton = this.add.text(config.width / 2, config.height / 2 + 150, 'Switch Dice Type', {
-        fontSize: '32px',
-        fill: '#fff',
-        backgroundColor: '#333',
-        padding: { x: 20, y: 10 },
-        fontFamily: 'Verdana'
-    }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', switchDiceType, this).setVisible(false);
-
-    createDiceButton = this.add.text(config.width / 2, config.height / 2 + 250, 'Create Dice', {
-        fontSize: '32px',
-        fill: '#fff',
-        backgroundColor: '#333',
-        padding: { x: 20, y: 10 },
-        fontFamily: 'Verdana'
-    }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', showCreateDiceMenu, this).setVisible(false);
-
-    rollCustomDiceButton = this.add.text(config.width / 2, config.height / 2 + 350, 'Roll Custom Dice', {
-        fontSize: '32px',
-        fill: '#fff',
-        backgroundColor: '#333',
-        padding: { x: 20, y: 10 },
-        fontFamily: 'Verdana'
-    }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', rollCustomDice, this).setVisible(false);
-
-    rollCustomRandomDiceButton = this.add.text(config.width / 2, config.height / 2 + 450, 'Roll Custom Random Dice', {
-        fontSize: '32px',
-        fill: '#fff',
-        backgroundColor: '#333',
-        padding: { x: 20, y: 10 },
-        fontFamily: 'Verdana'
-    }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', rollCustomRandomDice, this).setVisible(false);
+    }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', onClick, this);
 }
 
 function showSimulation() {
-    // Hide main menu buttons and show game UI
-    this.playButton.setVisible(false);
-    this.helpButton.setVisible(false);
-    this.settingsButton.setVisible(false);
-
+    // Hide all UI elements except for the dice rolling and back buttons
+    hideAllUI.call(this);
     rollRandomButton.setVisible(true);
     rollSelectedButton.setVisible(true);
     switchDiceButton.setVisible(true);
@@ -159,98 +85,64 @@ function showSimulation() {
 }
 
 function showCreateDiceMenu() {
-    // Hide main menu and game UI, show create dice UI
-    rollRandomButton.setVisible(false);
-    rollSelectedButton.setVisible(false);
-    switchDiceButton.setVisible(false);
-    createDiceButton.setVisible(false);
-    rollCustomDiceButton.setVisible(false);
-    rollCustomRandomDiceButton.setVisible(false);
-    this.resultText.setVisible(false);
+    // Hide dice rolling buttons and show create dice UI
+    hideAllUI.call(this);
     backButton.setVisible(true);
-
-    // Display create dice UI elements
+    
     if (!sideInputText) {
-        sideInputText = this.add.text(config.width / 2, config.height / 2 - 100, 'Enter Dice Sides:', {
-            fontSize: '24px',
-            fill: '#fff',
-            fontFamily: 'Verdana'
-        }).setOrigin(0.5, 0.5);
+        sideInputText = createText.call(this, config.width / 2, config.height / 2 - 100, 'Enter Dice Sides:');
     } else {
         sideInputText.setVisible(true);
     }
 
     if (!luckFactorText) {
-        luckFactorText = this.add.text(config.width / 2, config.height / 2, 'Enter Luck Factor:', {
-            fontSize: '24px',
-            fill: '#fff',
-            fontFamily: 'Verdana'
-        }).setOrigin(0.5, 0.5);
+        luckFactorText = createText.call(this, config.width / 2, config.height / 2 - 50, 'Enter Luck Factor:');
     } else {
         luckFactorText.setVisible(true);
     }
 
     if (!sideInput) {
-        sideInput = this.add.text(config.width / 2, config.height / 2 + 100, '', {
-            fontSize: '24px',
-            fill: '#fff',
-            backgroundColor: '#333',
-            padding: { x: 20, y: 10 },
-            fontFamily: 'Verdana'
-        }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', () => {
-            // Handle dice sides input
-            // Ideally, use Phaser's input plugin for text input
-        });
+        sideInput = createInteractiveText.call(this, config.width / 2, config.height / 2, '', handleSideInput);
     } else {
         sideInput.setVisible(true);
     }
 
     if (!luckFactorInput) {
-        luckFactorInput = this.add.text(config.width / 2, config.height / 2 + 200, '', {
-            fontSize: '24px',
-            fill: '#fff',
-            backgroundColor: '#333',
-            padding: { x: 20, y: 10 },
-            fontFamily: 'Verdana'
-        }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', () => {
-            // Handle luck factor input
-            // Ideally, use Phaser's input plugin for text input
-        });
+        luckFactorInput = createInteractiveText.call(this, config.width / 2, config.height / 2 + 50, '', handleLuckFactorInput);
     } else {
         luckFactorInput.setVisible(true);
     }
 
     if (!createDiceSubmitButton) {
-        createDiceSubmitButton = this.add.text(config.width / 2, config.height / 2 + 300, 'Create Dice', {
-            fontSize: '32px',
-            fill: '#fff',
-            backgroundColor: '#333',
-            padding: { x: 20, y: 10 },
-            fontFamily: 'Verdana'
-        }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', () => {
-            const sides = parseInt(sideInput.text);
-            const luckFactor = parseFloat(luckFactorInput.text);
-            if (sides && !isNaN(luckFactor)) {
-                createCustomDice(sides, luckFactor);
-                fetchCustomDices(); // Update custom dice array
-                showSimulation.call(this); // Return to game UI
-            }
-        });
+        createDiceSubmitButton = createButton.call(this, 'Create Dice', config.width / 2, config.height / 2 + 100, createDiceSubmit);
     } else {
         createDiceSubmitButton.setVisible(true);
     }
 }
 
 function showHelp() {
-    // Show help UI
+    // Hide all UI elements except for the back button
+    hideAllUI.call(this);
+    backButton.setVisible(true);
+    // Add help UI logic here
 }
 
 function showSettings() {
-    // Show settings UI
+    // Hide all UI elements except for the back button
+    hideAllUI.call(this);
+    backButton.setVisible(true);
+    // Add settings UI logic here
 }
 
 function showMainMenu() {
-    // Hide all UI elements and show main menu
+    // Hide all UI elements and show main menu buttons
+    hideAllUI.call(this);
+    this.playButton.setVisible(true);
+    this.helpButton.setVisible(true);
+    this.settingsButton.setVisible(true);
+}
+
+function hideAllUI() {
     rollRandomButton.setVisible(false);
     rollSelectedButton.setVisible(false);
     switchDiceButton.setVisible(false);
@@ -262,9 +154,44 @@ function showMainMenu() {
     if (sideInput) sideInput.setVisible(false);
     if (luckFactorInput) luckFactorInput.setVisible(false);
     if (createDiceSubmitButton) createDiceSubmitButton.setVisible(false);
-    backButton.setVisible(false);
     this.resultText.setVisible(false);
-    createMainMenuButtons.call(this);
+    backButton.setVisible(false);
+}
+
+function createText(x, y, text) {
+    return this.add.text(x, y, text, {
+        fontSize: '24px',
+        fill: '#fff',
+        fontFamily: 'Verdana'
+    }).setOrigin(0.5, 0.5);
+}
+
+function createInteractiveText(x, y, initialText, onClick) {
+    return this.add.text(x, y, initialText, {
+        fontSize: '24px',
+        fill: '#fff',
+        backgroundColor: '#333',
+        padding: { x: 20, y: 10 },
+        fontFamily: 'Verdana'
+    }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', onClick, this);
+}
+
+function handleSideInput() {
+    // Handle side input logic here
+}
+
+function handleLuckFactorInput() {
+    // Handle luck factor input logic here
+}
+
+function createDiceSubmit() {
+    const sides = parseInt(sideInput.text);
+    const luckFactor = parseFloat(luckFactorInput.text);
+    if (sides && !isNaN(luckFactor)) {
+        createCustomDice(sides, luckFactor);
+        fetchCustomDices(); // Update custom dice array
+        showSimulation.call(this); // Return to game UI
+    }
 }
 
 function createCustomDice(sides, luckFactor) {
