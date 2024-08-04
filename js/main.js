@@ -22,6 +22,7 @@ let selectedDiceIndex = 0;
 let rollRandomButton, rollSelectedButton, switchDiceButton, createDiceButton, rollCustomDiceButton, rollCustomRandomDiceButton;
 let backButton;
 let sideInput, luckFactorInput, sideInputText, luckFactorText, createDiceSubmitButton;
+let helpText, settingsText;
 
 function preload() {
     this.load.json('dices', 'config/dices.json');
@@ -57,6 +58,9 @@ function create() {
         fill: '#fff',
         fontFamily: 'Verdana'
     }).setOrigin(0.5, 0.5).setVisible(false);
+
+    helpText = createText.call(this, config.width / 2, config.height / 2, 'Help Information: \n\n Here you can learn how to use the dice simulation...').setVisible(false);
+    settingsText = createText.call(this, config.width / 2, config.height / 2, 'Settings Options: \n\n Customize your game settings here...').setVisible(false);
 }
 
 function update() {}
@@ -69,6 +73,15 @@ function createButton(text, x, y, onClick, fontSize = '32px', backgroundColor = 
         padding: { x: 20, y: 10 },
         fontFamily: 'Verdana'
     }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', onClick, this);
+}
+
+function createText(x, y, text) {
+    return this.add.text(x, y, text, {
+        fontSize: '24px',
+        fill: '#fff',
+        fontFamily: 'Verdana',
+        align: 'center'
+    }).setOrigin(0.5, 0.5);
 }
 
 function showSimulation() {
@@ -124,14 +137,14 @@ function showHelp() {
     // Hide all UI elements except for the back button
     hideAllUI.call(this);
     backButton.setVisible(true);
-    // Add help UI logic here
+    helpText.setVisible(true);
 }
 
 function showSettings() {
     // Hide all UI elements except for the back button
     hideAllUI.call(this);
     backButton.setVisible(true);
-    // Add settings UI logic here
+    settingsText.setVisible(true);
 }
 
 function showMainMenu() {
@@ -143,6 +156,9 @@ function showMainMenu() {
 }
 
 function hideAllUI() {
+    this.playButton.setVisible(false);
+    this.helpButton.setVisible(false);
+    this.settingsButton.setVisible(false);
     rollRandomButton.setVisible(false);
     rollSelectedButton.setVisible(false);
     switchDiceButton.setVisible(false);
@@ -155,15 +171,9 @@ function hideAllUI() {
     if (luckFactorInput) luckFactorInput.setVisible(false);
     if (createDiceSubmitButton) createDiceSubmitButton.setVisible(false);
     this.resultText.setVisible(false);
+    helpText.setVisible(false);
+    settingsText.setVisible(false);
     backButton.setVisible(false);
-}
-
-function createText(x, y, text) {
-    return this.add.text(x, y, text, {
-        fontSize: '24px',
-        fill: '#fff',
-        fontFamily: 'Verdana'
-    }).setOrigin(0.5, 0.5);
 }
 
 function createInteractiveText(x, y, initialText, onClick) {
@@ -214,10 +224,9 @@ function rollRandomDice() {
     // Play dice sound effect
     this.diceSound.play();
 
-    const randomIndex = Phaser.Math.Between(0, diceArray.length - 1);
-    const dice = diceArray[randomIndex];
+    const dice = diceArray[Phaser.Math.Between(0, diceArray.length - 1)];
     const result = Phaser.Math.Between(1, dice.sides);
-    this.resultText.setText(`Rolled Random ${dice.type}: ${result}`);
+    this.resultText.setText(`Rolled ${dice.type}: ${result}`);
 }
 
 function rollSelectedDice() {
