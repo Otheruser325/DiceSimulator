@@ -231,10 +231,6 @@ function createInputField(id, x, y) {
         }
     });
 
-    inputField.addEventListener('blur', () => {
-        handleInputSubmit(id);
-    });
-
     return inputField;
 }
 
@@ -253,9 +249,9 @@ function hideInputFields() {
     document.getElementById('luckFactorInputField')?.style.setProperty('display', 'none');
 }
 
-document.addEventListener('click', (event) => {
-    const inputFields = ['sideInputField', 'luckFactorInputField'];
-    if (!inputFields.includes(event.target.id)) {
+// Click handler to hide input fields when clicking outside
+document.addEventListener('mousedown', (event) => {
+    if (!event.target.closest('#sideInputField') && !event.target.closest('#luckFactorInputField')) {
         hideInputFields();
     }
 });
