@@ -15,6 +15,7 @@ const game = new Phaser.Game(config);
 let diceArray = [];
 let rollRandomButton;
 let rollSelectedButton;
+let switchDiceButton;
 let selectedDiceIndex = 0;
 
 function preload() {
@@ -31,7 +32,7 @@ function create() {
         backgroundColor: '#333',
         padding: { x: 20, y: 10 }
     }).setInteractive().on('pointerdown', rollRandomDice, this);
-
+    
     // Button to roll a selected dice
     rollSelectedButton = this.add.text(400, 300, 'Roll Selected Dice', {
         fontSize: '32px',
@@ -48,7 +49,11 @@ function create() {
         padding: { x: 20, y: 10 }
     }).setInteractive().on('pointerdown', switchDiceType, this);
 
-    document.getElementById('result').innerText = '';
+    // Display area for results
+    this.resultText = this.add.text(400, 500, '', {
+        fontSize: '24px',
+        fill: '#fff'
+    }).setOrigin(0.5, 0.5);
 }
 
 function update() {
@@ -63,7 +68,7 @@ function rollRandomDice() {
     const randomIndex = Phaser.Math.Between(0, diceArray.length - 1);
     const dice = diceArray[randomIndex];
     const result = Phaser.Math.Between(1, dice.sides);
-    document.getElementById('result').innerText = `Rolled ${dice.type}: ${result}`;
+    this.resultText.setText(`Rolled ${dice.type}: ${result}`);
 }
 
 function rollSelectedDice() {
@@ -73,7 +78,7 @@ function rollSelectedDice() {
     }
     const dice = diceArray[selectedDiceIndex];
     const result = Phaser.Math.Between(1, dice.sides);
-    document.getElementById('result').innerText = `Rolled ${dice.type}: ${result}`;
+    this.resultText.setText(`Rolled ${dice.type}: ${result}`);
 }
 
 function switchDiceType() {
@@ -82,5 +87,5 @@ function switchDiceType() {
         return;
     }
     selectedDiceIndex = (selectedDiceIndex + 1) % diceArray.length;
-    document.getElementById('result').innerText = `Selected Dice: ${diceArray[selectedDiceIndex].type}`;
+    this.resultText.setText(`Selected Dice: ${diceArray[selectedDiceIndex].type}`);
 }
