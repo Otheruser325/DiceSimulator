@@ -186,14 +186,6 @@ function createInteractiveText(x, y, initialText, onClick) {
     }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', onClick, this);
 }
 
-function handleSideInput() {
-    // Handle side input logic here
-}
-
-function handleLuckFactorInput() {
-    // Handle luck factor input logic here
-}
-
 function createDiceSubmit() {
     const sides = parseInt(sideInput.text);
     const luckFactor = parseFloat(luckFactorInput.text);
