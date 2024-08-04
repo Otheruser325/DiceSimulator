@@ -44,4 +44,6 @@ button {
     padding: 20px 30px; /* Increased padding for better size */
     background-color: #f00; /* Distinguish the back button */
     color: #fff;
+    z-index: 20; /* Ensure it's on top of other elements */
+    display: none; /* Initially hidden */
 }
