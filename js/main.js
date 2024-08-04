@@ -59,7 +59,7 @@ function update() {}
 
 function createMainMenuButtons() {
     // Create buttons
-    let playButton = this.add.text(config.width / 2, config.height / 2 - 150, 'Play', {
+    this.add.text(config.width / 2, config.height / 2 - 150, 'Play', {
         fontSize: '32px',
         fill: '#fff',
         backgroundColor: '#333',
@@ -67,7 +67,7 @@ function createMainMenuButtons() {
         fontFamily: 'Verdana'
     }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', showSimulation, this);
 
-    let helpButton = this.add.text(config.width / 2, config.height / 2 - 50, 'Help', {
+    this.add.text(config.width / 2, config.height / 2 - 50, 'Help', {
         fontSize: '32px',
         fill: '#fff',
         backgroundColor: '#333',
@@ -75,7 +75,7 @@ function createMainMenuButtons() {
         fontFamily: 'Verdana'
     }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', showHelp, this);
 
-    let settingsButton = this.add.text(config.width / 2, config.height / 2 + 50, 'Settings', {
+    this.add.text(config.width / 2, config.height / 2 + 50, 'Settings', {
         fontSize: '32px',
         fill: '#fff',
         backgroundColor: '#333',
@@ -83,7 +83,7 @@ function createMainMenuButtons() {
         fontFamily: 'Verdana'
     }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', showSettings, this);
 
-    let createDiceButton = this.add.text(config.width / 2, config.height / 2 + 150, 'Create Dice', {
+    createDiceButton = this.add.text(config.width / 2, config.height / 2 + 150, 'Create Dice', {
         fontSize: '32px',
         fill: '#fff',
         backgroundColor: '#333',
@@ -91,7 +91,7 @@ function createMainMenuButtons() {
         fontFamily: 'Verdana'
     }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', showCreateDiceMenu, this);
 
-    let rollCustomDiceButton = this.add.text(config.width / 2, config.height / 2 + 250, 'Roll Custom Dice', {
+    rollCustomDiceButton = this.add.text(config.width / 2, config.height / 2 + 250, 'Roll Custom Dice', {
         fontSize: '32px',
         fill: '#fff',
         backgroundColor: '#333',
@@ -99,7 +99,7 @@ function createMainMenuButtons() {
         fontFamily: 'Verdana'
     }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', rollCustomDice, this);
 
-    let rollCustomRandomDiceButton = this.add.text(config.width / 2, config.height / 2 + 350, 'Roll Custom Random Dice', {
+    rollCustomRandomDiceButton = this.add.text(config.width / 2, config.height / 2 + 350, 'Roll Custom Random Dice', {
         fontSize: '32px',
         fill: '#fff',
         backgroundColor: '#333',
@@ -233,7 +233,7 @@ function showMainMenu() {
     createDiceSubmitButton.setVisible(false);
     backButton.setVisible(false);
     this.resultText.setVisible(false);
-    showMainMenuButtons.call(this);
+    createMainMenuButtons.call(this);
 }
 
 function createCustomDice(sides, luckFactor) {
