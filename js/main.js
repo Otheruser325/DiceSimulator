@@ -147,7 +147,7 @@ function showSettings() {
     backButton.setVisible(true);
     settingsText.setVisible(true);
 
-    // Add toggle button for sound effects
+    // Add or update the toggle button for sound effects
     if (!this.sfxToggleButton) {
         this.sfxToggleButton = createButton.call(this, 'SFX: On', config.width / 2, config.height / 2 + 100, toggleSFX);
     } else {
@@ -182,7 +182,7 @@ function hideAllUI() {
     [this.playButton, this.helpButton, this.settingsButton, rollRandomButton, rollSelectedButton, 
     switchDiceButton, createDiceButton, rollCustomDiceButton, rollCustomRandomDiceButton,
     sideInputText, luckFactorText, sideInput, luckFactorInput, createDiceSubmitButton, 
-    helpText, settingsText].forEach(element => {
+    helpText, settingsText, this.sfxToggleButton].forEach(element => {
         if (element) element.setVisible(false);
     });
 }
@@ -198,31 +198,14 @@ function createInteractiveText(x, y, initialText, onClick) {
 }
 
 function createDiceSubmit() {
-    const sides = parseInt(sideInput.text);
+    let sides = parseInt(sideInput.text.replace(/^d/, '')); // Remove 'd' if present
     const luckFactor = parseFloat(luckFactorInput.text);
-    if (sides && !isNaN(luckFactor)) {
-        const newDice = {
-            type: `d${sides}`,
-            sides: sides,
-            luckFactor: luckFactor
-        };
-
-        fetch('/customDices', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(newDice)
-        })
-        .then(response => {
-            if (response.ok) {
-                fetchCustomDices(); // Update custom dice array
-                showSimulation.call(this); // Return to game UI
-            } else {
-                console.error('Failed to create custom dice');
-            }
-        })
-        .catch(error => console.error('Error posting custom dice:', error));
+    if (sides && !isNaN(luckFactor) && sides >= 6) { // Ensure sides >= 6
+        createCustomDice(sides, luckFactor);
+        fetchCustomDices(); // Update custom dice array
+        showSimulation.call(this); // Return to game UI
+    } else {
+        console.error('Invalid sides or luck factor');
     }
 }
 
@@ -239,8 +222,6 @@ function createCustomDice(sides, luckFactor) {
     };
 
     customDiceArray.push(dice);
-    // Save the dice to the server
-    saveCustomDice(dice); 
 }
 
 function rollRandomDice() {
