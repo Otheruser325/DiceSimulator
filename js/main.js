@@ -85,6 +85,16 @@ function createText(x, y, text) {
     }).setOrigin(0.5, 0.5);
 }
 
+function createInteractiveText(x, y, initialText, onClick) {
+    return this.add.text(x, y, initialText, {
+        fontSize: '24px',
+        fill: '#fff',
+        backgroundColor: '#333',
+        padding: { x: 20, y: 10 },
+        fontFamily: 'Verdana'
+    }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', onClick, this);
+}
+
 function showSimulation() {
     // Hide all UI elements except for the dice rolling and back buttons
     hideAllUI.call(this);
@@ -99,7 +109,6 @@ function showSimulation() {
 }
 
 function showCreateDiceMenu() {
-    // Hide dice rolling buttons and show create dice UI
     hideAllUI.call(this);
     backButton.setVisible(true);
     
@@ -197,31 +206,14 @@ function createInteractiveText(x, y, initialText, onClick) {
     }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', onClick, this);
 }
 
-function createDiceSubmit() {
-    let sides = parseInt(sideInput.text.replace(/^d/, '')); // Remove 'd' if present
-    const luckFactor = parseFloat(luckFactorInput.text);
-    if (sides && !isNaN(luckFactor) && sides >= 6) { // Ensure sides >= 6
-        createCustomDice(sides, luckFactor);
-        fetchCustomDices(); // Update custom dice array
-        showSimulation.call(this); // Return to game UI
-    } else {
-        console.error('Invalid sides or luck factor');
-    }
+function handleSideInput() {
+    // Function to handle side input (e.g., show a virtual keyboard or input box)
+    // You may need to implement a virtual keyboard or use HTML input fields
 }
 
-function createCustomDice(sides, luckFactor) {
-    if (sides < 6) {
-        console.error('Dice must have at least 6 sides.');
-        return;
-    }
-
-    const dice = {
-        type: `d${sides}`,
-        sides: sides,
-        luckFactor: luckFactor
-    };
-
-    customDiceArray.push(dice);
+function handleLuckFactorInput() {
+    // Function to handle luck factor input (e.g., show a virtual keyboard or input box)
+    // You may need to implement a virtual keyboard or use HTML input fields
 }
 
 function rollRandomDice() {
@@ -262,6 +254,33 @@ function switchDiceType() {
     selectedDiceIndex = (selectedDiceIndex + 1) % diceArray.length;
     const dice = diceArray[selectedDiceIndex];
     this.resultText.setText(`Switched to ${dice.type}`);
+}
+
+function createDiceSubmit() {
+    let sides = parseInt(sideInput.text.replace(/^d/, '')); // Remove 'd' if present
+    const luckFactor = parseFloat(luckFactorInput.text);
+    if (sides && !isNaN(luckFactor) && sides >= 6) { // Ensure sides >= 6
+        createCustomDice(sides, luckFactor);
+        fetchCustomDices(); // Update custom dice array
+        showSimulation.call(this); // Return to game UI
+    } else {
+        console.error('Invalid sides or luck factor');
+    }
+}
+
+function createCustomDice(sides, luckFactor) {
+    if (sides < 6) {
+        console.error('Dice must have at least 6 sides.');
+        return;
+    }
+
+    const dice = {
+        type: `d${sides}`,
+        sides: sides,
+        luckFactor: luckFactor
+    };
+
+    customDiceArray.push(dice);
 }
 
 function rollCustomDice() {
