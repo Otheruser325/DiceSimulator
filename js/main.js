@@ -111,7 +111,8 @@ function showSimulation() {
 function showCreateDiceMenu() {
     hideAllUI.call(this);
     backButton.setVisible(true);
-    
+
+    // Create or show input and text elements
     if (!sideInputText) {
         sideInputText = createText.call(this, config.width / 2, config.height / 2 - 100, 'Enter Dice Sides:');
     } else {
@@ -223,13 +224,17 @@ function createInputField(id, x, y) {
     inputField.style.display = 'block';
     inputField.focus();
 
-    // Add event listeners
-    inputField.addEventListener('keydown', (event) => {
+    // Remove existing event listeners to avoid duplication
+    inputField.removeEventListener('keydown', onInputFieldKeyDown);
+    inputField.addEventListener('keydown', onInputFieldKeyDown);
+
+    // Function to handle keydown events
+    function onInputFieldKeyDown(event) {
         if (event.key === 'Enter') {
             event.preventDefault(); // Prevent form submission if in a form
             handleInputSubmit(id);
         }
-    });
+    }
 
     return inputField;
 }
@@ -245,13 +250,28 @@ function handleInputSubmit(id) {
 }
 
 function hideInputFields() {
-    document.getElementById('sideInputField')?.style.setProperty('display', 'none');
-    document.getElementById('luckFactorInputField')?.style.setProperty('display', 'none');
+    const inputFields = ['sideInputField', 'luckFactorInputField'];
+    inputFields.forEach(id => {
+        const field = document.getElementById(id);
+        if (field) {
+            field.style.display = 'none';
+        }
+    });
 }
 
 // Click handler to hide input fields when clicking outside
 document.addEventListener('mousedown', (event) => {
-    if (!event.target.closest('#sideInputField') && !event.target.closest('#luckFactorInputField')) {
+    const inputFields = ['sideInputField', 'luckFactorInputField'];
+    let shouldHide = true;
+
+    inputFields.forEach(id => {
+        const field = document.getElementById(id);
+        if (field && field.contains(event.target)) {
+            shouldHide = false;
+        }
+    });
+
+    if (shouldHide) {
         hideInputFields();
     }
 });
