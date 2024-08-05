@@ -72,9 +72,13 @@ function create() {
     // Create input fields and submit button
     sideInputField = createDOMInputField.call(this, 'Number of Sides');
     luckFactorInputField = createDOMInputField.call(this, 'Luck Factor');
-    submitButton = createDOMButton.call(this, 'Create Dice', createDiceSubmit).setVisible(false);
+    submitButton = createDOMButton.call(this, 'Create Dice', createDiceSubmit);
 
-    inputContainer.add([sideInputField, luckFactorInputField, submitButton]);
+    // Append to DOM
+    const domContainer = document.getElementById('game-container');
+    domContainer.appendChild(sideInputField);
+    domContainer.appendChild(luckFactorInputField);
+    domContainer.appendChild(submitButton);
 
     // Hide splash screen after game is created
     document.getElementById('splash-screen').style.display = 'none';
@@ -117,7 +121,6 @@ function createDOMInputField(placeholder) {
     inputField.style.marginBottom = '10px';
     inputField.className = 'input-field';
 
-    const domElement = this.add.dom(0, 0, inputField).setOrigin(0.5, 0.5);
     return inputField;
 }
 
@@ -134,7 +137,6 @@ function createDOMButton(text, onClick) {
 
     button.addEventListener('click', onClick);
 
-    const domElement = this.add.dom(0, 0, button).setOrigin(0.5, 0.5);
     return button;
 }
 
@@ -164,14 +166,20 @@ function createDiceSubmit() {
 }
 
 function hideInputFields() {
-    inputContainer.setVisible(false);
-    submitButton.setVisible(false);
+    inputContainer.setVisible(false); // This is for Phaser objects
+    // Hide the DOM input fields and button
+    document.querySelectorAll('.input-field').forEach(input => input.style.display = 'none');
+    document.querySelector('button').style.display = 'none';
 }
 
 function showCreateDiceMenu() {
     hideAllUI.call(this);
-    inputContainer.setVisible(true);
-    submitButton.setVisible(true);
+    inputContainer.setVisible(true); // This is for Phaser objects
+
+    // Show DOM elements
+    document.querySelectorAll('.input-field').forEach(input => input.style.display = 'block');
+    document.querySelector('button').style.display = 'block';
+
     backButton.setVisible(true);
 }
 
