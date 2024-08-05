@@ -25,9 +25,11 @@ let customDiceArray = [];
 let selectedDiceIndex = 0;
 let rollRandomButton, rollSelectedButton, switchDiceButton, createDiceButton, rollCustomDiceButton, rollCustomRandomDiceButton;
 let backButton;
+let inputContainer;
 let sideInputField, luckFactorInputField, submitButton;
 let helpText, settingsText, changelogText;
-let inputContainer; // Container for input fields
+let sfxToggleButton;
+let sfxEnabled = true;
 
 function preload() {
     this.load.json('dices', 'config/dices.json');
@@ -40,10 +42,8 @@ function create() {
     diceArray = this.cache.json.get('dices');
     customDiceArray = this.cache.json.get('customDices');
 
-    // Load sound effects
     this.diceSound = this.sound.add('diceSound');
     this.switchSound = this.sound.add('switchSound');
-    this.sfxEnabled = true;
 
     // Create UI buttons
     this.playButton = createButton.call(this, 'Play', config.width / 2, config.height / 2 - 150, showSimulation);
@@ -74,8 +74,8 @@ function create() {
     inputContainer = this.add.container(config.width / 2, config.height / 2).setVisible(false);
 
     // Create input fields and submit button
-    sideInputField = createInputField.call(this, 'Number of Sides');
-    luckFactorInputField = createInputField.call(this, 'Luck Factor');
+    sideInputField = createDOMInputField.call(this, 'Number of Sides');
+    luckFactorInputField = createDOMInputField.call(this, 'Luck Factor');
     submitButton = createButton.call(this, 'Create Dice', 0, 50, createDiceSubmit, '24px').setVisible(false);
 
     inputContainer.add([sideInputField, luckFactorInputField, submitButton]);
@@ -108,19 +108,24 @@ function createText(x, y, text) {
     }).setOrigin(0.5, 0.5);
 }
 
-function createInputField(placeholder) {
-    const inputField = this.add.dom(0, 0).createFromHTML(`
-        <input type="text" placeholder="${placeholder}" style="width: 180px; height: 30px; font-size: 24px; text-align: center;">
-    `);
+function createDOMInputField(placeholder) {
+    const inputField = document.createElement('input');
+    inputField.type = 'text';
+    inputField.placeholder = placeholder;
+    inputField.style.width = '180px';
+    inputField.style.height = '30px';
+    inputField.style.fontSize = '24px';
+    inputField.style.textAlign = 'center';
+    inputField.style.marginBottom = '10px';
+    inputField.className = 'input-field';
 
-    inputField.setVisible(true);
-
+    inputContainer.add(this.add.dom(0, 0, inputField).setOrigin(0.5, 0.5));
     return inputField;
 }
 
 function createDiceSubmit() {
-    const sideInput = sideInputField.getChildByName('input').value;
-    const luckInput = luckFactorInputField.getChildByName('input').value;
+    const sideInput = document.querySelector('.input-field[placeholder="Number of Sides"]').value;
+    const luckInput = document.querySelector('.input-field[placeholder="Luck Factor"]').value;
 
     const sides = parseInt(sideInput, 10);
     const luckFactor = parseFloat(luckInput);
@@ -151,9 +156,8 @@ function hideInputFields() {
 function showCreateDiceMenu() {
     hideAllUI.call(this);
     inputContainer.setVisible(true);
-    sideInputField.setPosition(0, -30);
-    luckFactorInputField.setPosition(0, 0);
-    submitButton.setPosition(0, 50);
+    sideInputField.style.display = 'block';
+    luckFactorInputField.style.display = 'block';
     submitButton.setVisible(true);
     backButton.setVisible(true);
 }
@@ -164,7 +168,7 @@ function rollRandomDice() {
         return;
     }
 
-    if (this.sfxEnabled) {
+    if (sfxEnabled) {
         this.diceSound.play();
     }
 
@@ -180,7 +184,7 @@ function rollSelectedDice() {
         return;
     }
 
-    if (this.sfxEnabled) {
+    if (sfxEnabled) {
         this.diceSound.play();
     }
 
@@ -190,7 +194,7 @@ function rollSelectedDice() {
 }
 
 function switchDiceType() {
-    if (this.sfxEnabled) {
+    if (sfxEnabled) {
         this.switchSound.play();
     }
     selectedDiceIndex = (selectedDiceIndex + 1) % diceArray.length;
@@ -203,7 +207,7 @@ function rollCustomDice() {
         return;
     }
 
-    if (this.sfxEnabled) {
+    if (sfxEnabled) {
         this.diceSound.play();
     }
 
@@ -218,7 +222,7 @@ function rollCustomRandomDice() {
         return;
     }
 
-    if (this.sfxEnabled) {
+    if (sfxEnabled) {
         this.diceSound.play();
     }
 
@@ -310,9 +314,8 @@ function showSimulation() {
 function showCreateDiceMenu() {
     hideAllUI.call(this);
     inputContainer.setVisible(true);
-    sideInputField.setPosition(0, -30);
-    luckFactorInputField.setPosition(0, 0);
-    submitButton.setPosition(0, 50);
+    sideInputField.style.display = 'block';
+    luckFactorInputField.style.display = 'block';
     submitButton.setVisible(true);
     backButton.setVisible(true);
 }
@@ -328,24 +331,24 @@ function showSettings() {
     backButton.setVisible(true);
     settingsText.setVisible(true);
 
-    if (!this.sfxToggleButton) {
-        this.sfxToggleButton = createButton.call(this, 'SFX: On', config.width / 2, config.height / 2 + 150, toggleSFX, '24px').setVisible(true);
+    if (!sfxToggleButton) {
+        sfxToggleButton = createButton.call(this, 'SFX: On', config.width / 2, config.height / 2 + 150, toggleSFX, '24px').setVisible(true);
     } else {
-        this.sfxToggleButton.setVisible(true);
-        this.sfxToggleButton.setText(this.sfxEnabled ? 'SFX: On' : 'SFX: Off');
+        sfxToggleButton.setVisible(true);
+        sfxToggleButton.setText(sfxEnabled ? 'SFX: On' : 'SFX: Off');
     }
 }
 
 function toggleSFX() {
-    this.sfxEnabled = !this.sfxEnabled;
-    this.sfxToggleButton.setText(this.sfxEnabled ? 'SFX: On' : 'SFX: Off');
+    sfxEnabled = !sfxEnabled;
+    sfxToggleButton.setText(sfxEnabled ? 'SFX: On' : 'SFX: Off');
 
     if (this.diceSound) {
-        this.diceSound.setMute(!this.sfxEnabled);
+        this.diceSound.setMute(!sfxEnabled);
     }
 
     if (this.switchSound) {
-        this.switchSound.setMute(!this.sfxEnabled);
+        this.switchSound.setMute(!sfxEnabled);
     }
 }
 
@@ -360,7 +363,7 @@ function showMainMenu() {
 function hideAllUI() {
     [this.playButton, this.helpButton, this.settingsButton, rollRandomButton, rollSelectedButton, 
     switchDiceButton, createDiceButton, rollCustomDiceButton, rollCustomRandomDiceButton,
-    helpText, settingsText, this.sfxToggleButton, backButton, this.changelogButton, changelogText].forEach(element => {
+    helpText, settingsText, sfxToggleButton, backButton, this.changelogButton, changelogText].forEach(element => {
         if (element) element.setVisible(false);
     });
 }
