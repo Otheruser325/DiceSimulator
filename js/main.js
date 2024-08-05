@@ -152,6 +152,46 @@ function createDiceInputs() {
 }
 
 function createDiceSubmit() {
+    // Log input elements to ensure they are being accessed
+    const sideInput = document.getElementById('sideInputField');
+    const luckInput = document.getElementById('luckFactorInputField');
+    console.log('Side Input Element:', sideInput);
+    console.log('Luck Input Element:', luckInput);
+
+    // Retrieve values
+    const sideValue = sideInput ? sideInput.value.trim() : '';
+    const luckValue = luckInput ? luckInput.value.trim() : '';
+    console.log(`Side Input Value: "${sideValue}"`);
+    console.log(`Luck Input Value: "${luckValue}"`);
+
+    // Convert input values to numbers
+    const sides = parseInt(sideValue, 10);
+    const luckFactor = parseFloat(luckValue);
+
+    // Log the converted values for debugging
+    console.log(`Converted Sides: ${sides}`);
+    console.log(`Converted Luck Factor: ${luckFactor}`);
+
+    // Validate the inputs
+    if (isNaN(sides) || sides < 6) {
+        showAlert.call(this, 'Invalid number of sides. Must be at least 6.', 'error');
+        return;
+    }
+    if (isNaN(luckFactor) || luckFactor < 0) {
+        showAlert.call(this, 'Invalid luck factor. Must be a non-negative number.', 'error');
+        return;
+    }
+
+    // Create a new dice
+    const newDice = { type: `D${sides}`, sides: sides, luckFactor: luckFactor };
+    customDiceArray.push(newDice);
+    showAlert.call(this, 'Dice created successfully!', 'success');
+
+    // Hide input fields and reset values
+    hideInputFields.call(this);
+}
+
+function createDiceSubmit() {
     // Get values from the input fields by their IDs
     const sideInput = document.getElementById('sideInputField').value.trim(); // Added trim to remove extra spaces
     const luckInput = document.getElementById('luckFactorInputField').value.trim(); // Added trim to remove extra spaces
