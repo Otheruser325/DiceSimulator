@@ -210,6 +210,9 @@ function rollSelectedDice() {
 }
 
 function switchDiceType() {
+    if (this.sfxEnabled) {
+        this.switchSound.play();
+    }
     selectedDiceIndex = (selectedDiceIndex + 1) % diceArray.length;
     this.resultText.setText(`Selected ${diceArray[selectedDiceIndex].type}`);
 }
