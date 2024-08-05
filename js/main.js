@@ -16,6 +16,11 @@ const config = {
 
 const game = new Phaser.Game(config);
 
+game.events.once('ready', () => {
+        document.getElementById('splash-screen').style.display = 'none';
+    });
+};
+
 let diceArray = [];
 let customDiceArray = [];
 let selectedDiceIndex = 0;
