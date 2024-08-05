@@ -17,9 +17,8 @@ const config = {
 const game = new Phaser.Game(config);
 
 game.events.once('ready', () => {
-        document.getElementById('splash-screen').style.display = 'none';
-    });
-};
+    document.getElementById('splash-screen').style.display = 'none';
+});
 
 let diceArray = [];
 let customDiceArray = [];
@@ -49,6 +48,7 @@ function create() {
     this.playButton = createButton.call(this, 'Play', config.width / 2, config.height / 2 - 150, showSimulation);
     this.helpButton = createButton.call(this, 'Help', config.width / 2, config.height / 2 - 50, showHelp);
     this.settingsButton = createButton.call(this, 'Settings', config.width / 2, config.height / 2 + 50, showSettings);
+    this.changelogButton = createButton.call(this, 'Changelog', config.width / 2, config.height / 2 + 150, showChangelog);
 
     backButton = createButton.call(this, 'Back', 10, 10, showMainMenu, 24, '#f00').setVisible(false);
 
@@ -88,128 +88,6 @@ function createText(x, y, text) {
         fontFamily: 'Verdana',
         align: 'center'
     }).setOrigin(0.5, 0.5);
-}
-
-function createInteractiveText(x, y, initialText, onClick) {
-    return this.add.text(x, y, initialText, {
-        fontSize: '24px',
-        fill: '#fff',
-        backgroundColor: '#333',
-        padding: { x: 20, y: 10 },
-        fontFamily: 'Verdana'
-    }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', onClick, this);
-}
-
-function showSimulation() {
-    // Hide all UI elements except for the dice rolling and back buttons
-    hideAllUI.call(this);
-    rollRandomButton.setVisible(true);
-    rollSelectedButton.setVisible(true);
-    switchDiceButton.setVisible(true);
-    createDiceButton.setVisible(true);
-    rollCustomDiceButton.setVisible(true);
-    rollCustomRandomDiceButton.setVisible(true);
-    this.resultText.setVisible(true);
-    backButton.setVisible(true);
-}
-
-function showCreateDiceMenu() {
-    hideAllUI.call(this);
-    backButton.setVisible(true);
-
-    // Create or show input and text elements
-    if (!sideInputText) {
-        sideInputText = createText.call(this, config.width / 2, config.height / 2 - 100, 'Enter Dice Sides:');
-    } else {
-        sideInputText.setVisible(true);
-    }
-
-    if (!luckFactorText) {
-        luckFactorText = createText.call(this, config.width / 2, config.height / 2 - 50, 'Enter Luck Factor:');
-    } else {
-        luckFactorText.setVisible(true);
-    }
-
-    if (!sideInput) {
-        sideInput = createInteractiveText.call(this, config.width / 2, config.height / 2, '', handleSideInput);
-    } else {
-        sideInput.setVisible(true);
-    }
-
-    if (!luckFactorInput) {
-        luckFactorInput = createInteractiveText.call(this, config.width / 2, config.height / 2 + 50, '', handleLuckFactorInput);
-    } else {
-        luckFactorInput.setVisible(true);
-    }
-
-    if (!createDiceSubmitButton) {
-        createDiceSubmitButton = createButton.call(this, 'Create Dice', config.width / 2, config.height / 2 + 100, createDiceSubmit);
-    } else {
-        createDiceSubmitButton.setVisible(true);
-    }
-}
-
-function showHelp() {
-    // Hide all UI elements except for the back button
-    hideAllUI.call(this);
-    backButton.setVisible(true);
-    helpText.setVisible(true);
-}
-
-function showSettings() {
-    // Hide all UI elements except for the back button
-    hideAllUI.call(this);
-    backButton.setVisible(true);
-    settingsText.setVisible(true);
-
-    // Add or update the toggle button for sound effects
-    if (!this.sfxToggleButton) {
-        this.sfxToggleButton = createButton.call(this, 'SFX: On', config.width / 2, config.height / 2 + 100, toggleSFX);
-    } else {
-        this.sfxToggleButton.setVisible(true);
-        this.sfxToggleButton.setText(this.sfxEnabled ? 'SFX: On' : 'SFX: Off');
-    }
-}
-
-function toggleSFX() {
-    this.sfxEnabled = !this.sfxEnabled;
-    this.sfxToggleButton.setText(this.sfxEnabled ? 'SFX: On' : 'SFX: Off');
-
-    if (this.diceSound) {
-        this.diceSound.setMute(!this.sfxEnabled);
-    }
-
-    if (this.switchSound) {
-        this.switchSound.setMute(!this.sfxEnabled);
-    }
-}
-
-function showMainMenu() {
-    // Hide all UI elements and show main menu buttons
-    hideAllUI.call(this);
-    this.playButton.setVisible(true);
-    this.helpButton.setVisible(true);
-    this.settingsButton.setVisible(true);
-}
-
-function hideAllUI() {
-    // Hide all buttons and texts
-    [this.playButton, this.helpButton, this.settingsButton, rollRandomButton, rollSelectedButton, 
-    switchDiceButton, createDiceButton, rollCustomDiceButton, rollCustomRandomDiceButton,
-    sideInputText, luckFactorText, sideInput, luckFactorInput, createDiceSubmitButton, 
-    helpText, settingsText, this.sfxToggleButton, backButton].forEach(element => {
-        if (element) element.setVisible(false);
-    });
-}
-
-function createInteractiveText(x, y, initialText, onClick) {
-    return this.add.text(x, y, initialText, {
-        fontSize: '24px',
-        fill: '#fff',
-        backgroundColor: '#333',
-        padding: { x: 20, y: 10 },
-        fontFamily: 'Verdana'
-    }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', onClick, this);
 }
 
 function createInputField(id, x, y) {
@@ -262,7 +140,6 @@ function hideInputFields() {
     });
 }
 
-// Click handler to hide input fields when clicking outside
 document.addEventListener('mousedown', (event) => {
     const inputFields = ['sideInputField', 'luckFactorInputField'];
     let shouldHide = true;
@@ -297,7 +174,6 @@ function rollRandomDice() {
         return;
     }
 
-    // Play dice sound effect if SFX is turned on
     if (this.sfxEnabled) {
         this.diceSound.play();
     }
@@ -313,7 +189,6 @@ function rollSelectedDice() {
         return;
     }
 
-    // Play dice sound effect if SFX is turned on
     if (this.sfxEnabled) {
         this.diceSound.play();
     }
@@ -324,7 +199,6 @@ function rollSelectedDice() {
 }
 
 function switchDiceType() {
-    // Placeholder logic to switch between dice types
     this.switchSound.play();
     selectedDiceIndex = (selectedDiceIndex + 1) % diceArray.length;
     const dice = diceArray[selectedDiceIndex];
@@ -332,12 +206,12 @@ function switchDiceType() {
 }
 
 function createDiceSubmit() {
-    let sides = parseInt(sideInput.text.replace(/^d/, '')); // Remove 'd' if present
+    let sides = parseInt(sideInput.text.replace(/^d/, ''));
     const luckFactor = parseFloat(luckFactorInput.text);
-    if (sides && !isNaN(luckFactor) && sides >= 6) { // Ensure sides >= 6
+    if (sides && !isNaN(luckFactor) && sides >= 6) {
         createCustomDice(sides, luckFactor);
-        fetchCustomDices(); // Update custom dice array
-        showSimulation.call(this); // Return to game UI
+        fetchCustomDices();
+        showSimulation.call(this);
     } else {
         console.error('Invalid sides or luck factor');
     }
@@ -364,7 +238,6 @@ function rollCustomDice() {
         return;
     }
 
-    // Play dice sound effect if SFX is turned on
     if (this.sfxEnabled) {
         this.diceSound.play();
     }
@@ -380,7 +253,6 @@ function rollCustomRandomDice() {
         return;
     }
 
-    // Play dice sound effect if SFX is turned on
     if (this.sfxEnabled) {
         this.diceSound.play();
     }
@@ -395,11 +267,9 @@ function rollWithLuckFactor(sides, luckFactor) {
     let roll = Phaser.Math.Between(1, sides);
 
     if (luckFactor < 1) {
-        // Decrease likelihood of higher rolls (more likely to get lower numbers)
         roll = Math.floor(roll * luckFactor);
         roll = Phaser.Math.Clamp(roll, 1, sides);
     } else if (luckFactor > 1) {
-        // Increase likelihood of higher rolls (more likely to get higher numbers)
         roll = Math.ceil(roll * luckFactor / (luckFactor + (sides - roll)));
         roll = Phaser.Math.Clamp(roll, 1, sides);
     }
@@ -430,7 +300,6 @@ function saveCustomDices() {
 }
 
 function showAlert(message, type = 'error') {
-    // Create alert element if not exists
     let alertBox = document.getElementById('customAlert');
     if (!alertBox) {
         alertBox = document.createElement('div');
@@ -445,7 +314,6 @@ function showAlert(message, type = 'error') {
         document.body.appendChild(alertBox);
     }
 
-    // Set styles based on alert type
     if (type === 'error') {
         alertBox.style.backgroundColor = '#f00';
     } else if (type === 'success') {
@@ -457,8 +325,112 @@ function showAlert(message, type = 'error') {
     alertBox.textContent = message;
     alertBox.style.display = 'block';
 
-    // Hide alert after 3 seconds
     setTimeout(() => {
         alertBox.style.display = 'none';
     }, 3000);
+}
+
+function showSimulation() {
+    hideAllUI.call(this);
+    rollRandomButton.setVisible(true);
+    rollSelectedButton.setVisible(true);
+    switchDiceButton.setVisible(true);
+    createDiceButton.setVisible(true);
+    rollCustomDiceButton.setVisible(true);
+    rollCustomRandomDiceButton.setVisible(true);
+    this.resultText.setVisible(true);
+    backButton.setVisible(true);
+}
+
+function showCreateDiceMenu() {
+    hideAllUI.call(this);
+    backButton.setVisible(true);
+
+    if (!sideInputText) {
+        sideInputText = createText.call(this, config.width / 2, config.height / 2 - 100, 'Enter Dice Sides:');
+    } else {
+        sideInputText.setVisible(true);
+    }
+
+    if (!luckFactorText) {
+        luckFactorText = createText.call(this, config.width / 2, config.height / 2 - 50, 'Enter Luck Factor:');
+    } else {
+        luckFactorText.setVisible(true);
+    }
+
+    if (!sideInput) {
+        sideInput = createInteractiveText.call(this, config.width / 2, config.height / 2, '', handleSideInput);
+    } else {
+        sideInput.setVisible(true);
+    }
+
+    if (!luckFactorInput) {
+        luckFactorInput = createInteractiveText.call(this, config.width / 2, config.height / 2 + 50, '', handleLuckFactorInput);
+    } else {
+        luckFactorInput.setVisible(true);
+    }
+
+    if (!createDiceSubmitButton) {
+        createDiceSubmitButton = createButton.call(this, 'Create Dice', config.width / 2, config.height / 2 + 100, createDiceSubmit);
+    } else {
+        createDiceSubmitButton.setVisible(true);
+    }
+}
+
+function showHelp() {
+    hideAllUI.call(this);
+    backButton.setVisible(true);
+    helpText.setVisible(true);
+}
+
+function showSettings() {
+    hideAllUI.call(this);
+    backButton.setVisible(true);
+    settingsText.setVisible(true);
+
+    if (!this.sfxToggleButton) {
+        this.sfxToggleButton = createButton.call(this, 'SFX: On', config.width / 2, config.height / 2 + 100, toggleSFX);
+    } else {
+        this.sfxToggleButton.setVisible(true);
+        this.sfxToggleButton.setText(this.sfxEnabled ? 'SFX: On' : 'SFX: Off');
+    }
+}
+
+function toggleSFX() {
+    this.sfxEnabled = !this.sfxEnabled;
+    this.sfxToggleButton.setText(this.sfxEnabled ? 'SFX: On' : 'SFX: Off');
+
+    if (this.diceSound) {
+        this.diceSound.setMute(!this.sfxEnabled);
+    }
+
+    if (this.switchSound) {
+        this.switchSound.setMute(!this.sfxEnabled);
+    }
+}
+
+function showMainMenu() {
+    hideAllUI.call(this);
+    this.playButton.setVisible(true);
+    this.helpButton.setVisible(true);
+    this.settingsButton.setVisible(true);
+    this.changelogButton.setVisible(true);
+}
+
+function hideAllUI() {
+    [this.playButton, this.helpButton, this.settingsButton, rollRandomButton, rollSelectedButton, 
+    switchDiceButton, createDiceButton, rollCustomDiceButton, rollCustomRandomDiceButton,
+    sideInputText, luckFactorText, sideInput, luckFactorInput, createDiceSubmitButton, 
+    helpText, settingsText, this.sfxToggleButton, backButton, this.changelogButton].forEach(element => {
+        if (element) element.setVisible(false);
+    });
+}
+
+function showChangelog() {
+    hideAllUI.call(this);
+    backButton.setVisible(true);
+
+    // Display changelog information
+    const changelogText = `Changelog: \n\n- Added custom dice creation\n- Implemented luck factor for custom dice\n- Added sound effects toggle\n- Fixed various bugs`;
+    this.changelogText = createText.call(this, config.width / 2, config.height / 2, changelogText).setVisible(true);
 }
