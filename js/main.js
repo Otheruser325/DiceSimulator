@@ -25,9 +25,8 @@ let customDiceArray = [];
 let selectedDiceIndex = 0;
 let rollRandomButton, rollSelectedButton, switchDiceButton, createDiceButton, rollCustomDiceButton, rollCustomRandomDiceButton;
 let backButton;
-let sideInput, luckFactorInput, createDiceSubmitButton;
-let helpText, settingsText, changelogText;
 let sideInputField, luckFactorInputField, submitButton;
+let helpText, settingsText, changelogText;
 
 function preload() {
     this.load.json('dices', 'config/dices.json');
@@ -75,10 +74,6 @@ function create() {
     luckFactorInputField = createInputField.call(this, config.width / 2, config.height / 2, 'Luck Factor');
     submitButton = createButton.call(this, 'Create Dice', config.width / 2, config.height / 2 + 100, createDiceSubmit, '24px').setVisible(false);
     
-    sideInputField.setVisible(false);
-    luckFactorInputField.setVisible(false);
-    submitButton.setVisible(false);
-
     this.input.on('pointerdown', (pointer) => {
         if (!sideInputField.getBounds().contains(pointer.x, pointer.y) &&
             !luckFactorInputField.getBounds().contains(pointer.x, pointer.y)) {
@@ -146,16 +141,30 @@ function handleInputSubmit(placeholder) {
             showAlert.call(this, 'Invalid number of sides.', 'error');
             return;
         }
+        // Store sides value for later use
+        this.sides = sides;
     } else if (placeholder === 'Luck Factor') {
         const luckFactor = parseFloat(value);
         if (isNaN(luckFactor) || luckFactor < 0) {
             showAlert.call(this, 'Invalid luck factor.', 'error');
             return;
         }
+        // Store luck factor value for later use
+        this.luckFactor = luckFactor;
     }
 
-    hideInputFields.call(this);
-    showAlert.call(this, 'Dice created successfully!', 'success');
+    if (this.sides && this.luckFactor !== undefined) {
+        // Create a new dice
+        const newDice = { type: `D${this.sides}`, sides: this.sides, luckFactor: this.luckFactor };
+        customDiceArray.push(newDice);
+        showAlert.call(this, 'Dice created successfully!', 'success');
+
+        // Reset values
+        this.sides = null;
+        this.luckFactor = null;
+
+        hideInputFields.call(this);
+    }
 }
 
 function hideInputFields() {
