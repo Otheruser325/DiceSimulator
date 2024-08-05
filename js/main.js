@@ -72,6 +72,7 @@ function create() {
     // Set up input fields
     sideInput = document.getElementById('sideInputField');
     luckFactorInput = document.getElementById('luckFactorInputField');
+    createDiceSubmitButton = document.getElementById('createDiceSubmitButton');
 
     sideInput.addEventListener('keydown', (event) => {
         if (event.key === 'Enter') {
@@ -86,6 +87,8 @@ function create() {
             handleInputSubmit('luckFactorInputField');
         }
     });
+
+    createDiceSubmitButton.addEventListener('click', createDiceSubmit);
 
     // Hide input fields initially
     hideInputFields();
@@ -131,65 +134,43 @@ function handleInputSubmit(id) {
     } else if (id === 'luckFactorInputField') {
         // Validate and store luck factor input
         const luckFactor = parseFloat(inputField.value);
-        if (isNaN(luckFactor)) {
+        if (isNaN(luckFactor) || luckFactor < 0) {
             showAlert('Invalid luck factor.', 'error');
             return;
         }
     }
 
+    // Hide input fields and show success message
     hideInputFields();
+    showAlert('Dice created successfully!', 'success');
+}
+
+function handleSideInput() {
+    sideInput.style.display = 'block';
+    sideInput.style.left = `${(config.width - sideInput.offsetWidth) / 2}px`;
+    sideInput.style.top = `${(config.height - sideInput.offsetHeight) / 2 - 50}px`;
+    document.getElementById('sideInputLabel').style.display = 'block';
+}
+
+function handleLuckFactorInput() {
+    luckFactorInput.style.display = 'block';
+    luckFactorInput.style.left = `${(config.width - luckFactorInput.offsetWidth) / 2}px`;
+    luckFactorInput.style.top = `${(config.height - luckFactorInput.offsetHeight) / 2 + 10}px`;
+    document.getElementById('luckFactorLabel').style.display = 'block';
 }
 
 function hideInputFields() {
     sideInput.style.display = 'none';
     luckFactorInput.style.display = 'none';
-}
-
-function handleSideInput() {
-    const x = (config.width / 2) - (sideInput.offsetWidth / 2);
-    const y = (config.height / 2) - 50; // Adjust position as needed
-    sideInput.style.left = `${x}px`;
-    sideInput.style.top = `${y}px`;
-    sideInput.style.display = 'block';
-    sideInput.focus();
-}
-
-function handleLuckFactorInput() {
-    const x = (config.width / 2) - (luckFactorInput.offsetWidth / 2);
-    const y = (config.height / 2) + 50; // Adjust position as needed
-    luckFactorInput.style.left = `${x}px`;
-    luckFactorInput.style.top = `${y}px`;
-    luckFactorInput.style.display = 'block';
-    luckFactorInput.focus();
+    createDiceSubmitButton.style.display = 'none';
+    document.getElementById('sideInputLabel').style.display = 'none';
+    document.getElementById('luckFactorLabel').style.display = 'none';
 }
 
 function createDiceSubmit() {
-    const sides = parseInt(sideInput.value, 10);
-    const luckFactor = parseFloat(luckFactorInput.value);
-
-    if (isNaN(sides) || sides < 1) {
-        showAlert('Invalid number of sides.', 'error');
-        return;
-    }
-
-    if (isNaN(luckFactor)) {
-        showAlert('Invalid luck factor.', 'error');
-        return;
-    }
-
-    const dice = {
-        type: `d${sides}`,
-        sides: sides,
-        luckFactor: luckFactor
-    };
-
-    customDiceArray.push(dice);
-    saveCustomDices();
-    showAlert('Custom dice created successfully!', 'success');
-    hideInputFields();
-    if (createDiceSubmitButton) {
-        createDiceSubmitButton.setVisible(false);
-    }
+    handleInputSubmit('sideInputField');
+    handleInputSubmit('luckFactorInputField');
+    createDiceSubmitButton.style.display = 'none';
 }
 
 function rollRandomDice() {
@@ -202,7 +183,8 @@ function rollRandomDice() {
         this.diceSound.play();
     }
 
-    const dice = diceArray[Phaser.Math.Between(0, diceArray.length - 1)];
+    const randomIndex = Phaser.Math.Between(0, diceArray.length - 1);
+    const dice = diceArray[randomIndex];
     const result = Phaser.Math.Between(1, dice.sides);
     this.resultText.setText(`Rolled ${dice.type}: ${result}`);
 }
