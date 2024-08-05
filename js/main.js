@@ -103,7 +103,7 @@ function createDOMInputField(placeholder, id) {
     const inputField = document.createElement('input');
     inputField.type = 'text';
     inputField.placeholder = placeholder;
-    inputField.id = id;
+    inputField.id = id; // Ensure IDs are set correctly
     inputField.style.width = '180px';
     inputField.style.height = '30px';
     inputField.style.fontSize = '24px';
@@ -115,7 +115,7 @@ function createDOMInputField(placeholder, id) {
 function createDOMButton(text, onClick, id) {
     const button = document.createElement('button');
     button.textContent = text;
-    button.id = id;
+    button.id = id; // Ensure IDs are set correctly
     button.style.padding = '10px 20px';
     button.style.border = 'none';
     button.style.borderRadius = '5px';
@@ -152,13 +152,16 @@ function createDiceInputs() {
 }
 
 function createDiceSubmit() {
-    const sideInput = document.querySelector('.input-field[placeholder="Number of Sides"]').value;
-    const luckInput = document.querySelector('.input-field[placeholder="Luck Factor"]').value;
+    // Get values from the input fields by their IDs
+    const sideInput = document.getElementById('sideInputField').value;
+    const luckInput = document.getElementById('luckFactorInputField').value;
 
+    // Convert input values to numbers
     const sides = parseInt(sideInput, 10);
     const luckFactor = parseFloat(luckInput);
 
-    if (isNaN(sides) || sides < 1) {
+    // Validate the inputs
+    if (isNaN(sides) || sides < 6) {
         showAlert.call(this, 'Invalid number of sides.', 'error');
         return;
     }
