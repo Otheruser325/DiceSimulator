@@ -32,7 +32,7 @@ function preload() {
     this.load.json('customDices', 'config/customDices.json');
     this.load.audio('diceSound', 'assets/sfx/dice.mp3');
     this.load.audio('switchSound', 'assets/sfx/button.mp3');
-    this.load.html('inputFields', 'path/to/inputFields.html'); // Ensure you have this HTML file
+    this.load.html('inputFields', 'inputFields.html'); // Ensure you have this HTML file
 }
 
 function create() {
