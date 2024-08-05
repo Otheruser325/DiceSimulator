@@ -153,20 +153,28 @@ function createDiceInputs() {
 
 function createDiceSubmit() {
     // Get values from the input fields by their IDs
-    const sideInput = document.getElementById('sideInputField').value;
-    const luckInput = document.getElementById('luckFactorInputField').value;
+    const sideInput = document.getElementById('sideInputField').value.trim(); // Added trim to remove extra spaces
+    const luckInput = document.getElementById('luckFactorInputField').value.trim(); // Added trim to remove extra spaces
+
+    // Log the input values for debugging
+    console.log(`Side Input: "${sideInput}"`);
+    console.log(`Luck Input: "${luckInput}"`);
 
     // Convert input values to numbers
     const sides = parseInt(sideInput, 10);
     const luckFactor = parseFloat(luckInput);
 
+    // Log the converted values for debugging
+    console.log(`Converted Sides: ${sides}`);
+    console.log(`Converted Luck Factor: ${luckFactor}`);
+
     // Validate the inputs
     if (isNaN(sides) || sides < 6) {
-        showAlert.call(this, 'Invalid number of sides.', 'error');
+        showAlert.call(this, 'Invalid number of sides. Must be at least 6.', 'error');
         return;
     }
     if (isNaN(luckFactor) || luckFactor < 0) {
-        showAlert.call(this, 'Invalid luck factor.', 'error');
+        showAlert.call(this, 'Invalid luck factor. Must be a non-negative number.', 'error');
         return;
     }
 
