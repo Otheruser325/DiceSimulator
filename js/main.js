@@ -224,14 +224,12 @@ function createInputField(id, x, y) {
     inputField.style.display = 'block';
     inputField.focus();
 
-    // Remove existing event listeners to avoid duplication
     inputField.removeEventListener('keydown', onInputFieldKeyDown);
     inputField.addEventListener('keydown', onInputFieldKeyDown);
 
-    // Function to handle keydown events
     function onInputFieldKeyDown(event) {
         if (event.key === 'Enter') {
-            event.preventDefault(); // Prevent form submission if in a form
+            event.preventDefault();
             handleInputSubmit(id);
         }
     }
