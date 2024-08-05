@@ -32,7 +32,6 @@ function preload() {
     this.load.json('customDices', 'config/customDices.json');
     this.load.audio('diceSound', 'assets/sfx/dice.mp3');
     this.load.audio('switchSound', 'assets/sfx/button.mp3');
-    this.load.html('inputFields', 'inputFields.html'); // Ensure you have this HTML file
 }
 
 function create() {
@@ -67,23 +66,21 @@ function create() {
     settingsText = createText.call(this, config.width / 2, config.height / 2, 'Settings Options: \n\n Customize your game settings here...').setVisible(false);
     changelogText = createText.call(this, config.width / 2, config.height / 2, 'Changelog: \n\n- Added custom dice creation\n- Implemented luck factor for custom dice\n- Added sound effects toggle\n- Fixed various bugs').setVisible(false);
 
-    // Create input fields container using Phaser's DOM plugin
+    // Create input fields container
     inputContainer = this.add.container(config.width / 2, config.height / 2).setVisible(false);
 
-    // Create HTML elements
-    const inputFields = this.add.dom(config.width / 2, config.height / 2).createFromCache('inputFields');
-    sideInputField = inputFields.getChildByName('sides');
-    luckFactorInputField = inputFields.getChildByName('luckFactor');
-    submitButton = inputFields.getChildByName('submit');
+    // Create input fields and submit button
+    sideInputField = createDOMInputField.call(this, 'Number of Sides');
+    luckFactorInputField = createDOMInputField.call(this, 'Luck Factor');
+    submitButton = createDOMButton.call(this, 'Create Dice', createDiceSubmit).setVisible(false);
 
-    // Event Listener for Submit Button
-    submitButton.addEventListener('click', () => {
-        createDiceSubmit.call(this);
-    });
+    inputContainer.add([sideInputField, luckFactorInputField, submitButton]);
 
-    // Hide splash screen and transition to main menu after 3 seconds
-    this.time.delayedCall(3000, () => {
-        document.getElementById('splash-screen').style.display = 'none';
+    // Hide splash screen after game is created
+    document.getElementById('splash-screen').style.display = 'none';
+
+    // Ensure the back button works as expected
+    document.getElementById('back-button').addEventListener('click', () => {
         showMainMenu.call(this);
     });
 }
@@ -109,9 +106,41 @@ function createText(x, y, text) {
     }).setOrigin(0.5, 0.5);
 }
 
+function createDOMInputField(placeholder) {
+    const inputField = document.createElement('input');
+    inputField.type = 'text';
+    inputField.placeholder = placeholder;
+    inputField.style.width = '180px';
+    inputField.style.height = '30px';
+    inputField.style.fontSize = '24px';
+    inputField.style.textAlign = 'center';
+    inputField.style.marginBottom = '10px';
+    inputField.className = 'input-field';
+
+    const domElement = this.add.dom(0, 0, inputField).setOrigin(0.5, 0.5);
+    return inputField;
+}
+
+function createDOMButton(text, onClick) {
+    const button = document.createElement('button');
+    button.textContent = text;
+    button.style.padding = '10px 20px';
+    button.style.border = 'none';
+    button.style.borderRadius = '5px';
+    button.style.backgroundColor = '#4CAF50';
+    button.style.color = 'white';
+    button.style.fontSize = '16px';
+    button.style.cursor = 'pointer';
+
+    button.addEventListener('click', onClick);
+
+    const domElement = this.add.dom(0, 0, button).setOrigin(0.5, 0.5);
+    return button;
+}
+
 function createDiceSubmit() {
-    const sideInput = sideInputField.value;
-    const luckInput = luckFactorInputField.value;
+    const sideInput = document.querySelector('.input-field[placeholder="Number of Sides"]').value;
+    const luckInput = document.querySelector('.input-field[placeholder="Luck Factor"]').value;
 
     const sides = parseInt(sideInput, 10);
     const luckFactor = parseFloat(luckInput);
@@ -142,6 +171,7 @@ function hideInputFields() {
 function showCreateDiceMenu() {
     hideAllUI.call(this);
     inputContainer.setVisible(true);
+    submitButton.setVisible(true);
     backButton.setVisible(true);
 }
 
