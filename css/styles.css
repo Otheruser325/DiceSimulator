@@ -48,6 +48,16 @@ button {
     display: none; /* Initially hidden */
 }
 
+#sideInputField, #luckFactorInputField {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    background-color: #333;
+    color: #fff;
+    font-size: 16px;
+    font-family: 'Verdana', sans-serif;
+}
+
 #splash-screen {
     position: fixed;
     top: 0;
