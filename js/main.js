@@ -66,19 +66,8 @@ function create() {
     settingsText = createText.call(this, config.width / 2, config.height / 2, 'Settings Options: \n\n Customize your game settings here...').setVisible(false);
     changelogText = createText.call(this, config.width / 2, config.height / 2, 'Changelog: \n\n- Added custom dice creation\n- Implemented luck factor for custom dice\n- Added sound effects toggle\n- Fixed various bugs').setVisible(false);
 
-    // Create input fields container
-    inputContainer = this.add.container(config.width / 2, config.height / 2).setVisible(false);
-
     // Create input fields and submit button
-    sideInputField = createDOMInputField.call(this, 'Number of Sides');
-    luckFactorInputField = createDOMInputField.call(this, 'Luck Factor');
-    submitButton = createDOMButton.call(this, 'Create Dice', createDiceSubmit);
-
-    // Append to DOM
-    const domContainer = document.getElementById('game-container');
-    domContainer.appendChild(sideInputField);
-    domContainer.appendChild(luckFactorInputField);
-    domContainer.appendChild(submitButton);
+    createDiceInputs.call(this);
 
     // Hide splash screen after game is created
     document.getElementById('splash-screen').style.display = 'none';
@@ -140,6 +129,22 @@ function createDOMButton(text, onClick) {
     return button;
 }
 
+function createDiceInputs() {
+    // Create input fields and submit button
+    sideInputField = createDOMInputField.call(this, 'Number of Sides');
+    luckFactorInputField = createDOMInputField.call(this, 'Luck Factor');
+    submitButton = createDOMButton.call(this, 'Create Dice', createDiceSubmit);
+
+    // Add them to the DOM
+    const domContainer = document.getElementById('game-container');
+    domContainer.appendChild(sideInputField);
+    domContainer.appendChild(luckFactorInputField);
+    domContainer.appendChild(submitButton);
+
+    // Initially hide input fields and button
+    hideInputFields.call(this);
+}
+
 function createDiceSubmit() {
     const sideInput = document.querySelector('.input-field[placeholder="Number of Sides"]').value;
     const luckInput = document.querySelector('.input-field[placeholder="Luck Factor"]').value;
@@ -166,19 +171,17 @@ function createDiceSubmit() {
 }
 
 function hideInputFields() {
-    inputContainer.setVisible(false); // This is for Phaser objects
-    // Hide the DOM input fields and button
-    document.querySelectorAll('.input-field').forEach(input => input.style.display = 'none');
-    document.querySelector('button').style.display = 'none';
+    // Hide input fields and submit button
+    if (sideInputField) sideInputField.style.display = 'none';
+    if (luckFactorInputField) luckFactorInputField.style.display = 'none';
+    if (submitButton) submitButton.style.display = 'none';
 }
 
 function showCreateDiceMenu() {
     hideAllUI.call(this);
-    inputContainer.setVisible(true); // This is for Phaser objects
-
-    // Show DOM elements
-    document.querySelectorAll('.input-field').forEach(input => input.style.display = 'block');
-    document.querySelector('button').style.display = 'block';
+    if (sideInputField) sideInputField.style.display = 'block';
+    if (luckFactorInputField) luckFactorInputField.style.display = 'block';
+    if (submitButton) submitButton.style.display = 'block';
 
     backButton.setVisible(true);
 }
