@@ -50,7 +50,7 @@ function create() {
     this.settingsButton = createButton.call(this, 'Settings', config.width / 2, config.height / 2 + 50, showSettings);
     this.changelogButton = createButton.call(this, 'Changelog', config.width / 2, config.height / 2 + 150, showChangelog);
 
-    backButton = createButton.call(this, 'Back', 10, 10, showMainMenu, 24, '#f00').setVisible(false);
+    backButton = createButton.call(this, 'Back', 10, 10, showMainMenu, '24px', '#f00').setVisible(false);
 
     rollRandomButton = createButton.call(this, 'Roll Random Dice', config.width / 2, config.height / 2 - 100, rollRandomDice).setVisible(false);
     rollSelectedButton = createButton.call(this, 'Roll Selected Dice', config.width / 2, config.height / 2 - 50, rollSelectedDice).setVisible(false);
@@ -70,8 +70,8 @@ function create() {
     changelogText = createText.call(this, config.width / 2, config.height / 2, 'Changelog: \n\n- Added custom dice creation\n- Implemented luck factor for custom dice\n- Added sound effects toggle\n- Fixed various bugs').setVisible(false);
 
     // Set up input fields
-    sideInput = document.getElementById('sideInputField');
-    luckFactorInput = document.getElementById('luckFactorInputField');
+    sideInput = createInputField('sideInputField', 'Enter number of sides', 'number');
+    luckFactorInput = createInputField('luckFactorInputField', 'Enter luck factor', 'number');
 
     sideInput.addEventListener('keydown', (event) => {
         if (event.key === 'Enter') {
@@ -88,8 +88,7 @@ function create() {
     });
 
     // Hide input fields initially
-    sideInput.style.display = 'none';
-    luckFactorInput.style.display = 'none';
+    hideInputFields();
 
     // Handle clicks outside input fields to hide them
     document.addEventListener('mousedown', (event) => {
@@ -118,6 +117,21 @@ function createText(x, y, text) {
         fontFamily: 'Verdana',
         align: 'center'
     }).setOrigin(0.5, 0.5);
+}
+
+function createInputField(id, placeholder, type) {
+    const inputField = document.createElement('input');
+    inputField.type = type;
+    inputField.id = id;
+    inputField.placeholder = placeholder;
+    inputField.style.position = 'absolute';
+    inputField.style.display = 'none';
+    inputField.style.padding = '10px';
+    inputField.style.borderRadius = '5px';
+    inputField.style.border = '1px solid #ccc';
+    inputField.style.backgroundColor = '#fff';
+    document.body.appendChild(inputField);
+    return inputField;
 }
 
 function handleInputSubmit(id) {
@@ -342,7 +356,7 @@ function showCreateDiceMenu() {
     handleLuckFactorInput();
 
     if (!createDiceSubmitButton) {
-        createDiceSubmitButton = createButton.call(this, 'Create Dice', config.width / 2, config.height / 2 + 150, createDiceSubmit, '24px').setVisible(true);
+        createDiceSubmitButton = createButton.call(this, 'Create Dice', config.width / 2, config.height / 2 + 200, createDiceSubmit, '24px').setVisible(true);
     } else {
         createDiceSubmitButton.setVisible(true);
     }
