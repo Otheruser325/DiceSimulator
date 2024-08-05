@@ -26,7 +26,7 @@ let selectedDiceIndex = 0;
 let rollRandomButton, rollSelectedButton, switchDiceButton, createDiceButton, rollCustomDiceButton, rollCustomRandomDiceButton;
 let backButton;
 let sideInput, luckFactorInput, sideInputText, luckFactorText, createDiceSubmitButton;
-let helpText, settingsText;
+let helpText, settingsText, changelogText;
 
 function preload() {
     this.load.json('dices', 'config/dices.json');
@@ -67,6 +67,7 @@ function create() {
 
     helpText = createText.call(this, config.width / 2, config.height / 2, 'Help Information: \n\n Here you can learn how to use the dice simulation...').setVisible(false);
     settingsText = createText.call(this, config.width / 2, config.height / 2, 'Settings Options: \n\n Customize your game settings here...').setVisible(false);
+    changelogText = createText.call(this, config.width / 2, config.height / 2, 'Changelog: \n\n- Added custom dice creation\n- Implemented luck factor for custom dice\n- Added sound effects toggle\n- Fixed various bugs').setVisible(false);
 }
 
 function update() {}
@@ -88,6 +89,16 @@ function createText(x, y, text) {
         fontFamily: 'Verdana',
         align: 'center'
     }).setOrigin(0.5, 0.5);
+}
+
+function createInteractiveText(x, y, text, onClick) {
+    return this.add.text(x, y, text, {
+        fontSize: '24px',
+        fill: '#0f0',
+        fontFamily: 'Verdana',
+        backgroundColor: '#333',
+        padding: { x: 10, y: 5 }
+    }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', onClick, this);
 }
 
 function createInputField(id, x, y) {
@@ -195,31 +206,25 @@ function rollSelectedDice() {
 
     const dice = diceArray[selectedDiceIndex];
     const result = Phaser.Math.Between(1, dice.sides);
-    this.resultText.setText(`Rolled Selected ${dice.type}: ${result}`);
+    this.resultText.setText(`Rolled ${dice.type}: ${result}`);
 }
 
 function switchDiceType() {
-    this.switchSound.play();
     selectedDiceIndex = (selectedDiceIndex + 1) % diceArray.length;
-    const dice = diceArray[selectedDiceIndex];
-    this.resultText.setText(`Switched to ${dice.type}`);
+    this.resultText.setText(`Selected ${diceArray[selectedDiceIndex].type}`);
 }
 
 function createDiceSubmit() {
-    let sides = parseInt(sideInput.text.replace(/^d/, ''));
+    const sides = parseInt(sideInput.text, 10);
     const luckFactor = parseFloat(luckFactorInput.text);
-    if (sides && !isNaN(luckFactor) && sides >= 6) {
-        createCustomDice(sides, luckFactor);
-        fetchCustomDices();
-        showSimulation.call(this);
-    } else {
-        console.error('Invalid sides or luck factor');
-    }
-}
 
-function createCustomDice(sides, luckFactor) {
-    if (sides < 6) {
-        console.error('Dice must have at least 6 sides.');
+    if (isNaN(sides) || sides < 1) {
+        showAlert('Invalid number of sides.', 'error');
+        return;
+    }
+
+    if (isNaN(luckFactor)) {
+        showAlert('Invalid luck factor.', 'error');
         return;
     }
 
@@ -230,6 +235,9 @@ function createCustomDice(sides, luckFactor) {
     };
 
     customDiceArray.push(dice);
+    saveCustomDices();
+    showAlert('Custom dice created successfully!', 'success');
+    hideInputFields();
 }
 
 function rollCustomDice() {
@@ -421,7 +429,7 @@ function hideAllUI() {
     [this.playButton, this.helpButton, this.settingsButton, rollRandomButton, rollSelectedButton, 
     switchDiceButton, createDiceButton, rollCustomDiceButton, rollCustomRandomDiceButton,
     sideInputText, luckFactorText, sideInput, luckFactorInput, createDiceSubmitButton, 
-    helpText, settingsText, this.sfxToggleButton, backButton, this.changelogButton].forEach(element => {
+    helpText, settingsText, this.sfxToggleButton, backButton, this.changelogButton, changelogText].forEach(element => {
         if (element) element.setVisible(false);
     });
 }
@@ -429,8 +437,5 @@ function hideAllUI() {
 function showChangelog() {
     hideAllUI.call(this);
     backButton.setVisible(true);
-
-    // Display changelog information
-    const changelogText = `Changelog: \n\n- Added custom dice creation\n- Implemented luck factor for custom dice\n- Added sound effects toggle\n- Fixed various bugs`;
-    this.changelogText = createText.call(this, config.width / 2, config.height / 2, changelogText).setVisible(true);
+    changelogText.setVisible(true);
 }
