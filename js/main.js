@@ -123,14 +123,16 @@ function createText(x, y, text) {
 function handleInputSubmit(id) {
     const inputField = document.getElementById(id);
     if (id === 'sideInputField') {
-        // Handle side input
-        if (isNaN(parseInt(inputField.value, 10)) || parseInt(inputField.value, 10) < 1) {
+        // Validate and store side input
+        const sides = parseInt(inputField.value, 10);
+        if (isNaN(sides) || sides < 1) {
             showAlert('Invalid number of sides.', 'error');
             return;
         }
     } else if (id === 'luckFactorInputField') {
-        // Handle luck factor input
-        if (isNaN(parseFloat(inputField.value))) {
+        // Validate and store luck factor input
+        const luckFactor = parseFloat(inputField.value);
+        if (isNaN(luckFactor)) {
             showAlert('Invalid luck factor.', 'error');
             return;
         }
@@ -340,7 +342,7 @@ function showCreateDiceMenu() {
     handleLuckFactorInput();
 
     if (!createDiceSubmitButton) {
-        createDiceSubmitButton = createButton.call(this, 'Create Dice', config.width / 2, config.height / 2 + 100, createDiceSubmit);
+        createDiceSubmitButton = createButton.call(this, 'Create Dice', config.width / 2, config.height / 2 + 150, createDiceSubmit, '24px').setVisible(true);
     } else {
         createDiceSubmitButton.setVisible(true);
     }
@@ -358,7 +360,7 @@ function showSettings() {
     settingsText.setVisible(true);
 
     if (!this.sfxToggleButton) {
-        this.sfxToggleButton = createButton.call(this, 'SFX: On', config.width / 2, config.height / 2 + 100, toggleSFX);
+        this.sfxToggleButton = createButton.call(this, 'SFX: On', config.width / 2, config.height / 2 + 150, toggleSFX, '24px').setVisible(true);
     } else {
         this.sfxToggleButton.setVisible(true);
         this.sfxToggleButton.setText(this.sfxEnabled ? 'SFX: On' : 'SFX: Off');
