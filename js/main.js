@@ -154,6 +154,9 @@ function hideInputFields() {
 function showCreateDiceMenu() {
     hideAllUI.call(this);
     inputContainer.setVisible(true);
+    sideInputField.style.display = 'block';
+    luckFactorInputField.style.display = 'block';
+    submitButton.setVisible(true);
     backButton.setVisible(true);
 }
 
@@ -280,15 +283,6 @@ function showSimulation() {
     rollCustomDiceButton.setVisible(true);
     rollCustomRandomDiceButton.setVisible(true);
     this.resultText.setVisible(true);
-    backButton.setVisible(true);
-}
-
-function showCreateDiceMenu() {
-    hideAllUI.call(this);
-    inputContainer.setVisible(true);
-    sideInputField.style.display = 'block';
-    luckFactorInputField.style.display = 'block';
-    submitButton.setVisible(true);
     backButton.setVisible(true);
 }
 
