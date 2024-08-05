@@ -25,7 +25,7 @@ let customDiceArray = [];
 let selectedDiceIndex = 0;
 let rollRandomButton, rollSelectedButton, switchDiceButton, createDiceButton, rollCustomDiceButton, rollCustomRandomDiceButton;
 let backButton;
-let sideInput, luckFactorInput, sideInputText, luckFactorText, createDiceSubmitButton;
+let sideInput, luckFactorInput, createDiceSubmitButton;
 let helpText, settingsText, changelogText;
 
 function preload() {
@@ -68,6 +68,35 @@ function create() {
     helpText = createText.call(this, config.width / 2, config.height / 2, 'Help Information: \n\n Here you can learn how to use the dice simulation...').setVisible(false);
     settingsText = createText.call(this, config.width / 2, config.height / 2, 'Settings Options: \n\n Customize your game settings here...').setVisible(false);
     changelogText = createText.call(this, config.width / 2, config.height / 2, 'Changelog: \n\n- Added custom dice creation\n- Implemented luck factor for custom dice\n- Added sound effects toggle\n- Fixed various bugs').setVisible(false);
+
+    // Set up input fields
+    sideInput = document.getElementById('sideInputField');
+    luckFactorInput = document.getElementById('luckFactorInputField');
+
+    sideInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            handleInputSubmit('sideInputField');
+        }
+    });
+
+    luckFactorInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            handleInputSubmit('luckFactorInputField');
+        }
+    });
+
+    // Hide input fields initially
+    sideInput.style.display = 'none';
+    luckFactorInput.style.display = 'none';
+
+    // Handle clicks outside input fields to hide them
+    document.addEventListener('mousedown', (event) => {
+        if (!sideInput.contains(event.target) && !luckFactorInput.contains(event.target)) {
+            hideInputFields();
+        }
+    });
 }
 
 function update() {}
@@ -91,92 +120,72 @@ function createText(x, y, text) {
     }).setOrigin(0.5, 0.5);
 }
 
-function createInteractiveText(x, y, text, onClick) {
-    return this.add.text(x, y, text, {
-        fontSize: '24px',
-        fill: '#0f0',
-        fontFamily: 'Verdana',
-        backgroundColor: '#333',
-        padding: { x: 10, y: 5 }
-    }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', onClick, this);
-}
-
-function createInputField(id, x, y) {
-    let inputField = document.getElementById(id);
-
-    if (!inputField) {
-        inputField = document.createElement('input');
-        inputField.id = id;
-        inputField.type = 'text';
-        inputField.style.position = 'absolute';
-        inputField.style.zIndex = '1000';
-        document.body.appendChild(inputField);
-    }
-
-    inputField.style.left = `${x}px`;
-    inputField.style.top = `${y}px`;
-    inputField.style.display = 'block';
-    inputField.focus();
-
-    inputField.removeEventListener('keydown', onInputFieldKeyDown);
-    inputField.addEventListener('keydown', onInputFieldKeyDown);
-
-    function onInputFieldKeyDown(event) {
-        if (event.key === 'Enter') {
-            event.preventDefault();
-            handleInputSubmit(id);
-        }
-    }
-
-    return inputField;
-}
-
 function handleInputSubmit(id) {
     const inputField = document.getElementById(id);
     if (id === 'sideInputField') {
-        sideInput.text = inputField.value;
+        // Handle side input
+        if (isNaN(parseInt(inputField.value, 10)) || parseInt(inputField.value, 10) < 1) {
+            showAlert('Invalid number of sides.', 'error');
+            return;
+        }
     } else if (id === 'luckFactorInputField') {
-        luckFactorInput.text = inputField.value;
+        // Handle luck factor input
+        if (isNaN(parseFloat(inputField.value))) {
+            showAlert('Invalid luck factor.', 'error');
+            return;
+        }
     }
+
     hideInputFields();
 }
 
 function hideInputFields() {
-    const inputFields = ['sideInputField', 'luckFactorInputField'];
-    inputFields.forEach(id => {
-        const field = document.getElementById(id);
-        if (field) {
-            field.style.display = 'none';
-        }
-    });
+    sideInput.style.display = 'none';
+    luckFactorInput.style.display = 'none';
 }
-
-document.addEventListener('mousedown', (event) => {
-    const inputFields = ['sideInputField', 'luckFactorInputField'];
-    let shouldHide = true;
-
-    inputFields.forEach(id => {
-        const field = document.getElementById(id);
-        if (field && field.contains(event.target)) {
-            shouldHide = false;
-        }
-    });
-
-    if (shouldHide) {
-        hideInputFields();
-    }
-});
 
 function handleSideInput() {
     const x = config.width / 2 - 50;
     const y = config.height / 2 - 50;
-    createInputField('sideInputField', x, y);
+    sideInput.style.left = `${x}px`;
+    sideInput.style.top = `${y}px`;
+    sideInput.style.display = 'block';
+    sideInput.focus();
 }
 
 function handleLuckFactorInput() {
     const x = config.width / 2 - 50;
     const y = config.height / 2 + 50;
-    createInputField('luckFactorInputField', x, y);
+    luckFactorInput.style.left = `${x}px`;
+    luckFactorInput.style.top = `${y}px`;
+    luckFactorInput.style.display = 'block';
+    luckFactorInput.focus();
+}
+
+function createDiceSubmit() {
+    const sides = parseInt(sideInput.value, 10);
+    const luckFactor = parseFloat(luckFactorInput.value);
+
+    if (isNaN(sides) || sides < 1) {
+        showAlert('Invalid number of sides.', 'error');
+        return;
+    }
+
+    if (isNaN(luckFactor)) {
+        showAlert('Invalid luck factor.', 'error');
+        return;
+    }
+
+    const dice = {
+        type: `d${sides}`,
+        sides: sides,
+        luckFactor: luckFactor
+    };
+
+    customDiceArray.push(dice);
+    saveCustomDices();
+    showAlert('Custom dice created successfully!', 'success');
+    hideInputFields();
 }
 
 function rollRandomDice() {
@@ -212,32 +221,6 @@ function rollSelectedDice() {
 function switchDiceType() {
     selectedDiceIndex = (selectedDiceIndex + 1) % diceArray.length;
     this.resultText.setText(`Selected ${diceArray[selectedDiceIndex].type}`);
-}
-
-function createDiceSubmit() {
-    const sides = parseInt(sideInput.text, 10);
-    const luckFactor = parseFloat(luckFactorInput.text);
-
-    if (isNaN(sides) || sides < 1) {
-        showAlert('Invalid number of sides.', 'error');
-        return;
-    }
-
-    if (isNaN(luckFactor)) {
-        showAlert('Invalid luck factor.', 'error');
-        return;
-    }
-
-    const dice = {
-        type: `d${sides}`,
-        sides: sides,
-        luckFactor: luckFactor
-    };
-
-    customDiceArray.push(dice);
-    saveCustomDices();
-    showAlert('Custom dice created successfully!', 'success');
-    hideInputFields();
 }
 
 function rollCustomDice() {
@@ -353,30 +336,8 @@ function showSimulation() {
 function showCreateDiceMenu() {
     hideAllUI.call(this);
     backButton.setVisible(true);
-
-    if (!sideInputText) {
-        sideInputText = createText.call(this, config.width / 2, config.height / 2 - 100, 'Enter Dice Sides:');
-    } else {
-        sideInputText.setVisible(true);
-    }
-
-    if (!luckFactorText) {
-        luckFactorText = createText.call(this, config.width / 2, config.height / 2 - 50, 'Enter Luck Factor:');
-    } else {
-        luckFactorText.setVisible(true);
-    }
-
-    if (!sideInput) {
-        sideInput = createInteractiveText.call(this, config.width / 2, config.height / 2, '', handleSideInput);
-    } else {
-        sideInput.setVisible(true);
-    }
-
-    if (!luckFactorInput) {
-        luckFactorInput = createInteractiveText.call(this, config.width / 2, config.height / 2 + 50, '', handleLuckFactorInput);
-    } else {
-        luckFactorInput.setVisible(true);
-    }
+    handleSideInput();
+    handleLuckFactorInput();
 
     if (!createDiceSubmitButton) {
         createDiceSubmitButton = createButton.call(this, 'Create Dice', config.width / 2, config.height / 2 + 100, createDiceSubmit);
@@ -428,7 +389,6 @@ function showMainMenu() {
 function hideAllUI() {
     [this.playButton, this.helpButton, this.settingsButton, rollRandomButton, rollSelectedButton, 
     switchDiceButton, createDiceButton, rollCustomDiceButton, rollCustomRandomDiceButton,
-    sideInputText, luckFactorText, sideInput, luckFactorInput, createDiceSubmitButton, 
     helpText, settingsText, this.sfxToggleButton, backButton, this.changelogButton, changelogText].forEach(element => {
         if (element) element.setVisible(false);
     });
