@@ -27,6 +27,7 @@ let rollRandomButton, rollSelectedButton, switchDiceButton, createDiceButton, ro
 let backButton;
 let sideInputField, luckFactorInputField, submitButton;
 let helpText, settingsText, changelogText;
+let inputContainer; // Container for input fields
 
 function preload() {
     this.load.json('dices', 'config/dices.json');
@@ -69,14 +70,18 @@ function create() {
     settingsText = createText.call(this, config.width / 2, config.height / 2, 'Settings Options: \n\n Customize your game settings here...').setVisible(false);
     changelogText = createText.call(this, config.width / 2, config.height / 2, 'Changelog: \n\n- Added custom dice creation\n- Implemented luck factor for custom dice\n- Added sound effects toggle\n- Fixed various bugs').setVisible(false);
 
+    // Create input fields container
+    inputContainer = this.add.container(config.width / 2, config.height / 2).setVisible(false);
+
     // Create input fields and submit button
-    sideInputField = createInputField.call(this, config.width / 2, config.height / 2 - 50, 'Number of Sides');
-    luckFactorInputField = createInputField.call(this, config.width / 2, config.height / 2, 'Luck Factor');
-    submitButton = createButton.call(this, 'Create Dice', config.width / 2, config.height / 2 + 100, createDiceSubmit, '24px').setVisible(false);
-    
+    sideInputField = createInputField.call(this, 'Number of Sides');
+    luckFactorInputField = createInputField.call(this, 'Luck Factor');
+    submitButton = createButton.call(this, 'Create Dice', 0, 50, createDiceSubmit, '24px').setVisible(false);
+
+    inputContainer.add([sideInputField, luckFactorInputField, submitButton]);
+
     this.input.on('pointerdown', (pointer) => {
-        if (!sideInputField.getBounds().contains(pointer.x, pointer.y) &&
-            !luckFactorInputField.getBounds().contains(pointer.x, pointer.y)) {
+        if (!inputContainer.getBounds().contains(pointer.x, pointer.y)) {
             hideInputFields.call(this);
         }
     });
@@ -103,79 +108,54 @@ function createText(x, y, text) {
     }).setOrigin(0.5, 0.5);
 }
 
-function createInputField(x, y, placeholder) {
-    const inputField = this.add.text(x, y, placeholder, {
-        fontSize: '24px',
-        fill: '#fff',
-        backgroundColor: '#333',
-        padding: { x: 10, y: 5 },
-        fontFamily: 'Verdana',
-        wordWrap: { width: 200 }
-    }).setOrigin(0.5, 0.5).setInteractive();
+function createInputField(placeholder) {
+    const inputField = this.add.dom(0, 0).createFromHTML(`
+        <input type="text" placeholder="${placeholder}" style="width: 180px; height: 30px; font-size: 24px; text-align: center;">
+    `);
 
-    inputField.input.enabled = false; // Disable default interaction
-
-    inputField.on('pointerdown', function () {
-        this.inputField = this.scene.add.dom(x, y).createFromHTML(`<input type="text" placeholder="${placeholder}" style="width: 180px; height: 30px; font-size: 24px; text-align: center;">`);
-        this.inputField.addListener('keydown').on('keydown', (event) => {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                handleInputSubmit.call(this, placeholder);
-            }
-        });
-        this.inputField.addListener('blur').on('blur', () => {
-            this.inputField.destroy();
-        });
-    }, { inputField });
+    inputField.setVisible(true);
 
     return inputField;
 }
 
-function handleInputSubmit(placeholder) {
-    const inputField = placeholder === 'Number of Sides' ? sideInputField : luckFactorInputField;
-    const value = inputField.getChildByID('input').value;
+function createDiceSubmit() {
+    const sideInput = sideInputField.getChildByName('input').value;
+    const luckInput = luckFactorInputField.getChildByName('input').value;
 
-    if (placeholder === 'Number of Sides') {
-        const sides = parseInt(value, 10);
-        if (isNaN(sides) || sides < 1) {
-            showAlert.call(this, 'Invalid number of sides.', 'error');
-            return;
-        }
-        // Store sides value for later use
-        this.sides = sides;
-    } else if (placeholder === 'Luck Factor') {
-        const luckFactor = parseFloat(value);
-        if (isNaN(luckFactor) || luckFactor < 0) {
-            showAlert.call(this, 'Invalid luck factor.', 'error');
-            return;
-        }
-        // Store luck factor value for later use
-        this.luckFactor = luckFactor;
+    const sides = parseInt(sideInput, 10);
+    const luckFactor = parseFloat(luckInput);
+
+    if (isNaN(sides) || sides < 1) {
+        showAlert.call(this, 'Invalid number of sides.', 'error');
+        return;
+    }
+    if (isNaN(luckFactor) || luckFactor < 0) {
+        showAlert.call(this, 'Invalid luck factor.', 'error');
+        return;
     }
 
-    if (this.sides && this.luckFactor !== undefined) {
-        // Create a new dice
-        const newDice = { type: `D${this.sides}`, sides: this.sides, luckFactor: this.luckFactor };
-        customDiceArray.push(newDice);
-        showAlert.call(this, 'Dice created successfully!', 'success');
+    // Create a new dice
+    const newDice = { type: `D${sides}`, sides: sides, luckFactor: luckFactor };
+    customDiceArray.push(newDice);
+    showAlert.call(this, 'Dice created successfully!', 'success');
 
-        // Reset values
-        this.sides = null;
-        this.luckFactor = null;
-
-        hideInputFields.call(this);
-    }
+    // Hide input fields and reset values
+    hideInputFields.call(this);
 }
 
 function hideInputFields() {
-    sideInputField.setVisible(false);
-    luckFactorInputField.setVisible(false);
+    inputContainer.setVisible(false);
     submitButton.setVisible(false);
 }
 
-function createDiceSubmit() {
-    handleInputSubmit.call(this, 'Number of Sides');
-    handleInputSubmit.call(this, 'Luck Factor');
+function showCreateDiceMenu() {
+    hideAllUI.call(this);
+    inputContainer.setVisible(true);
+    sideInputField.setPosition(0, -30);
+    luckFactorInputField.setPosition(0, 0);
+    submitButton.setPosition(0, 50);
+    submitButton.setVisible(true);
+    backButton.setVisible(true);
 }
 
 function rollRandomDice() {
@@ -329,10 +309,12 @@ function showSimulation() {
 
 function showCreateDiceMenu() {
     hideAllUI.call(this);
-    backButton.setVisible(true);
-    sideInputField.setVisible(true);
-    luckFactorInputField.setVisible(true);
+    inputContainer.setVisible(true);
+    sideInputField.setPosition(0, -30);
+    luckFactorInputField.setPosition(0, 0);
+    submitButton.setPosition(0, 50);
     submitButton.setVisible(true);
+    backButton.setVisible(true);
 }
 
 function showHelp() {
