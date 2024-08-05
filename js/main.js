@@ -70,8 +70,8 @@ function create() {
     changelogText = createText.call(this, config.width / 2, config.height / 2, 'Changelog: \n\n- Added custom dice creation\n- Implemented luck factor for custom dice\n- Added sound effects toggle\n- Fixed various bugs').setVisible(false);
 
     // Set up input fields
-    sideInput = createInputField('sideInputField', 'Enter number of sides', 'number');
-    luckFactorInput = createInputField('luckFactorInputField', 'Enter luck factor', 'number');
+    sideInput = document.getElementById('sideInputField');
+    luckFactorInput = document.getElementById('luckFactorInputField');
 
     sideInput.addEventListener('keydown', (event) => {
         if (event.key === 'Enter') {
@@ -119,21 +119,6 @@ function createText(x, y, text) {
     }).setOrigin(0.5, 0.5);
 }
 
-function createInputField(id, placeholder, type) {
-    const inputField = document.createElement('input');
-    inputField.type = type;
-    inputField.id = id;
-    inputField.placeholder = placeholder;
-    inputField.style.position = 'absolute';
-    inputField.style.display = 'none';
-    inputField.style.padding = '10px';
-    inputField.style.borderRadius = '5px';
-    inputField.style.border = '1px solid #ccc';
-    inputField.style.backgroundColor = '#fff';
-    document.body.appendChild(inputField);
-    return inputField;
-}
-
 function handleInputSubmit(id) {
     const inputField = document.getElementById(id);
     if (id === 'sideInputField') {
@@ -161,8 +146,8 @@ function hideInputFields() {
 }
 
 function handleSideInput() {
-    const x = config.width / 2 - 50;
-    const y = config.height / 2 - 50;
+    const x = (config.width / 2) - (sideInput.offsetWidth / 2);
+    const y = (config.height / 2) - 50; // Adjust position as needed
     sideInput.style.left = `${x}px`;
     sideInput.style.top = `${y}px`;
     sideInput.style.display = 'block';
@@ -170,8 +155,8 @@ function handleSideInput() {
 }
 
 function handleLuckFactorInput() {
-    const x = config.width / 2 - 50;
-    const y = config.height / 2 + 50;
+    const x = (config.width / 2) - (luckFactorInput.offsetWidth / 2);
+    const y = (config.height / 2) + 50; // Adjust position as needed
     luckFactorInput.style.left = `${x}px`;
     luckFactorInput.style.top = `${y}px`;
     luckFactorInput.style.display = 'block';
@@ -202,6 +187,9 @@ function createDiceSubmit() {
     saveCustomDices();
     showAlert('Custom dice created successfully!', 'success');
     hideInputFields();
+    if (createDiceSubmitButton) {
+        createDiceSubmitButton.setVisible(false);
+    }
 }
 
 function rollRandomDice() {
