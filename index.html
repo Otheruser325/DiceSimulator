@@ -7,6 +7,36 @@
     <title>Dice Simulator</title>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.min.js"></script>
     <script src="js/main.js" defer></script>
+    <style>
+        .input-label {
+            position: absolute;
+            font-size: 16px;
+            color: #fff;
+            background: #333;
+            padding: 5px;
+            border-radius: 3px;
+            z-index: 1000;
+        }
+        .input-field {
+            position: absolute;
+            z-index: 1000;
+            padding: 5px;
+            border-radius: 3px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            width: 200px;
+        }
+        #createDiceSubmitButton {
+            position: absolute;
+            z-index: 1000;
+            padding: 10px 20px;
+            border: none;
+            background-color: #333;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
     <div id="splash-screen">
@@ -15,7 +45,15 @@
     </div>
     <div id="game-container"></div>
     <button id="back-button">Back</button> <!-- Back button added here -->
-    <input type="text" id="sideInputField" style="display:none; position:absolute; z-index:1000;">
-    <input type="text" id="luckFactorInputField" style="display:none; position:absolute; z-index:1000;">
+
+    <!-- Input fields and labels -->
+    <label for="sideInputField" class="input-label" id="sideInputLabel">Enter Number of Sides:</label>
+    <input type="text" id="sideInputField" class="input-field" placeholder="Number of sides">
+
+    <label for="luckFactorInputField" class="input-label" id="luckFactorLabel">Enter Luck Factor:</label>
+    <input type="text" id="luckFactorInputField" class="input-field" placeholder="Luck factor">
+
+    <!-- Create Dice Button -->
+    <button id="createDiceSubmitButton" style="display:none;">Create Dice</button>
 </body>
 </html>
