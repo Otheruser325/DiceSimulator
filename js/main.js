@@ -99,23 +99,23 @@ function createText(x, y, text) {
     }).setOrigin(0.5, 0.5);
 }
 
-function createDOMInputField(placeholder) {
+function createDOMInputField(placeholder, id) {
     const inputField = document.createElement('input');
     inputField.type = 'text';
     inputField.placeholder = placeholder;
+    inputField.id = id;
     inputField.style.width = '180px';
     inputField.style.height = '30px';
     inputField.style.fontSize = '24px';
     inputField.style.textAlign = 'center';
     inputField.style.marginBottom = '10px';
-    inputField.className = 'input-field';
-
     return inputField;
 }
 
-function createDOMButton(text, onClick) {
+function createDOMButton(text, onClick, id) {
     const button = document.createElement('button');
     button.textContent = text;
+    button.id = id;
     button.style.padding = '10px 20px';
     button.style.border = 'none';
     button.style.borderRadius = '5px';
@@ -131,18 +131,18 @@ function createDOMButton(text, onClick) {
 
 function createDiceInputs() {
     // Create input fields and submit button
-    sideInputField = createDOMInputField.call(this, 'Number of Sides');
-    luckFactorInputField = createDOMInputField.call(this, 'Luck Factor');
-    submitButton = createDOMButton.call(this, 'Create Dice', createDiceSubmit);
+    sideInputField = createDOMInputField('Number of Sides', 'sideInputField');
+    luckFactorInputField = createDOMInputField('Luck Factor', 'luckFactorInputField');
+    submitButton = createDOMButton('Create Dice', createDiceSubmit, 'submitButton');
 
     // Add them to the DOM
-    const domContainer = document.getElementById('game-container');
-    domContainer.appendChild(sideInputField);
-    domContainer.appendChild(luckFactorInputField);
-    domContainer.appendChild(submitButton);
+    const uiContainer = document.getElementById('ui-container');
+    uiContainer.appendChild(sideInputField);
+    uiContainer.appendChild(luckFactorInputField);
+    uiContainer.appendChild(submitButton);
 
-    // Initially hide input fields and button
-    hideInputFields.call(this);
+    // Hide input fields and button initially
+    hideInputFields();
 }
 
 function createDiceSubmit() {
@@ -171,7 +171,6 @@ function createDiceSubmit() {
 }
 
 function hideInputFields() {
-    // Hide input fields and submit button
     if (sideInputField) sideInputField.style.display = 'none';
     if (luckFactorInputField) luckFactorInputField.style.display = 'none';
     if (submitButton) submitButton.style.display = 'none';
@@ -179,11 +178,12 @@ function hideInputFields() {
 
 function showCreateDiceMenu() {
     hideAllUI.call(this);
+    createDiceInputs.call(this); // Ensure inputs are created
     if (sideInputField) sideInputField.style.display = 'block';
     if (luckFactorInputField) luckFactorInputField.style.display = 'block';
     if (submitButton) submitButton.style.display = 'block';
 
-    backButton.setVisible(true);
+    if (backButton) backButton.setVisible(true);
 }
 
 function rollRandomDice() {
