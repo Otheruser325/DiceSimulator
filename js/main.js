@@ -16,10 +16,6 @@ const config = {
 
 const game = new Phaser.Game(config);
 
-game.events.once('ready', () => {
-    document.getElementById('splash-screen').style.display = 'none';
-});
-
 let diceArray = [];
 let customDiceArray = [];
 let selectedDiceIndex = 0;
@@ -80,10 +76,12 @@ function create() {
 
     inputContainer.add([sideInputField, luckFactorInputField, submitButton]);
 
-    this.input.on('pointerdown', (pointer) => {
-        if (!inputContainer.getBounds().contains(pointer.x, pointer.y)) {
-            hideInputFields.call(this);
-        }
+    // Hide splash screen after game is created
+    document.getElementById('splash-screen').style.display = 'none';
+
+    // Ensure the back button works as expected
+    document.getElementById('back-button').addEventListener('click', () => {
+        showMainMenu.call(this);
     });
 }
 
@@ -119,7 +117,7 @@ function createDOMInputField(placeholder) {
     inputField.style.marginBottom = '10px';
     inputField.className = 'input-field';
 
-    inputContainer.add(this.add.dom(0, 0, inputField).setOrigin(0.5, 0.5));
+    const domElement = this.add.dom(0, 0, inputField).setOrigin(0.5, 0.5);
     return inputField;
 }
 
@@ -156,9 +154,6 @@ function hideInputFields() {
 function showCreateDiceMenu() {
     hideAllUI.call(this);
     inputContainer.setVisible(true);
-    sideInputField.style.display = 'block';
-    luckFactorInputField.style.display = 'block';
-    submitButton.setVisible(true);
     backButton.setVisible(true);
 }
 
@@ -172,8 +167,7 @@ function rollRandomDice() {
         this.diceSound.play();
     }
 
-    const randomIndex = Phaser.Math.Between(0, diceArray.length - 1);
-    const dice = diceArray[randomIndex];
+    const dice = diceArray[Phaser.Math.Between(0, diceArray.length - 1)];
     const result = Phaser.Math.Between(1, dice.sides);
     this.resultText.setText(`Rolled ${dice.type}: ${result}`);
 }
@@ -244,28 +238,6 @@ function rollWithLuckFactor(sides, luckFactor) {
     }
 
     return roll;
-}
-
-function fetchCustomDices() {
-    fetch('/customDices')
-        .then(response => response.json())
-        .then(data => {
-            customDiceArray = data;
-        })
-        .catch(error => console.error('Error fetching custom dice:', error));
-}
-
-function saveCustomDices() {
-    fetch('/customDices', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(customDiceArray)
-    })
-    .then(response => response.text())
-    .then(message => console.log(message))
-    .catch(error => console.error('Error saving custom dice:', error));
 }
 
 function showAlert(message, type = 'error') {
