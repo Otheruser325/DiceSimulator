@@ -103,7 +103,7 @@ function createDOMInputField(placeholder, id) {
     const inputField = document.createElement('input');
     inputField.type = 'text';
     inputField.placeholder = placeholder;
-    inputField.id = id; // Ensure IDs are set correctly
+    inputField.id = id;
     inputField.style.width = '180px';
     inputField.style.height = '30px';
     inputField.style.fontSize = '24px';
@@ -115,7 +115,7 @@ function createDOMInputField(placeholder, id) {
 function createDOMButton(text, onClick, id) {
     const button = document.createElement('button');
     button.textContent = text;
-    button.id = id; // Ensure IDs are set correctly
+    button.id = id;
     button.style.padding = '10px 20px';
     button.style.border = 'none';
     button.style.borderRadius = '5px';
@@ -153,8 +153,20 @@ function createDiceInputs() {
 
 function createDiceSubmit() {
     // Get values from the input fields by their IDs
-    const sideInput = document.getElementById('sideInputField').value.trim();
-    const luckInput = document.getElementById('luckFactorInputField').value.trim();
+    const sideInputField = document.getElementById('sideInputField');
+    const luckFactorInputField = document.getElementById('luckFactorInputField');
+
+    // Log the input field elements for debugging
+    console.log('sideInputField:', sideInputField);
+    console.log('luckFactorInputField:', luckFactorInputField);
+
+    if (!sideInputField || !luckFactorInputField) {
+        console.error('Input fields not found');
+        return;
+    }
+
+    const sideInput = sideInputField.value.trim();
+    const luckInput = luckFactorInputField.value.trim();
 
     // Log the input values for debugging
     console.log(`Side Input: "${sideInput}"`);
