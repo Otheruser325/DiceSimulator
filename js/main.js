@@ -130,7 +130,6 @@ function createDOMButton(text, onClick, id) {
 }
 
 function createDiceInputs() {
-    // Ensure the ui-container element exists
     const uiContainer = document.getElementById('ui-container');
     if (!uiContainer) {
         console.error('UI Container element not found');
@@ -138,16 +137,16 @@ function createDiceInputs() {
     }
 
     // Create input fields and submit button
-    sideInputField = createDOMInputField('Number of Sides', 'sideInputField');
-    luckFactorInputField = createDOMInputField('Luck Factor', 'luckFactorInputField');
-    submitButton = createDOMButton('Create Dice', createDiceSubmit, 'submitButton');
+    const sideInputField = createDOMInputField('Number of Sides', 'sideInputField');
+    const luckFactorInputField = createDOMInputField('Luck Factor', 'luckFactorInputField');
+    const submitButton = createDOMButton('Create Dice', createDiceSubmit, 'submitButton');
 
     // Add them to the DOM
     uiContainer.appendChild(sideInputField);
     uiContainer.appendChild(luckFactorInputField);
     uiContainer.appendChild(submitButton);
 
-    // Hide input fields and button initially
+    // Optionally, hide input fields and button initially
     hideInputFields();
 }
 
