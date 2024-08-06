@@ -137,39 +137,23 @@ function createDiceInputs() {
     }
 
     // Create input fields and submit button
-    const sideInputField = createDOMInputField('Number of Sides', 'sideInputField');
-    const luckFactorInputField = createDOMInputField('Luck Factor', 'luckFactorInputField');
-    const submitButton = createDOMButton('Create Dice', createDiceSubmit, 'submitButton');
+    sideInputField = createDOMInputField('Number of Sides', 'sideInputField');
+    luckFactorInputField = createDOMInputField('Luck Factor', 'luckFactorInputField');
+    submitButton = createDOMButton('Create Dice', createDiceSubmit, 'submitButton');
 
     // Add them to the DOM
     uiContainer.appendChild(sideInputField);
     uiContainer.appendChild(luckFactorInputField);
     uiContainer.appendChild(submitButton);
 
-    // Optionally, hide input fields and button initially
+    // Hide input fields and button initially
     hideInputFields();
 }
 
 function createDiceSubmit() {
-    // Get values from the input fields by their IDs
-    const sideInputField = document.getElementById('sideInputField');
-    const luckFactorInputField = document.getElementById('luckFactorInputField');
-
-    // Log the input field elements for debugging
-    console.log('sideInputField:', sideInputField);
-    console.log('luckFactorInputField:', luckFactorInputField);
-
-    if (!sideInputField || !luckFactorInputField) {
-        console.error('Input fields not found');
-        return;
-    }
-
+    // Get values from the input fields
     const sideInput = sideInputField.value.trim();
     const luckInput = luckFactorInputField.value.trim();
-
-    // Log the input values for debugging
-    console.log(`Side Input: "${sideInput}"`);
-    console.log(`Luck Input: "${luckInput}"`);
 
     // Check if input values are not empty
     if (sideInput === "") {
@@ -184,10 +168,6 @@ function createDiceSubmit() {
     // Convert input values to numbers
     const sides = parseInt(sideInput, 10);
     const luckFactor = parseFloat(luckInput);
-
-    // Log the converted values for debugging
-    console.log(`Converted Sides: ${sides}`);
-    console.log(`Converted Luck Factor: ${luckFactor}`);
 
     // Validate the inputs
     if (isNaN(sides) || sides < 6) {
