@@ -152,21 +152,27 @@ function createDiceInputs() {
 }
 
 function createDiceSubmit() {
-    // Log input elements to ensure they are being accessed
-    const sideInput = document.getElementById('sideInputField');
-    const luckInput = document.getElementById('luckFactorInputField');
-    console.log('Side Input Element:', sideInput);
-    console.log('Luck Input Element:', luckInput);
+    // Get values from the input fields by their IDs
+    const sideInput = document.getElementById('sideInputField').value.trim();
+    const luckInput = document.getElementById('luckFactorInputField').value.trim();
 
-    // Retrieve values
-    const sideValue = sideInput ? sideInput.value.trim() : '';
-    const luckValue = luckInput ? luckInput.value.trim() : '';
-    console.log(`Side Input Value: "${sideValue}"`);
-    console.log(`Luck Input Value: "${luckValue}"`);
+    // Log the input values for debugging
+    console.log(`Side Input: "${sideInput}"`);
+    console.log(`Luck Input: "${luckInput}"`);
+
+    // Check if input values are not empty
+    if (sideInput === "") {
+        showAlert.call(this, 'Side input cannot be empty.', 'error');
+        return;
+    }
+    if (luckInput === "") {
+        showAlert.call(this, 'Luck input cannot be empty.', 'error');
+        return;
+    }
 
     // Convert input values to numbers
-    const sides = parseInt(sideValue, 10);
-    const luckFactor = parseFloat(luckValue);
+    const sides = parseInt(sideInput, 10);
+    const luckFactor = parseFloat(luckInput);
 
     // Log the converted values for debugging
     console.log(`Converted Sides: ${sides}`);
