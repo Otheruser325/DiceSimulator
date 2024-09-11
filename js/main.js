@@ -229,7 +229,7 @@ function rollSelectedDice() {
         this.diceSound.play();
     }
 
-    const dice = diceArray.[selectedDiceIndex];
+    const dice = diceArray[selectedDiceIndex];
     const result = Phaser.Math.Between(1, dice.sides);
     this.resultText.setText(`Rolled ${dice.type}: ${result}`);
 }
@@ -239,7 +239,7 @@ function switchDiceType() {
         this.switchSound.play();
     }
     selectedDiceIndex = (selectedDiceIndex + 1) % diceArray.length;
-    this.resultText.setText(`Selected ${diceArray.[selectedDiceIndex].type}`);
+    this.resultText.setText(`Selected ${diceArray[selectedDiceIndex].type}`);
 }
 
 function rollCustomDice() {
@@ -252,7 +252,7 @@ function rollCustomDice() {
         this.diceSound.play();
     }
 
-    const dice = customDiceArray.[selectedDiceIndex];
+    const dice = customDiceArray[selectedDiceIndex];
     const result = rollWithLuckFactor(dice.sides, dice.luckFactor);
     this.resultText.setText(`Rolled Custom ${dice.type}: ${result}`);
 }
@@ -268,7 +268,7 @@ function rollCustomRandomDice() {
     }
 
     const randomIndex = Phaser.Math.Between(0, customDiceArray.length - 1);
-    const dice = customDiceArray.[randomIndex];
+    const dice = customDiceArray?.[randomIndex];
     const result = rollWithLuckFactor(dice.sides, dice.luckFactor);
     this.resultText.setText(`Rolled Custom ${dice.type}: ${result}`);
 }
