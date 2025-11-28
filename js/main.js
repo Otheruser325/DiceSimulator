@@ -52,7 +52,7 @@ function create() {
     this.settingsButton = createButton.call(this, 'Settings', config.width / 2, config.height / 2 + 50, showSettings);
     this.changelogButton = createButton.call(this, 'Changelog', config.width / 2, config.height / 2 + 150, showChangelog);
 
-    backButton = createButton.call(this, 'Back', 10, 10, showMainMenu, '24px', '#f00').setVisible(false);
+    backButton = createButton.call(this, 'Back', 10, 15, showMainMenu, '30px', '#f00').setVisible(false);
 
     rollRandomButton = createButton.call(this, 'Roll Random Dice', config.width / 2, config.height / 2 - 150, rollRandomDice).setVisible(false);
     rollSelectedButton = createButton.call(this, 'Roll Selected Dice', config.width / 2, config.height / 2 - 100, rollSelectedDice).setVisible(false);
@@ -74,9 +74,6 @@ function create() {
 
     // Create input fields and submit button
     createDiceInputs.call(this);
-	
-	//Load background manager
-	applyBackground.call(this);
 
     // Hide splash screen after game is created
     document.getElementById('splash-screen').style.display = 'none';

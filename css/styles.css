@@ -45,7 +45,7 @@ button {
     background-color: #f00;
     color: #fff;
     z-index: 20;
-    display: none; /* Initially hidden */
+    display: none;
 }
 
 #sideInputField, #luckFactorInputField {
