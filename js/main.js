@@ -369,8 +369,18 @@ function showSimulation() {
     rollCustomDiceButton.setVisible(true);
     rollRandomCustomDiceButton.setVisible(true);
 	switchCustomDiceButton.setVisible(true);
-    this.resultText.setVisible(true);
-    backButton.setVisible(true);
+    
+	if (!this.resultText) {
+        this.resultText.setVisible(true);
+    } else {
+        this.resultText.setVisible(true);
+    }
+	
+	if (!backButton) {
+        backButton.setVisible(true);
+    } else {
+        backButton.setVisible(true);
+    }
 }
 
 function showHelp() {
