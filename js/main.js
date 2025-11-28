@@ -52,17 +52,17 @@ function create() {
     this.settingsButton = createButton.call(this, 'Settings', config.width / 2, config.height / 2 + 50, showSettings);
     this.changelogButton = createButton.call(this, 'Changelog', config.width / 2, config.height / 2 + 150, showChangelog);
 
-    backButton = createButton.call(this, 'Back', 10, 15, showMainMenu, '30px', '#f00').setVisible(false);
+    backButton = createButton.call(this, 'Back', 15, 25, showMainMenu, '30px', '#f00').setVisible(false);
 
-    rollRandomButton = createButton.call(this, 'Roll Random Dice', config.width / 2, config.height / 2 - 150, rollRandomDice).setVisible(false);
-    rollSelectedButton = createButton.call(this, 'Roll Selected Dice', config.width / 2, config.height / 2 - 100, rollSelectedDice).setVisible(false);
-    switchDiceButton = createButton.call(this, 'Switch Dice Type', config.width / 2, config.height / 2 - 50, switchDiceType).setVisible(false);
+    rollRandomButton = createButton.call(this, 'Roll Random Dice', config.width / 2, config.height / 2 - 300, rollRandomDice).setVisible(false);
+    rollSelectedButton = createButton.call(this, 'Roll Selected Dice', config.width / 2, config.height / 2 - 200, rollSelectedDice).setVisible(false);
+    switchDiceButton = createButton.call(this, 'Switch Dice Type', config.width / 2, config.height / 2 - 100, switchDiceType).setVisible(false);
     createDiceButton = createButton.call(this, 'Create Dice', config.width / 2, config.height / 2, showCreateDiceMenu).setVisible(false);
-    rollCustomDiceButton = createButton.call(this, 'Roll Custom Dice', config.width / 2, config.height / 2 + 50, rollCustomDice).setVisible(false);
-    rollRandomCustomDiceButton = createButton.call(this, 'Roll Random Custom Dice', config.width / 2, config.height / 2 + 100, rollRandomCustomDice).setVisible(false);
-	switchCustomDiceButton = createButton.call(this, 'Switch Custom Dice Type', config.width / 2, config.height / 2 + 150, switchCustomDiceType).setVisible(false);
+    rollCustomDiceButton = createButton.call(this, 'Roll Custom Dice', config.width / 2, config.height / 2 + 100, rollCustomDice).setVisible(false);
+    rollRandomCustomDiceButton = createButton.call(this, 'Roll Random Custom Dice', config.width / 2, config.height / 2 + 200, rollRandomCustomDice).setVisible(false);
+	switchCustomDiceButton = createButton.call(this, 'Switch Custom Dice Type', config.width / 2, config.height / 2 + 300, switchCustomDiceType).setVisible(false);
 
-    this.resultText = this.add.text(config.width / 2, config.height / 2 + 200, '', {
+    this.resultText = this.add.text(config.width / 2, config.height / 2 + 360, '', {
         fontSize: '24px',
         fill: '#fff',
         fontFamily: 'Verdana'
@@ -115,6 +115,7 @@ function createDOMInputField(placeholder, id) {
     inputField.id = id;
     inputField.style.width = '180px';
     inputField.style.height = '30px';
+	inputField.style.fontFamily = 'Verdana', sans-serif;
     inputField.style.fontSize = '24px';
     inputField.style.textAlign = 'center';
     inputField.style.marginBottom = '10px';
@@ -130,6 +131,7 @@ function createDOMButton(text, onClick, id) {
     button.style.borderRadius = '5px';
     button.style.backgroundColor = '#4CAF50';
     button.style.color = 'white';
+	button.style.fontFamily = 'Verdana', sans-serif;
     button.style.fontSize = '16px';
     button.style.cursor = 'pointer';
 
@@ -334,6 +336,8 @@ function showAlert(message, type = 'error') {
         alertBox.style.borderRadius = '5px';
         alertBox.style.color = '#fff';
         alertBox.style.zIndex = '1000';
+		alertBox.style.fontSize = '16px';
+		alertBox.style.fontFamily = 'Verdana', sans-serif;
         document.body.appendChild(alertBox);
     }
 
@@ -408,7 +412,7 @@ function toggleSFX() {
 function toggleBackground() {
     selectedBackgroundIndex++;
 
-    if (selectedBackgroundIndex >= this.backgrounds.length) {
+    if (selectedBackgroundIndex >= backgroundsArray.length) {
         selectedBackgroundIndex = 0;
     }
 
