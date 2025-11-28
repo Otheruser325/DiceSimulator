@@ -66,7 +66,7 @@ function create() {
 
     helpText = createText.call(this, config.width / 2, config.height / 2, 'Help Information: \n\n Here you can learn how to use the dice simulation...').setVisible(false);
     settingsText = createText.call(this, config.width / 2, config.height / 2, 'Settings Options: \n\n Customize your game settings here...').setVisible(false);
-    changelogText = createText.call(this, config.width / 2, config.height / 2, 'Changelog: \nv1.2\n\n- Added the ability to switch custom dice\n- Fixed an error related to rolling custom dice\n- Fixed the custom dice maker displaying the input boxes when backing out\n- Improved interface\nv1.1\n- Added custom dice creation\n- Implemented luck factor for custom dice\n- Added sound effects toggle\n- Fixed various bugs\nv1.0\n- Dice Simulator Release').setVisible(false);
+    changelogText = createText.call(this, config.width / 2, config.height / 2, 'Changelog: \nv1.2\n\n- Added the ability to switch custom dice\n- Fixed an error related to rolling custom dice\n- Fixed the custom dice maker displaying the input boxes when backing out\n- Improved interface\nv1.1\n\n- Added custom dice creation\n- Implemented luck factor for custom dice\n- Added sound effects toggle\n- Fixed various bugs\nv1.0\n\n- Dice Simulator Release').setVisible(false);
 
     // Create input fields and submit button
     createDiceInputs.call(this);
@@ -285,7 +285,7 @@ function switchCustomDiceType() {
         this.switchSound.play();
     }
 	
-    selectedCustomDiceIndex = (selectedCustomDiceIndex + 1) % diceArray.length;
+    selectedCustomDiceIndex = (selectedCustomDiceIndex + 1) % customDiceArray.length;
     this.resultText.setText(`Selected ${customDiceArray[selectedCustomDiceIndex].type}`);
 }
 
@@ -390,7 +390,7 @@ function showMainMenu() {
 function hideAllUI() {
     [this.playButton, this.helpButton, this.settingsButton, rollRandomButton, rollSelectedButton, 
     switchDiceButton, createDiceButton, rollCustomDiceButton, rollCustomRandomDiceButton, switchCustomDiceButton,
-    helpText, settingsText, sfxToggleButton, backButton, this.changelogButton, changelogText].forEach(element => {
+    helpText, settingsText, sfxToggleButton, backButton, this.changelogButton, changelogText, this.resultText, sideInputField, luckFactorInputField, submitButton].forEach(element => {
         if (element) element.setVisible(false);
     });
 }
