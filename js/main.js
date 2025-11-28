@@ -144,25 +144,23 @@ function create() {
 
 function update() {}
 
-function createDiceInputs() {
-    const uiContainer = document.getElementById('ui-container');
-    if (!uiContainer) {
-        console.error('UI Container element not found');
-        return;
-    }
+function createButton(text, x, y, onClick, fontSize = '32px', backgroundColor = '#333') {
+    return this.add.text(x, y, text, {
+        fontSize: fontSize,
+        fill: '#fff',
+        backgroundColor: backgroundColor,
+        padding: { x: 20, y: 10 },
+        fontFamily: 'Verdana'
+    }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', onClick, this);
+}
 
-    // Create input fields and submit button
-    sideInputField = createDOMInputField('Number of Sides', 'sideInputField');
-    luckFactorInputField = createDOMInputField('Luck Factor', 'luckFactorInputField');
-    submitButton = createDOMButton('Create Dice', createDiceSubmit, 'submitButton', this);
-
-    // Add them to the DOM
-    uiContainer.appendChild(sideInputField);
-    uiContainer.appendChild(luckFactorInputField);
-    uiContainer.appendChild(submitButton);
-
-    // Hide input fields and button initially
-    hideInputFields();
+function createText(x, y, text) {
+    return this.add.text(x, y, text, {
+        fontSize: '24px',
+        fill: '#fff',
+        fontFamily: 'Verdana',
+        align: 'center'
+    }).setOrigin(0.5, 0.5);
 }
 
 function submitCustomDice() {
@@ -188,12 +186,6 @@ function submitCustomDice() {
     showAlert.call(this, "Custom dice created!", "success");
 
     showSimulation.call(this);
-}
-
-function hideInputFields() {
-    if (sideInputField) sideInputField.style.display = 'none';
-    if (luckFactorInputField) luckFactorInputField.style.display = 'none';
-    if (submitButton) submitButton.style.display = 'none';
 }
 
 function showCreateDiceMenu() {
