@@ -115,7 +115,7 @@ function createDOMInputField(placeholder, id) {
     inputField.id = id;
     inputField.style.width = '180px';
     inputField.style.height = '30px';
-	inputField.style.fontFamily = 'Verdana', sans-serif;
+	inputField.style.fontFamily = 'Verdana';
     inputField.style.fontSize = '24px';
     inputField.style.textAlign = 'center';
     inputField.style.marginBottom = '10px';
@@ -131,7 +131,7 @@ function createDOMButton(text, onClick, id) {
     button.style.borderRadius = '5px';
     button.style.backgroundColor = '#4CAF50';
     button.style.color = 'white';
-	button.style.fontFamily = 'Verdana', sans-serif;
+	button.style.fontFamily = 'Verdana';
     button.style.fontSize = '16px';
     button.style.cursor = 'pointer';
 
