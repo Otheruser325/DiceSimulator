@@ -1,0 +1,20 @@
+[
+    { "type": "Black",   "colorCode": "#000000" },
+    { "type": "White",   "colorCode": "#FFFFFF" },
+    { "type": "Brown",   "colorCode": "#8B4513" },
+    { "type": "Silver",  "colorCode": "#C0C0C0" },
+    { "type": "Gold",    "colorCode": "#FFD700" },
+
+    { "type": "Red",     "colorCode": "#FF0000" },
+    { "type": "Blue",    "colorCode": "#0000FF" },
+    { "type": "Green",   "colorCode": "#008000" },
+    { "type": "Yellow",  "colorCode": "#FFFF00" },
+    { "type": "Orange",  "colorCode": "#FFA500" },
+
+    { "type": "Pink",     "colorCode": "#FFC0CB" },
+    { "type": "Purple",   "colorCode": "#800080" },
+    { "type": "Teal",     "colorCode": "#008080" },
+    { "type": "Magenta",  "colorCode": "#FF00FF" },
+    { "type": "Crimson",  "colorCode": "#DC143C" },
+    { "type": "Maroon",   "colorCode": "#800000" }
+]

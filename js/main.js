@@ -18,19 +18,22 @@ const game = new Phaser.Game(config);
 
 let diceArray = [];
 let customDiceArray = [];
+let customBackgroundArray = [];
 let selectedDiceIndex = 0;
 let selectedCustomDiceIndex = 0;
+let selectedBackgroundIndex = 0;
 let rollRandomButton, rollSelectedButton, switchDiceButton, createDiceButton, rollCustomDiceButton, rollRandomCustomDiceButton, switchCustomDiceButton;
 let backButton;
 let inputContainer;
 let sideInputField, luckFactorInputField, submitButton;
 let helpText, settingsText, changelogText;
-let sfxToggleButton;
+let sfxToggleButton, backgroundToggleButton;
 let sfxEnabled = true;
 
 function preload() {
     this.load.json('dices', 'config/dices.json');
     this.load.json('customDices', 'config/customDices.json');
+	this.load.json('backgrounds', 'config/backgrounds.json');
     this.load.audio('diceSound', 'assets/sfx/dice.mp3');
     this.load.audio('switchSound', 'assets/sfx/button.mp3');
 }
@@ -38,6 +41,7 @@ function preload() {
 function create() {
     diceArray = this.cache.json.get('dices');
     customDiceArray = this.cache.json.get('customDices');
+	backgroundArray = this.cache.json.get('backgrounds');
 
     this.diceSound = this.sound.add('diceSound');
     this.switchSound = this.sound.add('switchSound');
@@ -66,10 +70,13 @@ function create() {
 
     helpText = createText.call(this, config.width / 2, config.height / 2, 'Help Information: \n\n Here you can learn how to use the dice simulation...').setVisible(false);
     settingsText = createText.call(this, config.width / 2, config.height / 2, 'Settings Options: \n\n Customize your game settings here...').setVisible(false);
-    changelogText = createText.call(this, config.width / 2, config.height / 2, 'Changelog: \nv1.2\n\n- Added the ability to switch custom dice\n- Fixed an error related to rolling custom dice\n- Fixed the custom dice maker displaying the input boxes when backing out\n- Improved interface\nv1.1\n\n- Added custom dice creation\n- Implemented luck factor for custom dice\n- Added sound effects toggle\n- Fixed various bugs\nv1.0\n\n- Dice Simulator Release').setVisible(false);
+    changelogText = createText.call(this, config.width / 2, config.height / 2, 'Changelog: \nv1.2\n\n- Added an option to change background colour\n- Added the ability to switch custom dice\n- Fixed an error related to rolling custom dice\n- Fixed the custom dice maker displaying the input boxes when backing out\n- Improved interface\nv1.1\n\n- Added custom dice creation\n- Implemented luck factor for custom dice\n- Added sound effects toggle\n- Fixed various bugs\nv1.0\n\n- Dice Simulator Release').setVisible(false);
 
     // Create input fields and submit button
     createDiceInputs.call(this);
+	
+	//Load background manager
+	applyBackground.call(this);
 
     // Hide splash screen after game is created
     document.getElementById('splash-screen').style.display = 'none';
@@ -364,6 +371,13 @@ function showSettings() {
         sfxToggleButton.setVisible(true);
         sfxToggleButton.setText(sfxEnabled ? 'SFX: On' : 'SFX: Off');
     }
+	
+	if (!backgroundToggleButton) {
+        backgroundToggleButton = createButton.call(this, 'BG Colour: Black', config.width / 2, config.height / 2 + 200, toggleBackground.bind(this), '24px');
+        backgroundToggleButton.setVisible(true);
+    } else {
+        backgroundToggleButton.setVisible(true);
+    }
 }
 
 function toggleSFX() {
@@ -377,6 +391,61 @@ function toggleSFX() {
     if (this.switchSound) {
         this.switchSound.setMute(!sfxEnabled);
     }
+}
+
+function toggleBackground() {
+    selectedBackgroundIndex++;
+
+    if (selectedBackgroundIndex >= this.backgrounds.length) {
+        selectedBackgroundIndex = 0;
+    }
+
+    applyBackground.call(this);
+}
+
+function applyBackground() {
+    const selected = this.backgrounds[selectedBackgroundIndex];
+
+    // Set camera background color
+    this.cameras.main.setBackgroundColor(selected.colorCode);
+
+    // Determine optimal text color
+    const textColor = getOptimalTextColor(selected.colorCode);
+
+    // Update button color (if using BitmapText or Phaser Text)
+    if (backgroundToggleButton) {
+        backgroundToggleButton.setText(`BG Colour: ${selected.type}`);
+		backgroundToggleButton.setStyle({ color: textColor });
+    }
+	
+	// Update text color for all elements based on background color
+	[this.playButton, this.helpButton, this.settingsButton, rollRandomButton, rollSelectedButton, 
+    switchDiceButton, createDiceButton, rollCustomDiceButton, rollRandomCustomDiceButton, switchCustomDiceButton,
+    helpText, settingsText, sfxToggleButton, backButton, this.changelogButton, changelogText, this.resultText].forEach(element => {
+        if (element) element.setStyle({ color: textColor });
+    });
+}
+
+function getLuminance(hex) {
+    hex = hex.replace('#', '');
+    const r = parseInt(hex.substring(0, 2), 16) / 255;
+    const g = parseInt(hex.substring(2, 4), 16) / 255;
+    const b = parseInt(hex.substring(4, 6), 16) / 255;
+
+    // Luminance formula (WCAG standard)
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+function getOptimalTextColor(bgHex) {
+    const lum = getLuminance(bgHex);
+
+    // Thresholds:
+    // >0.7 = very bright → use black
+    // >0.5 = light → use very dark gray
+    // else → use white
+    if (lum > 0.7) return '#000000';
+    if (lum > 0.5) return '#222222';
+    return '#FFFFFF';
 }
 
 function showMainMenu() {
