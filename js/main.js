@@ -52,7 +52,7 @@ function create() {
     this.settingsButton = createButton.call(this, 'Settings', config.width / 2, config.height / 2 + 50, showSettings);
     this.changelogButton = createButton.call(this, 'Changelog', config.width / 2, config.height / 2 + 150, showChangelog);
 
-    backButton = createButton.call(this, 'Back', 15, 25, showMainMenu, '30px', '#f00').setVisible(false);
+    backButton = createButton.call(this, 'Back', 20, 40, showMainMenu, '30px', '#f00').setVisible(false);
 
     rollRandomButton = createButton.call(this, 'Roll Random Dice', config.width / 2, config.height / 2 - 300, rollRandomDice).setVisible(false);
     rollSelectedButton = createButton.call(this, 'Roll Selected Dice', config.width / 2, config.height / 2 - 200, rollSelectedDice).setVisible(false);
@@ -337,7 +337,7 @@ function showAlert(message, type = 'error') {
         alertBox.style.color = '#fff';
         alertBox.style.zIndex = '1000';
 		alertBox.style.fontSize = '16px';
-		alertBox.style.fontFamily = 'Verdana', sans-serif;
+		alertBox.style.fontFamily = 'Verdana';
         document.body.appendChild(alertBox);
     }
 
