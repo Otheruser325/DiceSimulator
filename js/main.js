@@ -215,7 +215,8 @@ function showCreateDiceMenu() {
 
 function rollRandomDice() {
     if (diceArray.length === 0) {
-        console.error('No dice available!');
+        console.warn('No dice available!');
+		showAlert.call(this, 'No dice available!', 'warning');
         return;
     }
 
@@ -230,7 +231,8 @@ function rollRandomDice() {
 
 function rollSelectedDice() {
     if (diceArray.length === 0) {
-        console.error('No dice available!');
+        console.warn('No dice available!');
+		showAlert.call(this, 'No dice available!', 'warning');
         return;
     }
 
@@ -244,16 +246,24 @@ function rollSelectedDice() {
 }
 
 function switchDiceType() {
+	if (diceArray.length === 0) {
+        console.warn('No dice available!');
+		showAlert.call(this, 'No dice available!', 'warning');
+        return;
+    }
+	
     if (sfxEnabled) {
         this.switchSound.play();
     }
+	
     selectedDiceIndex = (selectedDiceIndex + 1) % diceArray.length;
     this.resultText.setText(`Selected ${diceArray[selectedDiceIndex].type}`);
 }
 
 function rollCustomDice() {
     if (customDiceArray.length === 0) {
-        console.error('No custom dice available!');
+        console.warn('No custom dice available!');
+		showAlert.call(this, 'No custom dice available!', 'warning');
         return;
     }
 
@@ -268,7 +278,8 @@ function rollCustomDice() {
 
 function rollRandomCustomDice() {
     if (customDiceArray.length === 0) {
-        console.error('No custom dice available!');
+        console.warn('No custom dice available!');
+		showAlert.call(this, 'No custom dice available!', 'warning');
         return;
     }
 
@@ -284,7 +295,8 @@ function rollRandomCustomDice() {
 
 function switchCustomDiceType() {
 	if (customDiceArray.length === 0) {
-        console.error('No custom dice available!');
+        console.warn('No custom dice available!');
+		showAlert.call(this, 'No custom dice available!', 'warning');
         return;
     }
 	
