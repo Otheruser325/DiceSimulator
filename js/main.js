@@ -18,7 +18,7 @@ const game = new Phaser.Game(config);
 
 let diceArray = [];
 let customDiceArray = [];
-let customBackgroundArray = [];
+let backgroundsArray = [];
 let selectedDiceIndex = 0;
 let selectedCustomDiceIndex = 0;
 let selectedBackgroundIndex = 0;
@@ -41,7 +41,7 @@ function preload() {
 function create() {
     diceArray = this.cache.json.get('dices');
     customDiceArray = this.cache.json.get('customDices');
-	backgroundArray = this.cache.json.get('backgrounds');
+	backgroundsArray = this.cache.json.get('backgrounds');
 
     this.diceSound = this.sound.add('diceSound');
     this.switchSound = this.sound.add('switchSound');
@@ -74,6 +74,9 @@ function create() {
 
     // Create input fields and submit button
     createDiceInputs.call(this);
+	
+	// Load custom backgrounds
+	applyBackground.call(this);
 
     // Hide splash screen after game is created
     document.getElementById('splash-screen').style.display = 'none';
@@ -401,7 +404,7 @@ function toggleBackground() {
 }
 
 function applyBackground() {
-    const selected = this.backgrounds[selectedBackgroundIndex];
+    const selected = backgroundsArray[selectedBackgroundIndex];
 
     // Set camera background color
     this.cameras.main.setBackgroundColor(selected.colorCode);
@@ -418,7 +421,7 @@ function applyBackground() {
 	// Update text color for all elements based on background color
 	[this.playButton, this.helpButton, this.settingsButton, rollRandomButton, rollSelectedButton, 
     switchDiceButton, createDiceButton, rollCustomDiceButton, rollRandomCustomDiceButton, switchCustomDiceButton,
-    helpText, settingsText, sfxToggleButton, backButton, this.changelogButton, changelogText, this.resultText].forEach(element => {
+    helpText, settingsText, sfxToggleButton, backgroundToggleButton, backButton, this.changelogButton, changelogText, this.resultText].forEach(element => {
         if (element) element.setStyle({ color: textColor });
     });
 }
@@ -456,7 +459,7 @@ function showMainMenu() {
 function hideAllUI() {
     [this.playButton, this.helpButton, this.settingsButton, rollRandomButton, rollSelectedButton, 
     switchDiceButton, createDiceButton, rollCustomDiceButton, rollRandomCustomDiceButton, switchCustomDiceButton,
-    helpText, settingsText, sfxToggleButton, backButton, this.changelogButton, changelogText, this.resultText].forEach(element => {
+    helpText, settingsText, sfxToggleButton, backgroundToggleButton, backButton, this.changelogButton, changelogText, this.resultText].forEach(element => {
         if (element) element.setVisible(false);
     });
 	
