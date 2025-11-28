@@ -390,9 +390,11 @@ function showMainMenu() {
 function hideAllUI() {
     [this.playButton, this.helpButton, this.settingsButton, rollRandomButton, rollSelectedButton, 
     switchDiceButton, createDiceButton, rollCustomDiceButton, rollRandomCustomDiceButton, switchCustomDiceButton,
-    helpText, settingsText, sfxToggleButton, backButton, this.changelogButton, changelogText, this.resultText, sideInputField, luckFactorInputField, submitButton].forEach(element => {
+    helpText, settingsText, sfxToggleButton, backButton, this.changelogButton, changelogText, this.resultText].forEach(element => {
         if (element) element.setVisible(false);
     });
+	
+	hideInputFields.call(this);
 }
 
 function showChangelog() {
