@@ -52,7 +52,7 @@ function create() {
     this.settingsButton = createButton.call(this, 'Settings', config.width / 2, config.height / 2 + 50, showSettings);
     this.changelogButton = createButton.call(this, 'Changelog', config.width / 2, config.height / 2 + 150, showChangelog);
 
-    backButton = createButton.call(this, 'Back', 20, 40, showMainMenu, '30px', '#f00').setVisible(false);
+    backButton = createButton.call(this, 'Back', 60, 20, showMainMenu, '30px', '#f00').setVisible(false);
 
     rollRandomButton = createButton.call(this, 'Roll Random Dice', config.width / 2, config.height / 2 - 300, rollRandomDice).setVisible(false);
     rollSelectedButton = createButton.call(this, 'Roll Selected Dice', config.width / 2, config.height / 2 - 200, rollSelectedDice).setVisible(false);
@@ -197,6 +197,9 @@ function createDiceSubmit() {
 
     // Hide input fields and reset values
     hideInputFields.call(this);
+	
+	// Return to simulation after creating a custom dice
+	showSimulation.call(this)
 }
 
 function hideInputFields() {
