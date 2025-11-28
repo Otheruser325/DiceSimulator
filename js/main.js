@@ -19,7 +19,8 @@ const game = new Phaser.Game(config);
 let diceArray = [];
 let customDiceArray = [];
 let selectedDiceIndex = 0;
-let rollRandomButton, rollSelectedButton, switchDiceButton, createDiceButton, rollCustomDiceButton, rollCustomRandomDiceButton;
+let selectedCustomDiceIndex = 0;
+let rollRandomButton, rollSelectedButton, switchDiceButton, createDiceButton, rollCustomDiceButton, rollCustomRandomDiceButton, switchCustomDiceButton;
 let backButton;
 let inputContainer;
 let sideInputField, luckFactorInputField, submitButton;
@@ -49,12 +50,13 @@ function create() {
 
     backButton = createButton.call(this, 'Back', 10, 10, showMainMenu, '24px', '#f00').setVisible(false);
 
-    rollRandomButton = createButton.call(this, 'Roll Random Dice', config.width / 2, config.height / 2 - 100, rollRandomDice).setVisible(false);
-    rollSelectedButton = createButton.call(this, 'Roll Selected Dice', config.width / 2, config.height / 2 - 50, rollSelectedDice).setVisible(false);
-    switchDiceButton = createButton.call(this, 'Switch Dice Type', config.width / 2, config.height / 2, switchDiceType).setVisible(false);
-    createDiceButton = createButton.call(this, 'Create Dice', config.width / 2, config.height / 2 + 50, showCreateDiceMenu).setVisible(false);
-    rollCustomDiceButton = createButton.call(this, 'Roll Custom Dice', config.width / 2, config.height / 2 + 100, rollCustomDice).setVisible(false);
-    rollCustomRandomDiceButton = createButton.call(this, 'Roll Custom Random Dice', config.width / 2, config.height / 2 + 150, rollCustomRandomDice).setVisible(false);
+    rollRandomButton = createButton.call(this, 'Roll Random Dice', config.width / 2, config.height / 2 - 150, rollRandomDice).setVisible(false);
+    rollSelectedButton = createButton.call(this, 'Roll Selected Dice', config.width / 2, config.height / 2 - 100, rollSelectedDice).setVisible(false);
+    switchDiceButton = createButton.call(this, 'Switch Dice Type', config.width / 2, config.height / 2 - 50, switchDiceType).setVisible(false);
+    createDiceButton = createButton.call(this, 'Create Dice', config.width / 2, config.height / 2, showCreateDiceMenu).setVisible(false);
+    rollCustomDiceButton = createButton.call(this, 'Roll Custom Dice', config.width / 2, config.height / 2 + 50, rollCustomDice).setVisible(false);
+    rollCustomRandomDiceButton = createButton.call(this, 'Roll Custom Random Dice', config.width / 2, config.height / 2 + 100, rollCustomRandomDice).setVisible(false);
+	switchCustomDiceButton = createButton.call(this, 'Switch Custom Dice Type', config.width / 2, config.height / 2 + 150, switchCustomDiceType).setVisible(false);
 
     this.resultText = this.add.text(config.width / 2, config.height / 2 + 200, '', {
         fontSize: '24px',
@@ -64,7 +66,7 @@ function create() {
 
     helpText = createText.call(this, config.width / 2, config.height / 2, 'Help Information: \n\n Here you can learn how to use the dice simulation...').setVisible(false);
     settingsText = createText.call(this, config.width / 2, config.height / 2, 'Settings Options: \n\n Customize your game settings here...').setVisible(false);
-    changelogText = createText.call(this, config.width / 2, config.height / 2, 'Changelog: \n\n- Added custom dice creation\n- Implemented luck factor for custom dice\n- Added sound effects toggle\n- Fixed various bugs').setVisible(false);
+    changelogText = createText.call(this, config.width / 2, config.height / 2, 'Changelog: \nv1.2\n\n- Added the ability to switch custom dice\n- Fixed an error related to rolling custom dice\n- Fixed the custom dice maker displaying the input boxes when backing out\n- Improved interface\nv1.1\n- Added custom dice creation\n- Implemented luck factor for custom dice\n- Added sound effects toggle\n- Fixed various bugs\nv1.0\n- Dice Simulator Release').setVisible(false);
 
     // Create input fields and submit button
     createDiceInputs.call(this);
@@ -252,7 +254,7 @@ function rollCustomDice() {
         this.diceSound.play();
     }
 
-    const dice = customDiceArray[selectedDiceIndex];
+    const dice = customDiceArray[selectedCustomDiceIndex];
     const result = rollWithLuckFactor(dice.sides, dice.luckFactor);
     this.resultText.setText(`Rolled Custom ${dice.type}: ${result}`);
 }
@@ -271,6 +273,20 @@ function rollCustomRandomDice() {
     const dice = customDiceArray?.[randomIndex];
     const result = rollWithLuckFactor(dice.sides, dice.luckFactor);
     this.resultText.setText(`Rolled Custom ${dice.type}: ${result}`);
+}
+
+function switchCustomDiceType() {
+	if (customDiceArray.length === 0) {
+        console.error('No custom dice available!');
+        return;
+    }
+	
+    if (sfxEnabled) {
+        this.switchSound.play();
+    }
+	
+    selectedCustomDiceIndex = (selectedCustomDiceIndex + 1) % diceArray.length;
+    this.resultText.setText(`Selected ${customDiceArray[selectedCustomDiceIndex].type}`);
 }
 
 function rollWithLuckFactor(sides, luckFactor) {
@@ -326,6 +342,7 @@ function showSimulation() {
     createDiceButton.setVisible(true);
     rollCustomDiceButton.setVisible(true);
     rollCustomRandomDiceButton.setVisible(true);
+	switchCustomDiceButton.setVisible(true);
     this.resultText.setVisible(true);
     backButton.setVisible(true);
 }
@@ -372,7 +389,7 @@ function showMainMenu() {
 
 function hideAllUI() {
     [this.playButton, this.helpButton, this.settingsButton, rollRandomButton, rollSelectedButton, 
-    switchDiceButton, createDiceButton, rollCustomDiceButton, rollCustomRandomDiceButton,
+    switchDiceButton, createDiceButton, rollCustomDiceButton, rollCustomRandomDiceButton, switchCustomDiceButton,
     helpText, settingsText, sfxToggleButton, backButton, this.changelogButton, changelogText].forEach(element => {
         if (element) element.setVisible(false);
     });
