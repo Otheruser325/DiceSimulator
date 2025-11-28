@@ -106,27 +106,54 @@ function create() {
 	this.activeInputField = null;
 	
 	this.sideInput.on('pointerdown', () => {
+        if (this.sideInput.text === "Enter sides...") {
+            this.sideInput.text = "";
+        }
         this.activeInputField = this.sideInput;
         this.sideInput.setFill("#fff");
     });
 
     this.luckInput.on('pointerdown', () => {
+        if (this.luckInput.text === "Enter luck factor...") {
+            this.luckInput.text = "";
+        }
         this.activeInputField = this.luckInput;
         this.luckInput.setFill("#fff");
     });
 	
 	// Keyboard input
     this.input.keyboard.on('keydown', (event) => {
-        if (!this.activeInputField) return;
+    if (!this.activeInputField) return;
 
-        if (event.key === "Backspace") {
-            this.activeInputField.text = this.activeInputField.text.slice(0, -1);
-        } else if (event.key === "Enter") {
-            this.activeInputField = null;
-        } else {
-            if (event.key.length === 1) {
-                this.activeInputField.text += event.key;
+    let field = this.activeInputField;
+    let char = event.key;
+
+    if (char === "Backspace") {
+        field.text = field.text.slice(0, -1);
+        return;
+    }
+
+    if (char === "Enter") {
+        this.activeInputField = null;
+        return;
+    }
+
+    // DIGITS ONLY for sideInput
+    if (field === this.sideInput) {
+        if (/^[0-9]$/.test(char)) {
+            field.text += char;
+        }
+        return;
+    }
+
+    // DIGITS + ONE DECIMAL for luckInput
+    if (field === this.luckInput) {
+            if (/^[0-9]$/.test(char)) {
+                field.text += char;
+            } else if (char === "." && !field.text.includes(".")) {
+                field.text += ".";
             }
+            return;
         }
     });
 	
@@ -164,27 +191,26 @@ function createText(x, y, text) {
 }
 
 function submitCustomDice() {
-    const sideInput = this.sideInput.text.trim();
-    const luckInput = this.luckInput.text.trim();
+    const sideInput = parseInt(this.sideInput.text.trim(), 10);
+    const luckInput = parseFloat(this.luckInput.text.trim());
 
-    if (sideInput === "" || isNaN(sideInput) || sideInput < 6) {
+    if (isNaN(sideInput) || sideInput < 6) {
         showAlert.call(this, "Invalid side count (min 6)", "error");
         return;
     }
 
-    if (luckInput === "" || isNaN(luckInput) || luckInput < 0) {
+    if (isNaN(luckInput) || luckInput < 0) {
         showAlert.call(this, "Invalid luck factor", "error");
         return;
     }
 
     customDiceArray.push({
         type: `D${sideInput}`,
-        sides: parseInt(sideInput),
-        luckFactor: parseFloat(luckInput)
+        sides: sideInput,
+        luckFactor: luckInput
     });
 
     showAlert.call(this, "Custom dice created!", "success");
-
     showSimulation.call(this);
 }
 
