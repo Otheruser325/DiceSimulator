@@ -73,7 +73,7 @@ function create() {
     changelogText = createText.call(this, config.width / 2, config.height / 2, 'Changelog: \nv1.2\n\n- Added an option to change background colour\n- Added the ability to switch custom dice\n- Fixed an error related to rolling custom dice\n- Fixed the custom dice maker displaying the input boxes when backing out\n- Improved interface\nv1.1\n\n- Added custom dice creation\n- Implemented luck factor for custom dice\n- Added sound effects toggle\n- Fixed various bugs\nv1.0\n\n- Dice Simulator Release').setVisible(false);
 	
 	// Custom Dice UI
-    this.sideInput = this.add.text(config.width/2, config.height/2 - 60, "Enter sides...", {
+    this.sidesInput = this.add.text(config.width/2, config.height/2 - 60, "Enter sides...", {
         fontSize: "28px",
         fill: "#ccc",
         fontFamily: "Verdana",
@@ -98,64 +98,21 @@ function create() {
         '26px'
     ).setVisible(false);
 	
+	this.sidesInput = createInputField(
+        this, 300, 200,
+        "Enter sides...",
+        { fontSize: "28px", fontFamily: "Verdana", color: "#fff" }
+    );
+
+        this.luckInput = createInputField(
+        this, 300, 260,
+        "Enter luck factor...",
+        { fontSize: "28px", fontFamily: "Verdana", color: "#fff" }
+    );
+	
 	// Inputs hidden by default
-    this.sideInput.setVisible(false);
+    this.sidesInput.setVisible(false);
     this.luckInput.setVisible(false);
-	
-	// Input logic
-	this.activeInputField = null;
-	
-	this.sideInput.on('pointerdown', () => {
-        if (this.sideInput.text === "Enter sides...") {
-            this.sideInput.text = "";
-        }
-        this.activeInputField = this.sideInput;
-        this.sideInput.setFill("#fff");
-    });
-
-    this.luckInput.on('pointerdown', () => {
-        if (this.luckInput.text === "Enter luck factor...") {
-            this.luckInput.text = "";
-        }
-        this.activeInputField = this.luckInput;
-        this.luckInput.setFill("#fff");
-    });
-	
-	// Keyboard input
-    this.input.keyboard.on('keydown', (event) => {
-    if (!this.activeInputField) return;
-
-    let field = this.activeInputField;
-    let char = event.key;
-
-    if (char === "Backspace") {
-        field.text = field.text.slice(0, -1);
-        return;
-    }
-
-    if (char === "Enter") {
-        this.activeInputField = null;
-        return;
-    }
-
-    // DIGITS ONLY for sideInput
-    if (field === this.sideInput) {
-        if (/^[0-9]$/.test(char)) {
-            field.text += char;
-        }
-        return;
-    }
-
-    // DIGITS + ONE DECIMAL for luckInput
-    if (field === this.luckInput) {
-            if (/^[0-9]$/.test(char)) {
-                field.text += char;
-            } else if (char === "." && !field.text.includes(".")) {
-                field.text += ".";
-            }
-            return;
-        }
-    });
 	
 	// Load custom backgrounds
 	applyBackground.call(this);
@@ -190,28 +147,83 @@ function createText(x, y, text) {
     }).setOrigin(0.5, 0.5);
 }
 
-function submitCustomDice() {
-    const sideInput = parseInt(this.sideInput.text.trim(), 10);
-    const luckInput = parseFloat(this.luckInput.text.trim());
+function createInputField(scene, x, y, placeholder, style) {
+    const field = scene.add.text(x, y, placeholder, style).setInteractive();
 
-    if (isNaN(sideInput) || sideInput < 6) {
+    field._placeholder = placeholder;
+    field._realValue = "";  // Store the actual input
+
+    // When clicked, remove placeholder
+    field.on('pointerdown', () => {
+        if (field.text === field._placeholder) {
+            field.setText('');
+        }
+    });
+
+    // Capture keyboard input
+    scene.input.keyboard.on('keydown', (event) => {
+        if (!field.inputing) return;
+
+        if (event.key === "Backspace") {
+            field._realValue = field._realValue.slice(0, -1);
+        } else if (event.key.length === 1) {
+            field._realValue += event.key;
+        }
+
+        field.setText(field._realValue || "");
+    });
+
+    // Detect focus/blur
+    field.on('pointerdown', () => (field.inputing = true));
+
+    scene.input.on('pointerdown', (pointer, gameObjects) => {
+        if (!gameObjects.includes(field)) {
+            // Lost focus → restore placeholder if empty
+            field.inputing = false;
+
+            if (!field._realValue) {
+                field.setText(field._placeholder);
+            }
+        }
+    });
+
+    // Method to get the current value safely
+    field.getValue = () => field._realValue || "";
+
+    return field;
+}
+
+function submitCustomDice() {
+    const sidesValue = Number(this.sidesInput.getValue());
+    const luckValue  = Number(this.luckInput.getValue());
+
+    // --- VALIDATION ---
+    if (isNaN(sidesValue) || sidesValue < 6) {
         showAlert.call(this, "Invalid side count (min 6)", "error");
         return;
     }
 
-    if (isNaN(luckInput) || luckInput < 0) {
+    if (isNaN(luckValue) || luckValue < 0) {
         showAlert.call(this, "Invalid luck factor", "error");
         return;
     }
 
+    // --- CREATE CUSTOM DICE ---
     customDiceArray.push({
-        type: `D${sideInput}`,
-        sides: sideInput,
-        luckFactor: luckInput
+        type: `D${sidesValue}`,
+        sides: sidesValue,
+        luckFactor: luckValue
     });
 
     showAlert.call(this, "Custom dice created!", "success");
     showSimulation.call(this);
+
+    // Optional: Reset input fields
+    this.sidesInput._realValue = "";
+    this.sidesInput.setText(this.sidesInput._placeholder);
+
+    this.luckInput._realValue = "";
+    this.luckInput.setText(this.luckInput._placeholder);
 }
 
 function showCreateDiceMenu() {
@@ -446,7 +458,8 @@ function applyBackground() {
 	// Update text color for all elements based on background color
 	[this.playButton, this.helpButton, this.settingsButton, rollRandomButton, rollSelectedButton, 
     switchDiceButton, createDiceButton, rollCustomDiceButton, rollRandomCustomDiceButton, switchCustomDiceButton,
-    helpText, settingsText, sfxToggleButton, backgroundToggleButton, backButton, this.changelogButton, changelogText, this.resultText].forEach(element => {
+    helpText, settingsText, sfxToggleButton, backgroundToggleButton, backButton, this.changelogButton, changelogText, this.resultText, 
+	this.sidesInput, this.luckInput, this.createDiceSubmitButton].forEach(element => {
         if (element) element.setStyle({ color: textColor });
     });
 }
@@ -487,7 +500,7 @@ function hideAllUI() {
         rollRandomButton, rollSelectedButton, switchDiceButton, createDiceButton,
         rollCustomDiceButton, rollRandomCustomDiceButton, switchCustomDiceButton,
         helpText, settingsText, sfxToggleButton, backgroundToggleButton, backButton,
-        changelogText, this.resultText, this.sideInput, this.luckInput, this.createDiceSubmitButton
+        changelogText, this.resultText, this.sidesInput, this.luckInput, this.createDiceSubmitButton
     ].forEach(element => {
         if (element) element.setVisible(false);
     });
