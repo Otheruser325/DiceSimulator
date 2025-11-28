@@ -25,7 +25,6 @@ let selectedBackgroundIndex = 0;
 let rollRandomButton, rollSelectedButton, switchDiceButton, createDiceButton, rollCustomDiceButton, rollRandomCustomDiceButton, switchCustomDiceButton;
 let backButton;
 let inputContainer;
-let sideInputField, luckFactorInputField, submitButton;
 let helpText, settingsText, changelogText;
 let sfxToggleButton, backgroundToggleButton;
 let sfxEnabled = true;
@@ -229,7 +228,7 @@ function submitCustomDice() {
 function showCreateDiceMenu() {
     hideAllUI.call(this);
 
-    this.sideInput.setText("Enter sides...").setVisible(true);
+    this.sidesInput.setText("Enter sides...").setVisible(true);
     this.luckInput.setText("Enter luck factor...").setVisible(true);
     this.createDiceSubmitButton.setVisible(true);
 
