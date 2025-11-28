@@ -199,7 +199,7 @@ function createDiceSubmit() {
     hideInputFields.call(this);
 	
 	// Return to simulation after creating a custom dice
-	showSimulation.call(this)
+	showSimulation.call(this);
 }
 
 function hideInputFields() {
