@@ -20,7 +20,7 @@ let diceArray = [];
 let customDiceArray = [];
 let selectedDiceIndex = 0;
 let selectedCustomDiceIndex = 0;
-let rollRandomButton, rollSelectedButton, switchDiceButton, createDiceButton, rollCustomDiceButton, rollCustomRandomDiceButton, switchCustomDiceButton;
+let rollRandomButton, rollSelectedButton, switchDiceButton, createDiceButton, rollCustomDiceButton, rollRandomCustomDiceButton, switchCustomDiceButton;
 let backButton;
 let inputContainer;
 let sideInputField, luckFactorInputField, submitButton;
@@ -55,7 +55,7 @@ function create() {
     switchDiceButton = createButton.call(this, 'Switch Dice Type', config.width / 2, config.height / 2 - 50, switchDiceType).setVisible(false);
     createDiceButton = createButton.call(this, 'Create Dice', config.width / 2, config.height / 2, showCreateDiceMenu).setVisible(false);
     rollCustomDiceButton = createButton.call(this, 'Roll Custom Dice', config.width / 2, config.height / 2 + 50, rollCustomDice).setVisible(false);
-    rollCustomRandomDiceButton = createButton.call(this, 'Roll Custom Random Dice', config.width / 2, config.height / 2 + 100, rollCustomRandomDice).setVisible(false);
+    rollRandomCustomDiceButton = createButton.call(this, 'Roll Random Custom Dice', config.width / 2, config.height / 2 + 100, rollRandomCustomDice).setVisible(false);
 	switchCustomDiceButton = createButton.call(this, 'Switch Custom Dice Type', config.width / 2, config.height / 2 + 150, switchCustomDiceType).setVisible(false);
 
     this.resultText = this.add.text(config.width / 2, config.height / 2 + 200, '', {
@@ -259,7 +259,7 @@ function rollCustomDice() {
     this.resultText.setText(`Rolled Custom ${dice.type}: ${result}`);
 }
 
-function rollCustomRandomDice() {
+function rollRandomCustomDice() {
     if (customDiceArray.length === 0) {
         console.error('No custom dice available!');
         return;
@@ -341,7 +341,7 @@ function showSimulation() {
     switchDiceButton.setVisible(true);
     createDiceButton.setVisible(true);
     rollCustomDiceButton.setVisible(true);
-    rollCustomRandomDiceButton.setVisible(true);
+    rollRandomCustomDiceButton.setVisible(true);
 	switchCustomDiceButton.setVisible(true);
     this.resultText.setVisible(true);
     backButton.setVisible(true);
@@ -389,7 +389,7 @@ function showMainMenu() {
 
 function hideAllUI() {
     [this.playButton, this.helpButton, this.settingsButton, rollRandomButton, rollSelectedButton, 
-    switchDiceButton, createDiceButton, rollCustomDiceButton, rollCustomRandomDiceButton, switchCustomDiceButton,
+    switchDiceButton, createDiceButton, rollCustomDiceButton, rollRandomCustomDiceButton, switchCustomDiceButton,
     helpText, settingsText, sfxToggleButton, backButton, this.changelogButton, changelogText, this.resultText, sideInputField, luckFactorInputField, submitButton].forEach(element => {
         if (element) element.setVisible(false);
     });
