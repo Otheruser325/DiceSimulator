@@ -57,7 +57,7 @@ function create() {
     rollRandomButton = createButton.call(this, 'Roll Random Dice', config.width / 2, config.height / 2 - 300, rollRandomDice).setVisible(false);
     rollSelectedButton = createButton.call(this, 'Roll Selected Dice', config.width / 2, config.height / 2 - 200, rollSelectedDice).setVisible(false);
     switchDiceButton = createButton.call(this, 'Switch Dice Type', config.width / 2, config.height / 2 - 100, switchDiceType).setVisible(false);
-    createDiceButton = createButton.call(this, 'Create Dice', config.width / 2, config.height / 2, showCreateDiceMenu).setVisible(false);
+    createDiceButton = createButton.call(this, 'Build a Dice!', config.width / 2, config.height / 2, showCreateDiceMenu).setVisible(false);
     rollCustomDiceButton = createButton.call(this, 'Roll Custom Dice', config.width / 2, config.height / 2 + 100, rollCustomDice).setVisible(false);
     rollRandomCustomDiceButton = createButton.call(this, 'Roll Random Custom Dice', config.width / 2, config.height / 2 + 200, rollRandomCustomDice).setVisible(false);
 	switchCustomDiceButton = createButton.call(this, 'Switch Custom Dice Type', config.width / 2, config.height / 2 + 300, switchCustomDiceType).setVisible(false);
@@ -71,9 +71,64 @@ function create() {
     helpText = createText.call(this, config.width / 2, config.height / 2, 'Help Information: \n\n Here you can learn how to use the dice simulation...').setVisible(false);
     settingsText = createText.call(this, config.width / 2, config.height / 2, 'Settings Options: \n\n Customize your game settings here...').setVisible(false);
     changelogText = createText.call(this, config.width / 2, config.height / 2, 'Changelog: \nv1.2\n\n- Added an option to change background colour\n- Added the ability to switch custom dice\n- Fixed an error related to rolling custom dice\n- Fixed the custom dice maker displaying the input boxes when backing out\n- Improved interface\nv1.1\n\n- Added custom dice creation\n- Implemented luck factor for custom dice\n- Added sound effects toggle\n- Fixed various bugs\nv1.0\n\n- Dice Simulator Release').setVisible(false);
+	
+	// Custom Dice UI
+    this.sideInput = this.add.text(config.width/2, config.height/2 - 60, "Enter sides...", {
+        fontSize: "28px",
+        fill: "#ccc",
+        fontFamily: "Verdana",
+        backgroundColor: "#222",
+        padding: { x: 12, y: 8 }
+    }).setOrigin(0.5).setInteractive();
 
-    // Create input fields and submit button
-    createDiceInputs.call(this);
+    this.luckInput = this.add.text(config.width/2, config.height/2, "Enter luck factor...", {
+        fontSize: "28px",
+        fill: "#ccc",
+        fontFamily: "Verdana",
+        backgroundColor: "#222",
+        padding: { x: 12, y: 8 }
+    }).setOrigin(0.5).setInteractive();
+
+    this.createDiceSubmitButton = createButton.call(
+    this,
+        'Create Dice',
+        config.width / 2,
+        config.height / 2 + 80,
+        submitCustomDice.bind(this),
+        '26px'
+    ).setVisible(false);
+	
+	// Inputs hidden by default
+    this.sideInput.setVisible(false);
+    this.luckInput.setVisible(false);
+	
+	// Input logic
+	this.activeInputField = null;
+	
+	this.sideInput.on('pointerdown', () => {
+        this.activeInputField = this.sideInput;
+        this.sideInput.setFill("#fff");
+    });
+
+    this.luckInput.on('pointerdown', () => {
+        this.activeInputField = this.luckInput;
+        this.luckInput.setFill("#fff");
+    });
+	
+	// Keyboard input
+    this.input.keyboard.on('keydown', (event) => {
+        if (!this.activeInputField) return;
+
+        if (event.key === "Backspace") {
+            this.activeInputField.text = this.activeInputField.text.slice(0, -1);
+        } else if (event.key === "Enter") {
+            this.activeInputField = null;
+        } else {
+            if (event.key.length === 1) {
+                this.activeInputField.text += event.key;
+            }
+        }
+    });
 	
 	// Load custom backgrounds
 	applyBackground.call(this);
@@ -89,57 +144,6 @@ function create() {
 
 function update() {}
 
-function createButton(text, x, y, onClick, fontSize = '32px', backgroundColor = '#333') {
-    return this.add.text(x, y, text, {
-        fontSize: fontSize,
-        fill: '#fff',
-        backgroundColor: backgroundColor,
-        padding: { x: 20, y: 10 },
-        fontFamily: 'Verdana'
-    }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', onClick, this);
-}
-
-function createText(x, y, text) {
-    return this.add.text(x, y, text, {
-        fontSize: '24px',
-        fill: '#fff',
-        fontFamily: 'Verdana',
-        align: 'center'
-    }).setOrigin(0.5, 0.5);
-}
-
-function createDOMInputField(placeholder, id) {
-    const inputField = document.createElement('input');
-    inputField.type = 'text';
-    inputField.placeholder = placeholder;
-    inputField.id = id;
-    inputField.style.width = '180px';
-    inputField.style.height = '30px';
-	inputField.style.fontFamily = 'Verdana';
-    inputField.style.fontSize = '24px';
-    inputField.style.textAlign = 'center';
-    inputField.style.marginBottom = '10px';
-    return inputField;
-}
-
-function createDOMButton(text, onClick, id) {
-    const button = document.createElement('button');
-    button.textContent = text;
-    button.id = id;
-    button.style.padding = '10px 20px';
-    button.style.border = 'none';
-    button.style.borderRadius = '5px';
-    button.style.backgroundColor = '#4CAF50';
-    button.style.color = 'white';
-	button.style.fontFamily = 'Verdana';
-    button.style.fontSize = '16px';
-    button.style.cursor = 'pointer';
-
-    button.addEventListener('click', onClick);
-
-    return button;
-}
-
 function createDiceInputs() {
     const uiContainer = document.getElementById('ui-container');
     if (!uiContainer) {
@@ -150,7 +154,7 @@ function createDiceInputs() {
     // Create input fields and submit button
     sideInputField = createDOMInputField('Number of Sides', 'sideInputField');
     luckFactorInputField = createDOMInputField('Luck Factor', 'luckFactorInputField');
-    submitButton = createDOMButton('Create Dice', createDiceSubmit, 'submitButton');
+    submitButton = createDOMButton('Create Dice', createDiceSubmit, 'submitButton', this);
 
     // Add them to the DOM
     uiContainer.appendChild(sideInputField);
@@ -161,45 +165,29 @@ function createDiceInputs() {
     hideInputFields();
 }
 
-function createDiceSubmit() {
-    // Get values from the input fields
-    const sideInput = sideInputField.value.trim();
-    const luckInput = luckFactorInputField.value.trim();
+function submitCustomDice() {
+    const sideInput = this.sideInput.text.trim();
+    const luckInput = this.luckInput.text.trim();
 
-    // Check if input values are not empty
-    if (sideInput === "") {
-        showAlert.call(this, 'Side input cannot be empty.', 'error');
-        return;
-    }
-    if (luckInput === "") {
-        showAlert.call(this, 'Luck input cannot be empty.', 'error');
+    if (sideInput === "" || isNaN(sideInput) || sideInput < 6) {
+        showAlert.call(this, "Invalid side count (min 6)", "error");
         return;
     }
 
-    // Convert input values to numbers
-    const sides = parseInt(sideInput, 10);
-    const luckFactor = parseFloat(luckInput);
-
-    // Validate the inputs
-    if (isNaN(sides) || sides < 6) {
-        showAlert.call(this, 'Invalid number of sides. Must be at least 6.', 'error');
-        return;
-    }
-    if (isNaN(luckFactor) || luckFactor < 0) {
-        showAlert.call(this, 'Invalid luck factor. Must be a non-negative number.', 'error');
+    if (luckInput === "" || isNaN(luckInput) || luckInput < 0) {
+        showAlert.call(this, "Invalid luck factor", "error");
         return;
     }
 
-    // Create a new dice
-    const newDice = { type: `D${sides}`, sides: sides, luckFactor: luckFactor };
-    customDiceArray.push(newDice);
-    showAlert.call(this, 'Dice created successfully!', 'success');
+    customDiceArray.push({
+        type: `D${sideInput}`,
+        sides: parseInt(sideInput),
+        luckFactor: parseFloat(luckInput)
+    });
 
-    // Hide input fields and reset values
-    hideInputFields.call(this);
-	
-	// Return to simulation after creating a custom dice
-	showSimulation.call(this);
+    showAlert.call(this, "Custom dice created!", "success");
+
+    showSimulation.call(this);
 }
 
 function hideInputFields() {
@@ -210,12 +198,12 @@ function hideInputFields() {
 
 function showCreateDiceMenu() {
     hideAllUI.call(this);
-    createDiceInputs.call(this); // Ensure inputs are created
-    if (sideInputField) sideInputField.style.display = 'block';
-    if (luckFactorInputField) luckFactorInputField.style.display = 'block';
-    if (submitButton) submitButton.style.display = 'block';
 
-    if (backButton) backButton.setVisible(true);
+    this.sideInput.setText("Enter sides...").setVisible(true);
+    this.luckInput.setText("Enter luck factor...").setVisible(true);
+    this.createDiceSubmitButton.setVisible(true);
+
+    backButton.setVisible(true);
 }
 
 function rollRandomDice() {
@@ -369,18 +357,8 @@ function showSimulation() {
     rollCustomDiceButton.setVisible(true);
     rollRandomCustomDiceButton.setVisible(true);
 	switchCustomDiceButton.setVisible(true);
-    
-	if (!this.resultText) {
-        this.resultText.setVisible(true);
-    } else {
-        this.resultText.setVisible(true);
-    }
-	
-	if (!backButton) {
-        backButton.setVisible(true);
-    } else {
-        backButton.setVisible(true);
-    }
+    this.resultText.setVisible(true);
+    backButton.setVisible(true);
 }
 
 function showHelp() {
@@ -486,13 +464,15 @@ function showMainMenu() {
 }
 
 function hideAllUI() {
-    [this.playButton, this.helpButton, this.settingsButton, rollRandomButton, rollSelectedButton, 
-    switchDiceButton, createDiceButton, rollCustomDiceButton, rollRandomCustomDiceButton, switchCustomDiceButton,
-    helpText, settingsText, sfxToggleButton, backgroundToggleButton, backButton, this.changelogButton, changelogText, this.resultText].forEach(element => {
+    [
+        this.playButton, this.helpButton, this.settingsButton, this.changelogButton,
+        rollRandomButton, rollSelectedButton, switchDiceButton, createDiceButton,
+        rollCustomDiceButton, rollRandomCustomDiceButton, switchCustomDiceButton,
+        helpText, settingsText, sfxToggleButton, backgroundToggleButton, backButton,
+        changelogText, this.resultText, this.sideInput, this.luckInput, this.createDiceSubmitButton
+    ].forEach(element => {
         if (element) element.setVisible(false);
     });
-	
-	hideInputFields.call(this);
 }
 
 function showChangelog() {
