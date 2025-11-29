@@ -61,7 +61,7 @@ function create() {
     rollRandomCustomDiceButton = createButton.call(this, 'Roll Random Custom Dice', config.width / 2, config.height / 2 + 100, rollRandomCustomDice).setVisible(false);
 	switchCustomDiceButton = createButton.call(this, 'Switch Custom Dice Type', config.width / 2, config.height / 2 + 180, switchCustomDiceType).setVisible(false);
 	
-	titleText = createText.call(this, config.width / 2, config.height / 2 - 360, 'Dice Simulator').setVisible(true);
+	titleText = createText.call(this, config.width / 2 + 360, config.height / 2 - 360, 'Dice Simulator').setVisible(true);
 
     this.resultText = this.add.text(config.width / 2, config.height / 2 + 240, '', {
         fontSize: '24px',
@@ -477,7 +477,6 @@ function getOptimalTextColor(bgHex) {
 
 function showMainMenu() {
     hideAllUI.call(this);
-	this.titleText.setVisible(true);
     this.playButton.setVisible(true);
     this.helpButton.setVisible(true);
     this.settingsButton.setVisible(true);
