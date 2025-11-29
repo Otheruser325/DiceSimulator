@@ -53,17 +53,17 @@ function create() {
 
     backButton = createButton.call(this, 'Back', 60, 20, showMainMenu, '30px', '#f00').setVisible(false);
 
-    rollRandomButton = createButton.call(this, 'Roll Random Dice', config.width / 2, config.height / 2 - 300, rollRandomDice).setVisible(false);
-    rollSelectedButton = createButton.call(this, 'Roll Selected Dice', config.width / 2, config.height / 2 - 220, rollSelectedDice).setVisible(false);
-    switchDiceButton = createButton.call(this, 'Switch Dice Type', config.width / 2, config.height / 2 - 140, switchDiceType).setVisible(false);
-    createDiceButton = createButton.call(this, 'Build a Dice!', config.width / 2, config.height / 2 - 60, showCreateDiceMenu).setVisible(false);
-    rollCustomDiceButton = createButton.call(this, 'Roll Custom Dice', config.width / 2, config.height / 2 + 20, rollCustomDice).setVisible(false);
-    rollRandomCustomDiceButton = createButton.call(this, 'Roll Random Custom Dice', config.width / 2, config.height / 2 + 100, rollRandomCustomDice).setVisible(false);
-	switchCustomDiceButton = createButton.call(this, 'Switch Custom Dice Type', config.width / 2, config.height / 2 + 180, switchCustomDiceType).setVisible(false);
+    rollRandomButton = createButton.call(this, 'Roll Random Dice', config.width / 2, config.height / 2 - 260, rollRandomDice).setVisible(false);
+    rollSelectedButton = createButton.call(this, 'Roll Selected Dice', config.width / 2, config.height / 2 - 180, rollSelectedDice).setVisible(false);
+    switchDiceButton = createButton.call(this, 'Switch Dice Type', config.width / 2, config.height / 2 - 100, switchDiceType).setVisible(false);
+    createDiceButton = createButton.call(this, 'Build a Dice!', config.width / 2, config.height / 2 - 20, showCreateDiceMenu).setVisible(false);
+    rollCustomDiceButton = createButton.call(this, 'Roll Custom Dice', config.width / 2, config.height / 2 + 60, rollCustomDice).setVisible(false);
+    rollRandomCustomDiceButton = createButton.call(this, 'Roll Random Custom Dice', config.width / 2, config.height / 2 + 140, rollRandomCustomDice).setVisible(false);
+	switchCustomDiceButton = createButton.call(this, 'Switch Custom Dice Type', config.width / 2, config.height / 2 + 220, switchCustomDiceType).setVisible(false);
 	
 	titleText = createTitleText.call(this, config.width / 2, config.height / 2 - 360, 'Dice Simulator').setVisible(true);
 
-    this.resultText = this.add.text(config.width / 2, config.height / 2 + 240, '', {
+    this.resultText = this.add.text(config.width / 2, config.height / 2 + 280, '', {
         fontSize: '24px',
         fill: '#fff',
         fontFamily: 'Verdana'
