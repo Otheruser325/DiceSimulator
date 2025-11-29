@@ -101,13 +101,13 @@ function create() {
         this, 300, 200,
         "Enter sides...",
         { fontSize: "28px", fontFamily: "Verdana", color: "#fff" }
-    );
+    ).setVisible(false);
 
-        this.luckInput = createInputField(
+    this.luckInput = createInputField(
         this, 300, 260,
         "Enter luck factor...",
         { fontSize: "28px", fontFamily: "Verdana", color: "#fff" }
-    );
+    ).setVisible(false);
 	
 	// Inputs hidden by default
     this.sidesInput.setVisible(false);
