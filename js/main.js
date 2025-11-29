@@ -25,7 +25,7 @@ let selectedBackgroundIndex = 0;
 let rollRandomButton, rollSelectedButton, switchDiceButton, createDiceButton, rollCustomDiceButton, rollRandomCustomDiceButton, switchCustomDiceButton;
 let backButton;
 let inputContainer;
-let helpText, settingsText, changelogText;
+let titleText, helpText, settingsText, changelogText;
 let sfxToggleButton, backgroundToggleButton;
 let sfxEnabled = true;
 
@@ -53,22 +53,24 @@ function create() {
 
     backButton = createButton.call(this, 'Back', 60, 20, showMainMenu, '30px', '#f00').setVisible(false);
 
-    rollRandomButton = createButton.call(this, 'Roll Random Dice', config.width / 2, config.height / 2 - 300, rollRandomDice).setVisible(false);
+    rollRandomButton = createButton.call(this, 'Roll Random Dice', config.width / 2, config.height / 2 - 270, rollRandomDice).setVisible(false);
     rollSelectedButton = createButton.call(this, 'Roll Selected Dice', config.width / 2, config.height / 2 - 200, rollSelectedDice).setVisible(false);
-    switchDiceButton = createButton.call(this, 'Switch Dice Type', config.width / 2, config.height / 2 - 100, switchDiceType).setVisible(false);
-    createDiceButton = createButton.call(this, 'Build a Dice!', config.width / 2, config.height / 2, showCreateDiceMenu).setVisible(false);
-    rollCustomDiceButton = createButton.call(this, 'Roll Custom Dice', config.width / 2, config.height / 2 + 100, rollCustomDice).setVisible(false);
-    rollRandomCustomDiceButton = createButton.call(this, 'Roll Random Custom Dice', config.width / 2, config.height / 2 + 200, rollRandomCustomDice).setVisible(false);
-	switchCustomDiceButton = createButton.call(this, 'Switch Custom Dice Type', config.width / 2, config.height / 2 + 300, switchCustomDiceType).setVisible(false);
+    switchDiceButton = createButton.call(this, 'Switch Dice Type', config.width / 2, config.height / 2 - 130, switchDiceType).setVisible(false);
+    createDiceButton = createButton.call(this, 'Build a Dice!', config.width / 2, config.height / 2 - 60, showCreateDiceMenu).setVisible(false);
+    rollCustomDiceButton = createButton.call(this, 'Roll Custom Dice', config.width / 2, config.height / 2 - 10, rollCustomDice).setVisible(false);
+    rollRandomCustomDiceButton = createButton.call(this, 'Roll Random Custom Dice', config.width / 2, config.height / 2 - 80, rollRandomCustomDice).setVisible(false);
+	switchCustomDiceButton = createButton.call(this, 'Switch Custom Dice Type', config.width / 2, config.height / 2 - 150, switchCustomDiceType).setVisible(false);
+	
+	titleText = createText.call(this, config.width / 4, config.height / 4 - 360, 'Dice Simulator').setVisible(true);
 
-    this.resultText = this.add.text(config.width / 2, config.height / 2 + 360, '', {
+    this.resultText = this.add.text(config.width / 2, config.height / 2 + 210, '', {
         fontSize: '24px',
         fill: '#fff',
         fontFamily: 'Verdana'
     }).setOrigin(0.5, 0.5).setVisible(false);
 
     helpText = createText.call(this, config.width / 2, config.height / 2, 'Help Information: \n\n Here you can learn how to use the dice simulation. Let\'s explore! \n\n PLAY: By clicking on this button, you\'re able to experience the dice sandbox by using various features, which includes: \n - Roll Selected Dice \n - Roll Random Dice \n - Switch Dice Type \n - Build a Dice \n - Roll Custom Dice \n - Roll Random Custom Dice \n - Switch Custom Dice Type \n\n Normal Dice: Just basic dice ranging from D6 to D100. Accessible as a primary education tool, or as a time killer. \n Custom Dice: Invent your own dice from scratch! Use the "Build a Dice" tool to make the dice of your dreams! You can always try them out yourself \n by using the custom dice options; essential for more complex games. \n\n SETTINGS: If things aren\'t suitable, you can turn off the sound effects (SFX) or change the background to your favourite colour. It\'s up to you. \n\n CHANGELOG: Regular updates to the Dice Simulator.').setVisible(false);
-    settingsText = createText.call(this, config.width / 2, config.height / 2, 'Settings Options: \n\n Customize your game settings here...').setVisible(false);
+    settingsText = createText.call(this, config.width / 2, config.height / 2, 'Settings Options: \n\n Customize your game settings here!').setVisible(false);
     changelogText = createText.call(this, config.width / 2, config.height / 2, 'Changelog: \nv1.2\n\n- Added an option to change background colour\n- Added the ability to switch custom dice\n- Fixed an error related to rolling custom dice\n- Fixed the custom dice maker displaying the input boxes when backing out\n- Improved interface\nv1.1\n\n- Added custom dice creation\n- Implemented luck factor for custom dice\n- Added sound effects toggle\n- Fixed various bugs\nv1.0\n\n- Dice Simulator Release').setVisible(false);
 	
 	// Custom Dice UI
