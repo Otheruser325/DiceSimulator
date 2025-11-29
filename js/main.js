@@ -72,32 +72,7 @@ function create() {
     changelogText = createText.call(this, config.width / 2, config.height / 2, 'Changelog: \nv1.2\n\n- Added an option to change background colour\n- Added the ability to switch custom dice\n- Fixed an error related to rolling custom dice\n- Fixed the custom dice maker displaying the input boxes when backing out\n- Improved interface\nv1.1\n\n- Added custom dice creation\n- Implemented luck factor for custom dice\n- Added sound effects toggle\n- Fixed various bugs\nv1.0\n\n- Dice Simulator Release').setVisible(false);
 	
 	// Custom Dice UI
-    this.sidesInput = this.add.text(config.width/2, config.height/2 - 60, "Enter sides...", {
-        fontSize: "28px",
-        fill: "#ccc",
-        fontFamily: "Verdana",
-        backgroundColor: "#222",
-        padding: { x: 12, y: 8 }
-    }).setOrigin(0.5).setInteractive();
-
-    this.luckInput = this.add.text(config.width/2, config.height/2, "Enter luck factor...", {
-        fontSize: "28px",
-        fill: "#ccc",
-        fontFamily: "Verdana",
-        backgroundColor: "#222",
-        padding: { x: 12, y: 8 }
-    }).setOrigin(0.5).setInteractive();
-
-    this.createDiceSubmitButton = createButton.call(
-    this,
-        'Create Dice',
-        config.width / 2,
-        config.height / 2 + 80,
-        submitCustomDice.bind(this),
-        '26px'
-    ).setVisible(false);
-	
-	this.sidesInput = createInputField(
+    this.sidesInput = createInputField(
         this, 300, 200,
         "Enter sides...",
         { fontSize: "28px", fontFamily: "Verdana", color: "#fff" }
@@ -107,6 +82,15 @@ function create() {
         this, 300, 260,
         "Enter luck factor...",
         { fontSize: "28px", fontFamily: "Verdana", color: "#fff" }
+    ).setVisible(false);
+
+    this.createDiceSubmitButton = createButton.call(
+    this,
+        'Create Dice',
+        config.width / 2,
+        config.height / 2 + 80,
+        submitCustomDice.bind(this),
+        '26px'
     ).setVisible(false);
 	
 	// Inputs hidden by default
@@ -228,10 +212,14 @@ function submitCustomDice() {
 function showCreateDiceMenu() {
     hideAllUI.call(this);
 
-    this.sidesInput.setText("Enter sides...").setVisible(true);
-    this.luckInput.setText("Enter luck factor...").setVisible(true);
-    this.createDiceSubmitButton.setVisible(true);
+    // Reset placeholders and values
+    this.sidesInput._realValue = "";
+    this.sidesInput.setText(this.sidesInput._placeholder).setVisible(true);
 
+    this.luckInput._realValue = "";
+    this.luckInput.setText(this.luckInput._placeholder).setVisible(true);
+
+    this.createDiceSubmitButton.setVisible(true);
     backButton.setVisible(true);
 }
 
