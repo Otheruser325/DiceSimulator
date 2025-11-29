@@ -61,7 +61,7 @@ function create() {
     rollRandomCustomDiceButton = createButton.call(this, 'Roll Random Custom Dice', config.width / 2, config.height / 2 + 100, rollRandomCustomDice).setVisible(false);
 	switchCustomDiceButton = createButton.call(this, 'Switch Custom Dice Type', config.width / 2, config.height / 2 + 180, switchCustomDiceType).setVisible(false);
 	
-	titleText = createText.call(this, config.width / 2, config.height / 90 - 360, 'Dice Simulator').setVisible(true);
+	titleText = createTitleText.call(this, config.width / 2, config.height / 2 - 360, 'Dice Simulator').setVisible(true);
 
     this.resultText = this.add.text(config.width / 2, config.height / 2 + 240, '', {
         fontSize: '24px',
@@ -126,6 +126,15 @@ function createButton(text, x, y, onClick, fontSize = '32px', backgroundColor = 
 function createText(x, y, text) {
     return this.add.text(x, y, text, {
         fontSize: '24px',
+        fill: '#fff',
+        fontFamily: 'Verdana',
+        align: 'center'
+    }).setOrigin(0.5, 0.5);
+}
+
+function createTitleText(x, y, text) {
+    return this.add.text(x, y, text, {
+        fontSize: '72px',
         fill: '#fff',
         fontFamily: 'Verdana',
         align: 'center'
