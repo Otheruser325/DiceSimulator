@@ -73,13 +73,13 @@ function create() {
 	
 	// Custom Dice UI
     this.sidesInput = createInputField(
-        this, 900, 260,
+        this, 800, 300,
         "Enter sides...",
         { fontSize: "28px", fontFamily: "Verdana", color: "#fff" }
     ).setVisible(false);
 
     this.luckInput = createInputField(
-        this, 900, 320,
+        this, 800, 360,
         "Enter luck factor...",
         { fontSize: "28px", fontFamily: "Verdana", color: "#fff" }
     ).setVisible(false);
