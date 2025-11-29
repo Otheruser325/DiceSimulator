@@ -67,19 +67,19 @@ function create() {
         fontFamily: 'Verdana'
     }).setOrigin(0.5, 0.5).setVisible(false);
 
-    helpText = createText.call(this, config.width / 2, config.height / 2, 'Help Information: \n\n Here you can learn how to use the dice simulation...').setVisible(false);
+    helpText = createText.call(this, config.width / 2, config.height / 2, 'Help Information: \n\n Here you can learn how to use the dice simulation. Let\'s explore! \n\n PLAY: By clicking on this button, you\'re able to experience the dice sandbox by using various features, which includes: \n - Roll Selected Dice \n - Roll Random Dice \n - Switch Dice Type \n - Build a Dice \n - Roll Custom Dice \n - Roll Random Custom Dice \n - Switch Custom Dice Type \n\n Normal Dice: Just basic dice ranging from D6 to D100. Accessible as a primary education tool, or as a time killer. \n Custom Dice: Invent your own dice from scratch! Use the "Build a Dice" tool to make the dice of your dreams! You can always try them out yourself by using the custom dice options; essential for more complex games. \n\n SETTINGS: If things aren\'t suitable, you can turn off the sound effects (SFX) or change the background to your favourite colour. It\'s up to you. \n\n CHANGELOG: Regular updates to the Dice Simulator.').setVisible(false);
     settingsText = createText.call(this, config.width / 2, config.height / 2, 'Settings Options: \n\n Customize your game settings here...').setVisible(false);
     changelogText = createText.call(this, config.width / 2, config.height / 2, 'Changelog: \nv1.2\n\n- Added an option to change background colour\n- Added the ability to switch custom dice\n- Fixed an error related to rolling custom dice\n- Fixed the custom dice maker displaying the input boxes when backing out\n- Improved interface\nv1.1\n\n- Added custom dice creation\n- Implemented luck factor for custom dice\n- Added sound effects toggle\n- Fixed various bugs\nv1.0\n\n- Dice Simulator Release').setVisible(false);
 	
 	// Custom Dice UI
     this.sidesInput = createInputField(
-        this, 800, 300,
+        this, 880, 360,
         "Enter sides...",
         { fontSize: "28px", fontFamily: "Verdana", color: "#fff" }
     ).setVisible(false);
 
     this.luckInput = createInputField(
-        this, 800, 360,
+        this, 880, 420,
         "Enter luck factor...",
         { fontSize: "28px", fontFamily: "Verdana", color: "#fff" }
     ).setVisible(false);
