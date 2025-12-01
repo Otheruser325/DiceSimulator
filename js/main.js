@@ -16,6 +16,7 @@ const config = {
 
 const game = new Phaser.Game(config);
 
+let backTarget = "main";
 let diceArray = [];
 let customDiceArray = [];
 let backgroundsArray = [];
@@ -59,7 +60,7 @@ function create() {
     this.settingsButton = createButton.call(this, 'Settings', config.width / 2, config.height / 2 + 50, showSettings);
     this.changelogButton = createButton.call(this, 'Changelog', config.width / 2, config.height / 2 + 150, showChangelog);
 
-    backButton = createButton.call(this, 'Back', 60, 20, showMainMenu, '30px', '#f00').setVisible(false);
+    backButton = createButton.call(this, 'Back', 60, 20, () => handleBack.call(this), '30px', '#f00').setVisible(false);
 
     rollRandomButton = createButton.call(this, 'Roll Random Dice', config.width / 2, config.height / 2 - 260, rollRandomDice).setVisible(false);
     rollSelectedButton = createButton.call(this, 'Roll Selected Dice', config.width / 2, config.height / 2 - 180, rollSelectedDice).setVisible(false);
@@ -77,9 +78,9 @@ function create() {
         fontFamily: 'Verdana'
     }).setOrigin(0.5, 0.5).setVisible(false);
 
-    helpText = createText.call(this, config.width / 2, config.height / 2, 'Help Information: \n\n Here you can learn how to use the dice simulation. Let\'s explore! \n\n PLAY: By clicking on this button, you\'re able to experience the dice sandbox by using various features, which includes: \n - Roll Selected Dice \n - Roll Random Dice \n - Switch Dice Type \n - Build a Dice \n - Roll Custom Dice \n - Roll Random Custom Dice \n - Switch Custom Dice Type \n\n Normal Dice: Just basic dice ranging from D6 to D100. Accessible as a primary education tool, or as a time killer. \n Custom Dice: Invent your own dice from scratch! Use the "Build a Dice" tool to make the dice of your dreams! You can always try them out yourself \n by using the custom dice options; essential for more complex games. \n\n SETTINGS: If things aren\'t suitable, you can turn off the sound effects (SFX) or change the background to your favourite colour. It\'s up to you. \n\n CHANGELOG: Regular updates to the Dice Simulator.').setVisible(false);
+    helpText = createText.call(this, config.width / 2, config.height / 2, 'Help Information: \n\n Here you can learn how to use the dice simulation. Let\'s explore! \n\n PLAY: By clicking on this button, you\'re able to experience the dice sandbox by using various features, which includes: \n - Roll Selected Dice \n - Roll Random Dice \n - Switch Dice Type \n - Build-A-Dice \n - Roll Custom Dice \n - Roll Random Custom Dice \n - Switch Custom Dice Type \n\n Normal Dice: Just basic dice ranging from D6 to D100. Accessible as a primary education tool, or as a time killer. \n Custom Dice: Invent your own dice from scratch! Use the "Build a Dice" tool to make the dice of your dreams! You can always try them out yourself \n by using the custom dice options; essential for more complex games. \n\n SETTINGS: If things aren\'t suitable, you can turn off the sound effects (SFX) or change the background to your favourite colour. It\'s up to you. \n\n CHANGELOG: Regular updates to the Dice Simulator.').setVisible(false);
     settingsText = createText.call(this, config.width / 2, config.height / 2, 'Settings Options: \n\n Customize your game settings here!').setVisible(false);
-    changelogText = createText.call(this, config.width / 2, config.height / 2, 'Changelog: \nv1.3 (01/12/2025)\n- Background settings update: You can now manually change the BG colour using the button grid\n- The background of your choice is now saved consistently upon refreshing Dice Simulator\nv1.2 (28/11/2025)\n- Added an option to change background colour\n- Added the ability to switch custom dice\n- Fixed an error related to rolling custom dice\n- Fixed the custom dice maker displaying the input boxes when backing out\n- Improved interface\nv1.1 (19/09/2024)\n- Added custom dice creation\n- Implemented luck factor for custom dice\n- Added sound effects toggle\n- Fixed various bugs\nv1.0 (17/09/2024)\n- Dice Simulator Release').setVisible(false);
+    changelogText = createText.call(this, config.width / 2, config.height / 2, 'Changelog: \nv1.3 (01/12/2025)\n- Background settings update: You can now manually change the BG colour using the button grid\n- The background of your choice is now saved consistently upon refreshing Dice Simulator\n- The back button now returns to the roll simulation if you\'re in Build-A-Dice\nv1.2 (28/11/2025)\n- Added an option to change background colour\n- Added the ability to switch custom dice\n- Fixed an error related to rolling custom dice\n- Fixed the custom dice maker displaying the input boxes when backing out\n- Improved interface\nv1.1 (19/09/2024)\n- Added custom dice creation\n- Implemented luck factor for custom dice\n- Added sound effects toggle\n- Fixed various bugs\nv1.0 (17/09/2024)\n- Dice Simulator Release').setVisible(false);
 	
 	// Custom Dice UI
     this.sidesInput = createInputField(
@@ -359,6 +360,8 @@ function submitCustomDice() {
 
 function showCreateDiceMenu() {
     hideAllUI.call(this);
+	
+	backTarget = "sim";
 
     // Reset placeholders and values
     this.sidesInput._realValue = "";
@@ -515,15 +518,19 @@ function showAlert(message, type = 'error') {
 
 function showSimulation() {
     hideAllUI.call(this);
+
+    backTarget = "main";
+
     rollRandomButton.setVisible(true);
     rollSelectedButton.setVisible(true);
     switchDiceButton.setVisible(true);
     createDiceButton.setVisible(true);
     rollCustomDiceButton.setVisible(true);
     rollRandomCustomDiceButton.setVisible(true);
-	switchCustomDiceButton.setVisible(true);
-    this.resultText.setVisible(true);
+    switchCustomDiceButton.setVisible(true);
     backButton.setVisible(true);
+
+    this.resultText.setVisible(true);
 }
 
 function showHelp() {
@@ -594,6 +601,16 @@ function showMainMenu() {
     this.helpButton.setVisible(true);
     this.settingsButton.setVisible(true);
     this.changelogButton.setVisible(true);
+}
+
+function handleBack() {
+    if (backTarget === "sim") {
+        showSimulation.call(this);
+    } else {
+        showMainMenu.call(this);
+    }
+
+    backTarget = "main";
 }
 
 function hideAllUI() {
