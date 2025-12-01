@@ -42,7 +42,7 @@ function preload() {
 	const saved = localStorage.getItem("bgIndex");
     if (saved) {
         this.cameras.main.setBackgroundColor(saved);
-        this.updateTextColor(saved);
+        getOptimalTextColor(saved);
     }
 }
 
@@ -113,11 +113,6 @@ function create() {
 
     // Hide splash screen after game is created
     document.getElementById('splash-screen').style.display = 'none';
-
-    // Ensure the back button works as expected
-    document.getElementById('back-button').addEventListener('click', () => {
-        showMainMenu.call(this);
-    });
 }
 
 function update() {}
