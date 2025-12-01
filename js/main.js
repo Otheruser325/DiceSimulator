@@ -38,7 +38,7 @@ function preload() {
     this.load.audio('diceSound', 'assets/sfx/dice.mp3');
     this.load.audio('switchSound', 'assets/sfx/button.mp3');
 	
-	const saved = localStorage.getItem("bgColor");
+	const saved = localStorage.getItem("bgIndex");
     if (saved) {
         this.cameras.main.setBackgroundColor(saved);
         this.updateTextColor(saved);
@@ -108,7 +108,7 @@ function create() {
     this.luckInput.setVisible(false);
 	
 	// Load custom backgrounds
-	applyBackground.call(this);
+	this.bgManager = new BackgroundManager(this, backgroundsArray);
 
     // Hide splash screen after game is created
     document.getElementById('splash-screen').style.display = 'none';
@@ -120,6 +120,135 @@ function create() {
 }
 
 function update() {}
+
+class BackgroundManager {
+    constructor(scene, backgroundsArray) {
+        this.scene = scene;
+        this.backgroundsArray = backgroundsArray;
+
+        this.selected = parseInt(localStorage.getItem("bgIndex")) || 0;
+
+        this.buttons = [];
+        this.container = null;
+
+        this.createMenu();
+        this.applyBackground();
+    }
+
+    // -----------------------------------------
+    // Creates the button container + all bg buttons
+    // -----------------------------------------
+    createMenu() {
+        if (this.container) this.container.destroy(true);
+
+        this.container = this.scene.add.container(0, 0);
+        this.container.setVisible(false);
+
+        this.buttons = [];
+
+        const startX = config.width / 2 - 250;
+        const startY = config.height / 2 - 50;
+        const spacingX = 170;
+        const spacingY = 50;
+
+        this.backgroundsArray.forEach((bg, index) => {
+            const col = index % 3;
+            const row = Math.floor(index / 3);
+
+            const x = startX + col * spacingX;
+            const y = startY + row * spacingY;
+
+            const btn = createButton.call(
+                this.scene,
+                bg.type,
+                x,
+                y,
+                () => this.select(index),
+                "22px"
+            );
+
+            this.buttons.push(btn);
+            this.container.add(btn);
+        });
+
+        this.updateButtonStyles();
+    }
+
+    // -----------------------------------------
+    // Show background buttons
+    // -----------------------------------------
+    show() {
+        if (this.container) this.container.setVisible(true);
+    }
+
+    // -----------------------------------------
+    // Hide background buttons
+    // -----------------------------------------
+    hide() {
+        if (this.container) this.container.setVisible(false);
+    }
+
+    // -----------------------------------------
+    // Handle button highlighting + localStorage
+    // -----------------------------------------
+    select(index) {
+        this.selected = index;
+        localStorage.setItem("bgIndex", index);
+
+        this.applyBackground();
+        this.updateButtonStyles();
+    }
+
+    // -----------------------------------------
+    // Automatically recolor text + background
+    // -----------------------------------------
+    applyBackground() {
+        const bg = this.backgroundsArray[this.selected];
+        const textColor = getOptimalTextColor(bg.colorCode);
+
+        this.scene.cameras.main.setBackgroundColor(bg.colorCode);
+
+        const ui = [
+            this.scene.playButton, this.scene.helpButton, this.scene.settingsButton,
+            rollRandomButton, rollSelectedButton, switchDiceButton,
+            createDiceButton, rollCustomDiceButton, rollRandomCustomDiceButton,
+            switchCustomDiceButton, helpText, settingsText,
+            sfxToggleButton, backButton, this.scene.changelogButton, changelogText,
+            this.scene.resultText, this.scene.sidesInput, this.scene.luckInput,
+            this.scene.createDiceSubmitButton
+        ];
+
+        ui.forEach(el => {
+            if (el?.setStyle) el.setStyle({ color: textColor });
+        });
+
+        this.updateButtonStyles();
+    }
+
+    // -----------------------------------------
+    // Button theme handling
+    // -----------------------------------------
+    updateButtonStyles() {
+        const activeColor = this.backgroundsArray[this.selected].colorCode;
+        const optimal = getOptimalTextColor(activeColor);
+
+        this.buttons.forEach((btn, idx) => {
+            if (idx === this.selected) {
+                btn.setStyle({
+                    backgroundColor: "#444",
+                    color: "#FFD700",
+                    fontWeight: "bold"
+                });
+            } else {
+                btn.setStyle({
+                    backgroundColor: "#222",
+                    color: optimal,
+                    fontWeight: "normal"
+                });
+            }
+        });
+    }
+}
 
 function createButton(text, x, y, onClick, fontSize = '32px', backgroundColor = '#333') {
     return this.add.text(x, y, text, {
@@ -421,7 +550,7 @@ function showSettings() {
     }
 
     // BG settings
-    createBackgroundSelectionMenu.call(this);
+    this.bgManager.show();
 }
 
 function toggleSFX() {
@@ -435,96 +564,6 @@ function toggleSFX() {
     if (this.switchSound) {
         this.switchSound.setMute(!sfxEnabled);
     }
-}
-
-function selectBackground(index) {
-    selectedBackgroundIndex = index;
-    localStorage.setItem("bgIndex", index);
-    applyBackground.call(this);
-    updateBackgroundButtonStyles();
-}
-
-function createBackgroundSelectionMenu() {
-    if (backgroundButtonsContainer) {
-        backgroundButtonsContainer.destroy(true);
-    }
-
-    backgroundButtons = []; 
-    backgroundButtonsContainer = this.add.container(0, 0);
-    backgroundButtonsContainer.setVisible(false);
-
-    const startX = config.width / 2 - 250;
-    const startY = config.height / 2 - 50;
-    const spacingX = 170;
-    const spacingY = 50;
-
-    backgroundsArray.forEach((bg, index) => {
-        const col = index % 3;
-        const row = Math.floor(index / 3);
-
-        const x = startX + col * spacingX;
-        const y = startY + row * spacingY;
-
-        const btn = createButton.call(
-            this,
-            bg.type,
-            x,
-            y,
-            () => selectBackground.call(this, index),
-            "22px"
-        );
-
-        backgroundButtons.push(btn);
-        backgroundButtonsContainer.add(btn);
-    });
-
-    updateBackgroundButtonStyles();
-}
-
-function updateBackgroundButtonStyles() {
-    const activeColor = backgroundsArray[selectedBackgroundIndex].colorCode;
-    const optimal = getOptimalTextColor(activeColor);
-
-    backgroundButtons.forEach((btn, idx) => {
-        if (idx === selectedBackgroundIndex) {
-            btn.setStyle({
-                backgroundColor: "#444",
-                color: "#FFD700",
-                fontWeight: "bold"
-            });
-        } else {
-            btn.setStyle({
-                backgroundColor: "#222",
-                color: optimal,
-                fontWeight: "normal"
-            });
-        }
-    });
-}
-
-function applyBackground() {
-    const selected = backgroundsArray[selectedBackgroundIndex];
-
-    this.cameras.main.setBackgroundColor(selected.colorCode);
-
-    const textColor = getOptimalTextColor(selected.colorCode);
-
-    // Apply text color to UI
-    [
-        this.playButton, this.helpButton, this.settingsButton,
-        rollRandomButton, rollSelectedButton, switchDiceButton,
-        createDiceButton, rollCustomDiceButton, rollRandomCustomDiceButton,
-        switchCustomDiceButton, helpText, settingsText,
-        sfxToggleButton, backButton, this.changelogButton, changelogText,
-        this.resultText, this.sidesInput, this.luckInput,
-        this.createDiceSubmitButton
-    ].forEach(el => {
-        if (el && el.setStyle) {
-            el.setStyle({ color: textColor });
-        }
-    });
-
-    updateBackgroundButtonStyles();
 }
 
 function getLuminance(hex) {
@@ -563,10 +602,12 @@ function hideAllUI() {
         rollRandomButton, rollSelectedButton, switchDiceButton, createDiceButton,
         rollCustomDiceButton, rollRandomCustomDiceButton, switchCustomDiceButton,
         helpText, settingsText, sfxToggleButton, backgroundToggleButton, backButton,
-        changelogText, this.resultText, this.sidesInput, this.luckInput, this.createDiceSubmitButton, backgroundButtonsContainer
+        changelogText, this.resultText, this.sidesInput, this.luckInput, this.createDiceSubmitButton
     ].forEach(element => {
         if (element) element.setVisible(false);
     });
+	
+	this.bgManager.hide();
 }
 
 function showChangelog() {
