@@ -543,7 +543,7 @@ function showSettings() {
     if (!sfxToggleButton) {
         sfxToggleButton = createButton.call(
             this, 'SFX: On',
-            config.width / 2, config.height / 2 - 60,
+            config.width / 2, config.height / 2 - 90,
             toggleSFX, '24px'
         ).setVisible(true);
     } else {
