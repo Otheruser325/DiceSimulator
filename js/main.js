@@ -19,6 +19,7 @@ const game = new Phaser.Game(config);
 let diceArray = [];
 let customDiceArray = [];
 let backgroundsArray = [];
+let backgroundButtons = [];
 let selectedDiceIndex = 0;
 let selectedCustomDiceIndex = 0;
 let selectedBackgroundIndex = 0;
@@ -71,7 +72,7 @@ function create() {
 
     helpText = createText.call(this, config.width / 2, config.height / 2, 'Help Information: \n\n Here you can learn how to use the dice simulation. Let\'s explore! \n\n PLAY: By clicking on this button, you\'re able to experience the dice sandbox by using various features, which includes: \n - Roll Selected Dice \n - Roll Random Dice \n - Switch Dice Type \n - Build a Dice \n - Roll Custom Dice \n - Roll Random Custom Dice \n - Switch Custom Dice Type \n\n Normal Dice: Just basic dice ranging from D6 to D100. Accessible as a primary education tool, or as a time killer. \n Custom Dice: Invent your own dice from scratch! Use the "Build a Dice" tool to make the dice of your dreams! You can always try them out yourself \n by using the custom dice options; essential for more complex games. \n\n SETTINGS: If things aren\'t suitable, you can turn off the sound effects (SFX) or change the background to your favourite colour. It\'s up to you. \n\n CHANGELOG: Regular updates to the Dice Simulator.').setVisible(false);
     settingsText = createText.call(this, config.width / 2, config.height / 2, 'Settings Options: \n\n Customize your game settings here!').setVisible(false);
-    changelogText = createText.call(this, config.width / 2, config.height / 2, 'Changelog: \nv1.2\n\n- Added an option to change background colour\n- Added the ability to switch custom dice\n- Fixed an error related to rolling custom dice\n- Fixed the custom dice maker displaying the input boxes when backing out\n- Improved interface\nv1.1\n\n- Added custom dice creation\n- Implemented luck factor for custom dice\n- Added sound effects toggle\n- Fixed various bugs\nv1.0\n\n- Dice Simulator Release').setVisible(false);
+    changelogText = createText.call(this, config.width / 2, config.height / 2, 'Changelog: \nv1.3 (01/12/2025)\n- Background settings update: You can now manually change the BG colour using the button grid\nv1.2 (28/11/2025)\n- Added an option to change background colour\n- Added the ability to switch custom dice\n- Fixed an error related to rolling custom dice\n- Fixed the custom dice maker displaying the input boxes when backing out\n- Improved interface\nv1.1 (19/09/2024)\n- Added custom dice creation\n- Implemented luck factor for custom dice\n- Added sound effects toggle\n- Fixed various bugs\nv1.0 (17/09/2024)\n- Dice Simulator Release').setVisible(false);
 	
 	// Custom Dice UI
     this.sidesInput = createInputField(
@@ -400,19 +401,20 @@ function showSettings() {
     backButton.setVisible(true);
     settingsText.setVisible(true);
 
+    // SFX settings
     if (!sfxToggleButton) {
-        sfxToggleButton = createButton.call(this, 'SFX: On', config.width / 2, config.height / 2 + 150, toggleSFX, '24px').setVisible(true);
+        sfxToggleButton = createButton.call(
+            this, 'SFX: On',
+            config.width / 2, config.height / 2 + 150,
+            toggleSFX, '24px'
+        ).setVisible(true);
     } else {
         sfxToggleButton.setVisible(true);
         sfxToggleButton.setText(sfxEnabled ? 'SFX: On' : 'SFX: Off');
     }
-	
-	if (!backgroundToggleButton) {
-        backgroundToggleButton = createButton.call(this, 'BG Colour: Black', config.width / 2, config.height / 2 + 200, toggleBackground.bind(this), '24px');
-        backgroundToggleButton.setVisible(true);
-    } else {
-        backgroundToggleButton.setVisible(true);
-    }
+
+    // BG settings
+    createBackgroundSelectionMenu.call(this);
 }
 
 function toggleSFX() {
@@ -428,38 +430,85 @@ function toggleSFX() {
     }
 }
 
-function toggleBackground() {
-    selectedBackgroundIndex++;
-
-    if (selectedBackgroundIndex >= backgroundsArray.length) {
-        selectedBackgroundIndex = 0;
-    }
-
+function selectBackground(index) {
+    selectedBackgroundIndex = index;
     applyBackground.call(this);
+    updateBackgroundButtonStyles();
+}
+
+function createBackgroundSelectionMenu() {
+    // Remove old buttons first (prevents duplicates)
+    backgroundButtons.forEach(btn => btn.destroy());
+    backgroundButtons = [];
+
+    const startX = config.width / 2 - 250;   // left align
+    const startY = config.height / 2 - 50;
+    const spacingX = 170;
+    const spacingY = 50;
+
+    backgroundsArray.forEach((bg, index) => {
+        const col = index % 3;
+        const row = Math.floor(index / 3);
+
+        const x = startX + col * spacingX;
+        const y = startY + row * spacingY;
+
+        const btn = createButton.call(
+            this,
+            bg.type,
+            x,
+            y,
+            () => selectBackground.call(this, index),
+            "22px"
+        );
+
+        btn.setVisible(true);
+
+        backgroundButtons.push(btn);
+    });
+
+    updateBackgroundButtonStyles();
+}
+
+function updateBackgroundButtonStyles() {
+    backgroundButtons.forEach((btn, idx) => {
+        if (idx === selectedBackgroundIndex) {
+            btn.setStyle({
+                backgroundColor: "#444",
+                color: "#FFD700", // highlight text
+                fontWeight: "bold"
+            });
+        } else {
+            btn.setStyle({
+                backgroundColor: "#222",
+                color: getOptimalTextColor(
+                    backgroundsArray[selectedBackgroundIndex].colorCode
+                ),
+                fontWeight: "normal"
+            });
+        }
+    });
 }
 
 function applyBackground() {
     const selected = backgroundsArray[selectedBackgroundIndex];
 
-    // Set camera background color
     this.cameras.main.setBackgroundColor(selected.colorCode);
-
-    // Determine optimal text color
     const textColor = getOptimalTextColor(selected.colorCode);
 
-    // Update button color (if using BitmapText or Phaser Text)
-    if (backgroundToggleButton) {
-        backgroundToggleButton.setText(`BG Colour: ${selected.type}`);
-		backgroundToggleButton.setStyle({ color: textColor });
-    }
-	
-	// Update text color for all elements based on background color
-	[this.playButton, this.helpButton, this.settingsButton, rollRandomButton, rollSelectedButton, 
-    switchDiceButton, createDiceButton, rollCustomDiceButton, rollRandomCustomDiceButton, switchCustomDiceButton,
-    helpText, settingsText, sfxToggleButton, backgroundToggleButton, backButton, this.changelogButton, changelogText, this.resultText, 
-	this.sidesInput, this.luckInput, this.createDiceSubmitButton].forEach(element => {
-        if (element) element.setStyle({ color: textColor });
-    });
+    // Apply text color to UI
+    [
+        this.playButton, this.helpButton, this.settingsButton,
+        rollRandomButton, rollSelectedButton, switchDiceButton,
+        createDiceButton, rollCustomDiceButton, rollRandomCustomDiceButton,
+        switchCustomDiceButton, helpText, settingsText,
+        sfxToggleButton, backButton, this.changelogButton, changelogText,
+        this.resultText, this.sidesInput, this.luckInput,
+        this.createDiceSubmitButton
+    ].forEach(el => el && el.setStyle({ color: textColor }));
+
+    // NEW — refresh button styles
+    updateBackgroundButtonStyles();
 }
 
 function getLuminance(hex) {
