@@ -563,7 +563,7 @@ function hideAllUI() {
         rollRandomButton, rollSelectedButton, switchDiceButton, createDiceButton,
         rollCustomDiceButton, rollRandomCustomDiceButton, switchCustomDiceButton,
         helpText, settingsText, sfxToggleButton, backgroundToggleButton, backButton,
-        changelogText, this.resultText, this.sidesInput, this.luckInput, this.createDiceSubmitButton, backgroundButtonsContainer;
+        changelogText, this.resultText, this.sidesInput, this.luckInput, this.createDiceSubmitButton, backgroundButtonsContainer
     ].forEach(element => {
         if (element) element.setVisible(false);
     });
