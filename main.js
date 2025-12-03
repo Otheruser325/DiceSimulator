@@ -150,7 +150,7 @@ export class BackgroundManager {
         this.buttons = [];
 
         const cols = 4;
-        const startX = this.scene.scale.width / 2 - 250;
+        const startX = this.scene.scale.width / 2 - 200;
         const startY = this.scene.scale.height / 2 + 30;
         const spacingX = 150;
         const spacingY = 50;
