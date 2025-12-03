@@ -3,11 +3,7 @@ const config = {
     width: window.innerWidth,
     height: window.innerHeight,
     parent: 'game-container',
-    scene: {
-        preload: preload,
-        create: create,
-        update: update
-    },
+    scene: [PreloadScene, MainMenuScene, DiceSimScene, CreateDiceScene, HelpScene, SettingsScene, ChangelogScene],
     scale: {
         mode: Phaser.Scale.RESIZE,
         autoCenter: Phaser.Scale.CENTER_BOTH
@@ -16,114 +12,105 @@ const config = {
 
 const game = new Phaser.Game(config);
 
-let backTarget = "main";
-let diceArray = [];
-let customDiceArray = [];
-let backgroundsArray = [];
-let backgroundButtons = [];
-let backgroundButtonsContainer = null;
-let selectedDiceIndex = 0;
-let selectedCustomDiceIndex = 0;
-let selectedBackgroundIndex = parseInt(localStorage.getItem("bgIndex")) || 0;
-let rollRandomButton, rollSelectedButton, switchDiceButton, createDiceButton, rollCustomDiceButton, rollRandomCustomDiceButton, switchCustomDiceButton;
-let backButton;
-let inputContainer;
-let titleText, helpText, settingsText, changelogText;
-let sfxToggleButton;
-let sfxEnabled = true;
+// -----------------------
+// Global shared data
+// -----------------------
+const GameData = {
+    diceArray: [],
+    customDiceArray: [],
+    backgroundsArray: [],
+    selectedDiceIndex: 0,
+    selectedCustomDiceIndex: 0,
+    sfxEnabled: true
+};
 
-function preload() {
-    this.load.json('dices', 'config/dices.json');
-    this.load.json('customDices', 'config/customDices.json');
-	this.load.json('backgrounds', 'config/backgrounds.json');
-    this.load.audio('diceSound', 'assets/sfx/dice.mp3');
-    this.load.audio('switchSound', 'assets/sfx/button.mp3');
-	
-	const saved = localStorage.getItem("bgIndex");
-    if (saved) {
-        this.cameras.main.setBackgroundColor(saved);
-        getOptimalTextColor(saved);
+// -----------------------
+// UIFactory
+// -----------------------
+const UIFactory = {
+    defaultFont: "Verdana",
+    createButton(scene, text, x, y, callback, fontSize = "28px", bgColor = "#333", textColor = "#fff") {
+        const button = scene.add.text(x, y, text, {
+            fontFamily: this.defaultFont,
+            fontSize,
+            color: textColor,
+            backgroundColor: bgColor,
+            padding: { left: 15, right: 15, top: 10, bottom: 10 }
+        }).setOrigin(0.5);
+
+        button.setInteractive({ useHandCursor: true })
+            .on("pointerdown", () => {
+                scene.switchSound?.play();
+                callback.call(scene);
+            })
+            .on("pointerover", () => button.setStyle({ backgroundColor: "#555" }))
+            .on("pointerout", () => button.setStyle({ backgroundColor: bgColor }));
+
+        return button;
+    },
+
+    createText(scene, x, y, content, fontSize = "24px", align = "center") {
+        return scene.add.text(x, y, content, {
+            fontFamily: this.defaultFont,
+            fontSize,
+            color: "#ffffff",
+            align,
+            wordWrap: { width: scene.scale.width * 0.8 }
+        }).setOrigin(0.5);
+    },
+
+    createTitle(scene, x, y, content) {
+        return scene.add.text(x, y, content, {
+            fontFamily: this.defaultFont,
+            fontSize: "72px",
+            color: "#ffffff",
+            align: "center"
+        }).setOrigin(0.5);
     }
-}
+};
 
-function create() {
-    diceArray = this.cache.json.get('dices');
-    customDiceArray = this.cache.json.get('customDices');
-	backgroundsArray = this.cache.json.get('backgrounds');
+// -----------------------
+// InputFieldFactory: Phaser-native simple input (placeholder + keyboard capture)
+// -----------------------
+const InputFieldFactory = {
+    create(scene, x, y, placeholder, style = {}) {
+        const text = scene.add.text(x, y, placeholder, Object.assign({
+            fontFamily: 'Verdana',
+            fontSize: '28px',
+            color: '#ccc',
+            backgroundColor: '#222',
+            padding: { x: 12, y: 8 }
+        }, style)).setOrigin(0.5).setInteractive();
 
-    this.diceSound = this.sound.add('diceSound');
-    this.switchSound = this.sound.add('switchSound');
+        text._placeholder = placeholder;
+        text._realValue = "";
+        text.inputing = false;
 
-    // Create UI buttons
-    this.playButton = createButton.call(this, 'Play', config.width / 2, config.height / 2 - 150, showSimulation);
-    this.helpButton = createButton.call(this, 'Help', config.width / 2, config.height / 2 - 50, showHelp);
-    this.settingsButton = createButton.call(this, 'Settings', config.width / 2, config.height / 2 + 50, showSettings);
-    this.changelogButton = createButton.call(this, 'Changelog', config.width / 2, config.height / 2 + 150, showChangelog);
+        // Focus
+        text.on('pointerdown', () => {
+            if (text.text === text._placeholder) text._realValue = "";
+            text.inputing = true;
+            text.setStyle({ color: '#ffffff' });
+        });
 
-    backButton = createButton.call(this, 'Back', 60, 20, () => handleBack.call(this), '30px', '#f00').setVisible(false);
+        // Keyboard handling (scene-level listener for simplicity)
+        // We'll register a single listener on the scene when this factory is used.
+        text.getValue = () => text._realValue || "";
 
-    rollRandomButton = createButton.call(this, 'Roll Random Dice', config.width / 2, config.height / 2 - 260, rollRandomDice).setVisible(false);
-    rollSelectedButton = createButton.call(this, 'Roll Selected Dice', config.width / 2, config.height / 2 - 180, rollSelectedDice).setVisible(false);
-    switchDiceButton = createButton.call(this, 'Switch Dice Type', config.width / 2, config.height / 2 - 100, switchDiceType).setVisible(false);
-    createDiceButton = createButton.call(this, 'Build a Dice!', config.width / 2, config.height / 2 - 20, showCreateDiceMenu).setVisible(false);
-    rollCustomDiceButton = createButton.call(this, 'Roll Custom Dice', config.width / 2, config.height / 2 + 60, rollCustomDice).setVisible(false);
-    rollRandomCustomDiceButton = createButton.call(this, 'Roll Random Custom Dice', config.width / 2, config.height / 2 + 140, rollRandomCustomDice).setVisible(false);
-	switchCustomDiceButton = createButton.call(this, 'Switch Custom Dice Type', config.width / 2, config.height / 2 + 220, switchCustomDiceType).setVisible(false);
-	
-	titleText = createTitleText.call(this, config.width / 2, config.height / 2 - 360, 'Dice Simulator').setVisible(true);
+        // Blur detection via scene input down - handled externally by scene's pointerdown
 
-    this.resultText = this.add.text(config.width / 2, config.height / 2 + 280, '', {
-        fontSize: '24px',
-        fill: '#fff',
-        fontFamily: 'Verdana'
-    }).setOrigin(0.5, 0.5).setVisible(false);
+        return text;
+    }
+};
 
-    helpText = createText.call(this, config.width / 2, config.height / 2, 'Help Information: \n\n Here you can learn how to use the dice simulation. Let\'s explore! \n\n PLAY: By clicking on this button, you\'re able to experience the dice sandbox by using various features, which includes: \n - Roll Selected Dice \n - Roll Random Dice \n - Switch Dice Type \n - Build-A-Dice \n - Roll Custom Dice \n - Roll Random Custom Dice \n - Switch Custom Dice Type \n\n Normal Dice: Just basic dice ranging from D6 to D100. Accessible as a primary education tool, or as a time killer. \n Custom Dice: Invent your own dice from scratch! Use the "Build a Dice" tool to make the dice of your dreams! You can always try them out yourself \n by using the custom dice options; essential for more complex games. \n\n SETTINGS: If things aren\'t suitable, you can turn off the sound effects (SFX) or change the background to your favourite colour. It\'s up to you. \n\n CHANGELOG: Regular updates to the Dice Simulator.').setVisible(false);
-    settingsText = createText.call(this, config.width / 2, config.height / 2 - 150, 'Settings: \n\n Customize your game settings here! \n\n Audio Options \n\n\n\n Background Options').setVisible(false);
-    changelogText = createText.call(this, config.width / 2, config.height / 2, 'Changelog: \nv1.3 (01/12/2025)\n- Background settings update: You can now manually change the BG colour using the button grid\n- The background of your choice is now saved consistently upon refreshing Dice Simulator\n- The back button now returns to the roll simulation if you\'re in Build-A-Dice\nv1.2 (28/11/2025)\n- Added an option to change background colour\n- Added the ability to switch custom dice\n- Fixed an error related to rolling custom dice\n- Fixed the custom dice maker displaying the input boxes when backing out\n- Improved interface\nv1.1 (19/09/2024)\n- Added custom dice creation\n- Implemented luck factor for custom dice\n- Added sound effects toggle\n- Fixed various bugs\nv1.0 (17/09/2024)\n- Dice Simulator Release').setVisible(false);
-	
-	// Custom Dice UI
-    this.sidesInput = createInputField(
-        this, 860, 360,
-        "Enter sides...",
-        { fontSize: "28px", fontFamily: "Verdana", color: "#fff" }
-    ).setVisible(false);
-
-    this.luckInput = createInputField(
-        this, 860, 420,
-        "Enter luck factor...",
-        { fontSize: "28px", fontFamily: "Verdana", color: "#fff" }
-    ).setVisible(false);
-
-    this.createDiceSubmitButton = createButton.call(
-    this,
-        'Create Dice',
-        config.width / 2,
-        config.height / 2 + 80,
-        submitCustomDice.bind(this),
-        '26px'
-    ).setVisible(false);
-	
-	// Inputs hidden by default
-    this.sidesInput.setVisible(false);
-    this.luckInput.setVisible(false);
-	
-	// Load custom backgrounds
-	this.bgManager = new BackgroundManager(this, backgroundsArray);
-
-    // Hide splash screen after game is created
-    document.getElementById('splash-screen').style.display = 'none';
-}
-
-function update() {}
-
+// -----------------------
+// BackgroundManager class
+// -----------------------
 class BackgroundManager {
     constructor(scene, backgroundsArray) {
         this.scene = scene;
-        this.backgroundsArray = backgroundsArray;
-
+        this.backgroundsArray = backgroundsArray || [];
         this.selected = parseInt(localStorage.getItem("bgIndex")) || 0;
-
         this.buttons = [];
         this.container = null;
 
@@ -131,38 +118,28 @@ class BackgroundManager {
         this.applyBackground();
     }
 
-    // -----------------------------------------
-    // Creates the button container + all bg buttons
-    // -----------------------------------------
     createMenu() {
-        if (this.container) this.container.destroy(true);
+        if (this.container) {
+            this.container.destroy(true);
+        }
 
         this.container = this.scene.add.container(0, 0);
         this.container.setVisible(false);
-
         this.buttons = [];
 
-        const startX = config.width / 2 - 250;
-        const startY = config.height / 2 + 30;
+        const cols = 4;
+        const startX = this.scene.scale.width / 2 - 250;
+        const startY = this.scene.scale.height / 2 + 30;
         const spacingX = 150;
         const spacingY = 50;
 
         this.backgroundsArray.forEach((bg, index) => {
-            const col = index % 4;
-            const row = Math.floor(index / 4);
-
+            const col = index % cols;
+            const row = Math.floor(index / cols);
             const x = startX + col * spacingX;
             const y = startY + row * spacingY;
 
-            const btn = createButton.call(
-                this.scene,
-                bg.type,
-                x,
-                y,
-                () => this.select(index),
-                "22px"
-            );
-
+            const btn = UIFactory.createButton(this.scene, bg.type, x, y, () => this.select(index), "22px");
             this.buttons.push(btn);
             this.container.add(btn);
         });
@@ -170,303 +147,451 @@ class BackgroundManager {
         this.updateButtonStyles();
     }
 
-    // -----------------------------------------
-    // Show background buttons
-    // -----------------------------------------
-    show() {
-        if (this.container) this.container.setVisible(true);
-    }
+    show() { if (this.container) this.container.setVisible(true); }
+    hide() { if (this.container) this.container.setVisible(false); }
 
-    // -----------------------------------------
-    // Hide background buttons
-    // -----------------------------------------
-    hide() {
-        if (this.container) this.container.setVisible(false);
-    }
-
-    // -----------------------------------------
-    // Handle button highlighting + localStorage
-    // -----------------------------------------
     select(index) {
         this.selected = index;
         localStorage.setItem("bgIndex", index);
-
         this.applyBackground();
         this.updateButtonStyles();
     }
 
-    // -----------------------------------------
-    // Automatically recolor text + background
-    // -----------------------------------------
     applyBackground() {
-        const bg = this.backgroundsArray[this.selected];
+        const bg = this.backgroundsArray[this.selected] || { colorCode: "#000000" };
         const textColor = getOptimalTextColor(bg.colorCode);
-
         this.scene.cameras.main.setBackgroundColor(bg.colorCode);
 
-        const ui = [
-            this.scene.playButton, this.scene.helpButton, this.scene.settingsButton,
-            rollRandomButton, rollSelectedButton, switchDiceButton,
-            createDiceButton, rollCustomDiceButton, rollRandomCustomDiceButton,
-            switchCustomDiceButton, titleText, helpText, settingsText,
-            sfxToggleButton, backButton, this.scene.changelogButton, changelogText,
-            this.scene.resultText, this.scene.sidesInput, this.scene.luckInput,
-            this.scene.createDiceSubmitButton
-        ];
+        // recolor important UI items on the scene (scene must set .uiElements array)
+        if (this.scene.uiElements && Array.isArray(this.scene.uiElements)) {
+            this.scene.uiElements.forEach(el => {
+                if (el?.setStyle) el.setStyle({ color: textColor });
+            });
+        }
 
-        ui.forEach(el => {
-            if (el?.setStyle) el.setStyle({ color: textColor });
-        });
-
+        // Also update any global UI that may not be in scene.uiElements (best-effort)
         this.updateButtonStyles();
     }
 
-    // -----------------------------------------
-    // Button theme handling
-    // -----------------------------------------
     updateButtonStyles() {
-        const activeColor = this.backgroundsArray[this.selected].colorCode;
+        const activeColor = (this.backgroundsArray[this.selected] || {}).colorCode || "#000";
         const optimal = getOptimalTextColor(activeColor);
 
         this.buttons.forEach((btn, idx) => {
             if (idx === this.selected) {
-                btn.setStyle({
-                    backgroundColor: "#444",
-                    color: "#FFD700",
-                    fontWeight: "bold"
-                });
+                btn.setStyle({ backgroundColor: "#444", color: "#FFD700", fontWeight: "bold" });
             } else {
-                btn.setStyle({
-                    backgroundColor: "#222",
-                    color: optimal,
-                    fontWeight: "normal"
-                });
+                btn.setStyle({ backgroundColor: "#222", color: optimal, fontWeight: "normal" });
             }
         });
     }
 }
 
-function createButton(text, x, y, onClick, fontSize = '32px', backgroundColor = '#333') {
-    return this.add.text(x, y, text, {
-        fontSize: fontSize,
-        fill: '#fff',
-        backgroundColor: backgroundColor,
-        padding: { x: 20, y: 10 },
-        fontFamily: 'Verdana'
-    }).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', onClick, this);
+// -----------------------
+// Color utilities (same luminance logic you used)
+// -----------------------
+function getLuminance(hex) {
+    hex = (hex || '#000000').replace('#', '');
+    if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+    const r = parseInt(hex.substring(0, 2), 16) / 255;
+    const g = parseInt(hex.substring(2, 4), 16) / 255;
+    const b = parseInt(hex.substring(4, 6), 16) / 255;
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+function getOptimalTextColor(bgHex) {
+    const lum = getLuminance(bgHex);
+    if (lum > 0.7) return '#000000';
+    if (lum > 0.5) return '#222222';
+    return '#FFFFFF';
 }
 
-function createText(x, y, text) {
-    return this.add.text(x, y, text, {
-        fontSize: '24px',
-        fill: '#fff',
-        fontFamily: 'Verdana',
-        align: 'center'
-    }).setOrigin(0.5, 0.5);
-}
+// -----------------------
+// BootScene (preload + set GameData arrays)
+// -----------------------
+class PreloadScene extends Phaser.Scene {
+    constructor() {
+        super({ key: 'PreloadScene' });
+    }
 
-function createTitleText(x, y, text) {
-    return this.add.text(x, y, text, {
-        fontSize: '72px',
-        fill: '#fff',
-        fontFamily: 'Verdana',
-        align: 'center'
-    }).setOrigin(0.5, 0.5);
-}
+    preload() {
+        const centerX = this.scale.width / 2;
+        const centerY = this.scale.height / 2;
 
-function createInputField(scene, x, y, placeholder, style) {
-    const field = scene.add.text(x, y, placeholder, style).setInteractive();
-
-    field._placeholder = placeholder;
-    field._realValue = "";  // Store the actual input
-
-    // When clicked, remove placeholder
-    field.on('pointerdown', () => {
-        if (field.text === field._placeholder) {
-            field.setText('');
-        }
-    });
-
-    // Capture keyboard input
-    scene.input.keyboard.on('keydown', (event) => {
-        if (!field.inputing) return;
-
-        if (event.key === "Backspace") {
-            field._realValue = field._realValue.slice(0, -1);
-        } else if (event.key.length === 1) {
-            field._realValue += event.key;
-        }
-
-        field.setText(field._realValue || "");
-    });
-
-    // Detect focus/blur
-    field.on('pointerdown', () => (field.inputing = true));
-
-    scene.input.on('pointerdown', (pointer, gameObjects) => {
-        if (!gameObjects.includes(field)) {
-            // Lost focus → restore placeholder if empty
-            field.inputing = false;
-
-            if (!field._realValue) {
-                field.setText(field._placeholder);
+        // ---- Title ----
+        this.titleText = this.add.text(
+            centerX,
+            centerY - 200,
+            "Dice Simulator",
+            {
+                fontFamily: "Verdana",
+                fontSize: "64px",
+                color: "#ffffff"
             }
+        ).setOrigin(0.5);
+
+        // ---- Loading Text ----
+        this.loadingText = this.add.text(
+            centerX,
+            centerY - 40,
+            "Loading...",
+            { fontFamily: "Verdana", fontSize: "32px", color: "#ffffff" }
+        ).setOrigin(0.5);
+
+        // ---- Loading Bar Container ----
+        const barWidth = this.scale.width * 0.6;
+        const barHeight = 28;
+
+        this.progressBg = this.add.rectangle(
+            centerX, centerY + 20,
+            barWidth, barHeight,
+            0x222222
+        ).setOrigin(0.5);
+
+        this.progressBar = this.add.rectangle(
+            centerX - barWidth/2, centerY + 20,
+            0, barHeight,
+            0xffffff
+        ).setOrigin(0, 0.5);
+
+        // ---- Progress handler (Phaser event) ----
+        this.load.on('progress', (value) => {
+            this.progressBar.width = barWidth * value;
+        });
+
+        // ---- Load JSON configs ----
+        this.load.json('dices', 'config/dices.json');
+        this.load.json('customDices', 'config/customDices.json');
+        this.load.json('backgrounds', 'config/backgrounds.json');
+
+        // ---- Load Audio ----
+        this.load.audio('diceSound', 'assets/sfx/dice.mp3');
+        this.load.audio('switchSound', 'assets/sfx/button.mp3');
+
+        // Load cache
+        this.load.async = true;
+        this.fakeDelay = new Promise(resolve => setTimeout(resolve, 3000));
+    }
+
+    async create() {
+        // Ensure delay is complete
+        await this.fakeDelay;
+
+        // Populate global GameData
+        GameData.diceArray = this.cache.json.get('dices') ?? [];
+        GameData.customDiceArray = this.cache.json.get('customDices') ?? [];
+        GameData.backgroundsArray = this.cache.json.get('backgrounds') ?? [];
+
+        // Create BackgroundManager globally
+        game.bgManager = new BackgroundManager(this, GameData.backgroundsArray);
+
+        // Preload SFX
+        this.sound.add('diceSound');
+        this.sound.add('switchSound');
+
+        // Fade out preload screen
+        this.cameras.main.fadeOut(600, 0, 0, 0);
+
+        this.cameras.main.on('camerafadeoutcomplete', () => {
+            this.scene.start('MainMenuScene');
+        });
+    }
+}
+
+// -----------------------
+// MainMenuScene
+// -----------------------
+class MainMenuScene extends Phaser.Scene {
+    constructor() { super({ key: 'MainMenuScene' }); }
+    create() {
+        // Keep references for background manager and sounds
+        this.bgManager = game.bgManager;
+        this.diceSound = this.sound.add('diceSound');
+        this.switchSound = this.sound.add('switchSound');
+
+        // Title
+        this.titleText = UIFactory.createTitle(this, this.scale.width/2, this.scale.height/2 - 360, "Dice Simulator");
+
+        // Buttons
+        this.playButton = UIFactory.createButton(this, "Play", this.scale.width/2, this.scale.height/2 - 150, () => this.scene.start('DiceSimScene'));
+        this.helpButton = UIFactory.createButton(this, "Help", this.scale.width/2, this.scale.height/2 - 50, () => this.scene.start('HelpScene'));
+        this.settingsButton = UIFactory.createButton(this, "Settings", this.scale.width/2, this.scale.height/2 + 50, () => this.scene.start('SettingsScene'));
+        this.changelogButton = UIFactory.createButton(this, "Changelog", this.scale.width/2, this.scale.height/2 + 150, () => this.scene.start('ChangelogScene'));
+
+        // Group UI elements for text recolor by background manager
+        this.uiElements = [ this.titleText, this.playButton, this.helpButton, this.settingsButton, this.changelogButton ];
+
+        // Apply previously-chosen background immediately
+        this.bgManager.scene = this; // temporarily point manager to this scene to recolor UI
+        this.bgManager.applyBackground();
+        this.bgManager.scene = game.scene.getScene('DiceSimScene') || this; // restore a sane scene pointer
+
+        // Add little instructions to ensure BG buttons are hidden on main menu
+        // BG menu remains hidden until settings scene opens
+        this.bgManager.hide();
+    }
+}
+
+// -----------------------
+// DiceSimScene (main simulator)
+// -----------------------
+class DiceSimScene extends Phaser.Scene {
+    constructor() { super({ key: 'DiceSimScene' }); }
+    create() {
+        this.bgManager = game.bgManager;
+        this.diceSound = this.sound.add('diceSound');
+        this.switchSound = this.sound.add('switchSound');
+
+        // Result text
+        this.resultText = this.add.text(this.scale.width/2, this.scale.height/2 + 280, '', { fontSize: '24px', fontFamily: 'Verdana', color: '#fff' }).setOrigin(0.5).setVisible(false);
+
+        // Buttons
+        this.rollRandomButton = UIFactory.createButton(this, 'Roll Random Dice', this.scale.width/2, this.scale.height/2 - 260, this.rollRandomDice);
+        this.rollSelectedButton = UIFactory.createButton(this, 'Roll Selected Dice', this.scale.width/2, this.scale.height/2 - 180, this.rollSelectedDice);
+        this.switchDiceButton = UIFactory.createButton(this, 'Switch Dice Type', this.scale.width/2, this.scale.height/2 - 100, this.switchDiceType);
+        this.createDiceButton = UIFactory.createButton(this, 'Build a Dice!', this.scale.width/2, this.scale.height/2 - 20, () => this.scene.start('CreateDiceScene'));
+        this.rollCustomDiceButton = UIFactory.createButton(this, 'Roll Custom Dice', this.scale.width/2, this.scale.height/2 + 60, this.rollCustomDice);
+        this.rollRandomCustomDiceButton = UIFactory.createButton(this, 'Roll Random Custom Dice', this.scale.width/2, this.scale.height/2 + 140, this.rollRandomCustomDice);
+        this.switchCustomDiceButton = UIFactory.createButton(this, 'Switch Custom Dice Type', this.scale.width/2, this.scale.height/2 + 220, this.switchCustomDiceType);
+
+        // Back button (returns to main menu)
+        this.backButton = UIFactory.createButton(this, 'Back', 60, 20, () => this.scene.start('MainMenuScene'), '30px', '#f00').setOrigin(0,0);
+
+        // SFX toggle will live in Settings scene; we'll show/hide result text on demand
+        this.uiElements = [
+            this.rollRandomButton, this.rollSelectedButton, this.switchDiceButton,
+            this.createDiceButton, this.rollCustomDiceButton, this.rollRandomCustomDiceButton,
+            this.switchCustomDiceButton, this.resultText, this.backButton
+        ];
+
+        // Hide certain UI by default if desired (we show everything on entering)
+        this.showUI();
+
+        // Apply background color and recolor UI
+        this.bgManager.scene = this;
+        this.bgManager.applyBackground();
+    }
+
+    showUI() {
+        this.uiElements.forEach(el => el.setVisible(true));
+    }
+    hideUI() {
+        this.uiElements.forEach(el => el.setVisible(false));
+    }
+
+    // ----- Simulator actions -----
+    rollRandomDice() {
+        const diceArray = GameData.diceArray;
+        if (!diceArray || diceArray.length === 0) {
+            showAlert('No dice available!', 'warning');
+            return;
         }
-    });
+        if (GameData.sfxEnabled) this.scene.sound.play('diceSound');
+        const dice = diceArray[Phaser.Math.Between(0, diceArray.length - 1)];
+        const result = Phaser.Math.Between(1, dice.sides);
+        this.scene.resultText.setText(`Rolled ${dice.type}: ${result}`).setVisible(true);
+    }
 
-    // Method to get the current value safely
-    field.getValue = () => field._realValue || "";
+    rollSelectedDice() {
+        const diceArray = GameData.diceArray;
+        if (!diceArray || diceArray.length === 0) {
+            showAlert('No dice available!', 'warning');
+            return;
+        }
+        if (GameData.sfxEnabled) this.scene.sound.play('diceSound');
+        const dice = diceArray[GameData.selectedDiceIndex || 0];
+        const result = Phaser.Math.Between(1, dice.sides);
+        this.scene.resultText.setText(`Rolled ${dice.type}: ${result}`).setVisible(true);
+    }
 
-    return field;
+    switchDiceType() {
+        const diceArray = GameData.diceArray;
+        if (!diceArray || diceArray.length === 0) {
+            showAlert('No dice available!', 'warning');
+            return;
+        }
+        if (GameData.sfxEnabled) this.scene.sound.play('switchSound');
+        GameData.selectedDiceIndex = (GameData.selectedDiceIndex + 1) % diceArray.length;
+        this.resultText.setText(`Selected ${diceArray[GameData.selectedDiceIndex].type}`).setVisible(true);
+    }
+
+    rollCustomDice() {
+        const arr = GameData.customDiceArray;
+        if (!arr || arr.length === 0) {
+            showAlert('No custom dice available!', 'warning');
+            return;
+        }
+        if (GameData.sfxEnabled) this.scene.sound.play('diceSound');
+        const dice = arr[GameData.selectedCustomDiceIndex || 0];
+        const result = rollWithLuckFactor(dice.sides, dice.luckFactor);
+        this.resultText.setText(`Rolled Custom ${dice.type}: ${result}`).setVisible(true);
+    }
+
+    rollRandomCustomDice() {
+        const arr = GameData.customDiceArray;
+        if (!arr || arr.length === 0) {
+            showAlert('No custom dice available!', 'warning');
+            return;
+        }
+        if (GameData.sfxEnabled) this.scene.sound.play('diceSound');
+        const idx = Phaser.Math.Between(0, arr.length - 1);
+        const dice = arr[idx];
+        const result = rollWithLuckFactor(dice.sides, dice.luckFactor);
+        this.resultText.setText(`Rolled Custom ${dice.type}: ${result}`).setVisible(true);
+    }
+
+    switchCustomDiceType() {
+        const arr = GameData.customDiceArray;
+        if (!arr || arr.length === 0) {
+            showAlert('No custom dice available!', 'warning');
+            return;
+        }
+        if (GameData.sfxEnabled) this.scene.sound.play('switchSound');
+        GameData.selectedCustomDiceIndex = (GameData.selectedCustomDiceIndex + 1) % arr.length;
+        this.resultText.setText(`Selected ${arr[GameData.selectedCustomDiceIndex].type}`).setVisible(true);
+    }
 }
 
-function submitCustomDice() {
-    const sidesValue = Number(this.sidesInput.getValue());
-    const luckValue  = Number(this.luckInput.getValue());
+// -----------------------
+// CreateDiceScene
+// -----------------------
+class CreateDiceScene extends Phaser.Scene {
+    constructor() { super({ key: 'CreateDiceScene' }); }
+    create() {
+        this.bgManager = game.bgManager;
+        this.bgManager.scene = this;
 
-    // --- VALIDATION ---
-    if (isNaN(sidesValue) || sidesValue < 6) {
-        showAlert.call(this, "Invalid side count (min 6)", "error");
-        return;
+        this.title = UIFactory.createTitle(this, this.scale.width/2, 120, "Create Custom Dice");
+
+        // Input fields
+        this.sidesInput = InputFieldFactory.create(this, this.scale.width/2, this.scale.height/2 - 20, "Enter sides...");
+        this.luckInput = InputFieldFactory.create(this, this.scale.width/2, this.scale.height/2 + 40, "Enter luck factor...");
+
+        // Keyboard handling: central listener to support both inputs
+        this.input.keyboard.on('keydown', (event) => {
+            // Backspace / Enter / character handling
+            const active = [this.sidesInput, this.luckInput].find(f => f.inputing);
+            if (!active) return;
+
+            if (event.key === "Backspace") {
+                active._realValue = active._realValue.slice(0, -1);
+            } else if (event.key === "Enter") {
+                active.inputing = false;
+            } else {
+                // Only numeric, allow dot for luck input
+                if (active === this.sidesInput) {
+                    if (/^[0-9]$/.test(event.key)) active._realValue += event.key;
+                } else {
+                    if (/^[0-9]$/.test(event.key)) active._realValue += event.key;
+                    else if (event.key === "." && !active._realValue.includes(".")) active._realValue += ".";
+                }
+            }
+
+            active.setText(active._realValue || active._placeholder);
+        });
+
+        // Blur detection: pointerdown on scene
+        this.input.on('pointerdown', (pointer, gameObjects) => {
+            // if click outside inputs -> blur both
+            if (!gameObjects.includes(this.sidesInput) && !gameObjects.includes(this.luckInput)) {
+                [this.sidesInput, this.luckInput].forEach(f => {
+                    f.inputing = false;
+                    if (!f._realValue) f.setText(f._placeholder);
+                });
+            }
+        });
+
+        // Create button
+        this.createBtn = UIFactory.createButton(this, "Create Dice", this.scale.width/2, this.scale.height/2 + 120, this.submitCustomDice.bind(this), "26px");
+        // Back button returns to DiceSimScene
+        this.backBtn = UIFactory.createButton(this, "Back", 60, 20, () => this.scene.start('DiceSimScene'), "30px", "#f00").setOrigin(0,0);
+
+        // Group UI for bg recolor
+        this.uiElements = [ this.title, this.sidesInput, this.luckInput, this.createBtn, this.backBtn ];
+
+        // Apply background recolor
+        this.bgManager.applyBackground();
     }
 
-    if (isNaN(luckValue) || luckValue < 0) {
-        showAlert.call(this, "Invalid luck factor", "error");
-        return;
+    submitCustomDice() {
+        const sidesValue = Number(this.sidesInput.getValue());
+        const luckValue = Number(this.luckInput.getValue());
+
+        if (isNaN(sidesValue) || sidesValue < 6) {
+            showAlert('Invalid side count (min 6)', 'error'); return;
+        }
+        if (isNaN(luckValue) || luckValue < 0) {
+            showAlert('Invalid luck factor', 'error'); return;
+        }
+
+        GameData.customDiceArray.push({ type: `D${sidesValue}`, sides: sidesValue, luckFactor: luckValue });
+        showAlert('Dice created successfully!', 'success');
+        this.scene.start('DiceSimScene');
     }
-
-    // --- CREATE CUSTOM DICE ---
-    customDiceArray.push({
-        type: `D${sidesValue}`,
-        sides: sidesValue,
-        luckFactor: luckValue
-    });
-
-    showAlert.call(this, "Custom dice created!", "success");
-    showSimulation.call(this);
-
-    // Optional: Reset input fields
-    this.sidesInput._realValue = "";
-    this.sidesInput.setText(this.sidesInput._placeholder);
-
-    this.luckInput._realValue = "";
-    this.luckInput.setText(this.luckInput._placeholder);
 }
 
-function showCreateDiceMenu() {
-    hideAllUI.call(this);
-	
-	backTarget = "sim";
-
-    // Reset placeholders and values
-    this.sidesInput._realValue = "";
-    this.sidesInput.setText(this.sidesInput._placeholder).setVisible(true);
-
-    this.luckInput._realValue = "";
-    this.luckInput.setText(this.luckInput._placeholder).setVisible(true);
-
-    this.createDiceSubmitButton.setVisible(true);
-    backButton.setVisible(true);
+// -----------------------
+// Help / Settings / Changelog scenes
+// -----------------------
+class HelpScene extends Phaser.Scene {
+    constructor() { super({ key: 'HelpScene' }); }
+    create() {
+        this.bgManager = game.bgManager;
+        this.title = UIFactory.createTitle(this, this.scale.width/2, 120, "Help");
+        this.content = UIFactory.createText(this, this.scale.width/2, this.scale.height/2, "Help Information: \n\n Here you can learn how to use the dice simulation. Let\'s explore! \n\n PLAY: By clicking on this button, you\'re able to experience the dice sandbox by using various features, which includes: \n - Roll Selected Dice \n - Roll Random Dice \n - Switch Dice Type \n - Build-A-Dice \n - Roll Custom Dice \n - Roll Random Custom Dice \n - Switch Custom Dice Type \n\n Normal Dice: Just basic dice ranging from D6 to D100. Accessible as a primary education tool, or as a time killer. \n Custom Dice: Invent your own dice from scratch! Use the "Build a Dice" tool to make the dice of your dreams! You can always try them out yourself \n by using the custom dice options; essential for more complex games. \n\n SETTINGS: If things aren\'t suitable, you can turn off the sound effects (SFX) or change the background to your favourite colour. It\'s up to you. \n\n CHANGELOG: Regular updates to the Dice Simulator.").setOrigin(0.5);
+        this.backBtn = UIFactory.createButton(this, "Back", 60, 20, () => this.scene.start('MainMenuScene'), "30px", "#f00").setOrigin(0,0);
+        this.uiElements = [ this.title, this.content, this.backBtn ];
+        this.bgManager.scene = this;
+        this.bgManager.applyBackground();
+    }
 }
 
-function rollRandomDice() {
-    if (diceArray.length === 0) {
-        console.warn('No dice available!');
-		showAlert.call(this, 'No dice available!', 'warning');
-        return;
+class SettingsScene extends Phaser.Scene {
+    constructor() { super({ key: 'SettingsScene' }); }
+    create() {
+        this.bgManager = game.bgManager;
+        this.title = UIFactory.createTitle(this, this.scale.width/2, 120, "Settings");
+        this.content = UIFactory.createText(this, this.scale.width/2, this.scale.height/2 - 60, "Settings: \n\nAudio & Background").setOrigin(0.5);
+
+        // SFX toggle
+        this.sfxToggle = UIFactory.createButton(this, `SFX: ${GameData.sfxEnabled ? 'On' : 'Off'}`, this.scale.width/2, this.scale.height/2 + 30, () => {
+            GameData.sfxEnabled = !GameData.sfxEnabled;
+            this.sfxToggle.setText(`SFX: ${GameData.sfxEnabled ? 'On' : 'Off'}`);
+        }, "24px");
+
+        // Show background buttons
+        this.bgManager.show();
+
+        this.backBtn = UIFactory.createButton(this, "Back", 60, 20, () => this.scene.start('MainMenuScene'), "30px", "#f00").setOrigin(0,0);
+
+        this.uiElements = [ this.title, this.content, this.sfxToggle, this.backBtn ];
+        this.bgManager.scene = this;
+        this.bgManager.applyBackground();
     }
 
-    if (sfxEnabled) {
-        this.diceSound.play();
+    shutdown() {
+        // Hide background buttons when leaving settings
+        this.bgManager.hide();
     }
-
-    const dice = diceArray[Phaser.Math.Between(0, diceArray.length - 1)];
-    const result = Phaser.Math.Between(1, dice.sides);
-    this.resultText.setText(`Rolled ${dice.type}: ${result}`);
 }
 
-function rollSelectedDice() {
-    if (diceArray.length === 0) {
-        console.warn('No dice available!');
-		showAlert.call(this, 'No dice available!', 'warning');
-        return;
+class ChangelogScene extends Phaser.Scene {
+    constructor() { super({ key: 'ChangelogScene' }); }
+    create() {
+        this.bgManager = game.bgManager;
+        this.title = UIFactory.createTitle(this, this.scale.width/2, 120, "Changelog");
+        this.content = UIFactory.createText(this, this.scale.width/2, this.scale.height/2, "v1.3 (01/12/2025)\n- Background settings update: You can now manually change the BG colour using the button grid\n- The background of your choice is now saved consistently upon refreshing Dice Simulator\n- The back button now returns to the roll simulation if you\'re in Build-A-Dice\nv1.2 (28/11/2025)\n- Added an option to change background colour\n- Added the ability to switch custom dice\n- Fixed an error related to rolling custom dice\n- Fixed the custom dice maker displaying the input boxes when backing out\n- Improved interface\nv1.1 (19/09/2024)\n- Added custom dice creation\n- Implemented luck factor for custom dice\n- Added sound effects toggle\n- Fixed various bugs\nv1.0 (17/09/2024)\n- Dice Simulator Release").setOrigin(0.5);
+        this.backBtn = UIFactory.createButton(this, "Back", 60, 20, () => this.scene.start('MainMenuScene'), "30px", "#f00").setOrigin(0,0);
+        this.uiElements = [ this.title, this.content, this.backBtn ];
+        this.bgManager.scene = this;
+        this.bgManager.applyBackground();
     }
-
-    if (sfxEnabled) {
-        this.diceSound.play();
-    }
-
-    const dice = diceArray[selectedDiceIndex];
-    const result = Phaser.Math.Between(1, dice.sides);
-    this.resultText.setText(`Rolled ${dice.type}: ${result}`);
 }
 
-function switchDiceType() {
-	if (diceArray.length === 0) {
-        console.warn('No dice available!');
-		showAlert.call(this, 'No dice available!', 'warning');
-        return;
-    }
-	
-    if (sfxEnabled) {
-        this.switchSound.play();
-    }
-	
-    selectedDiceIndex = (selectedDiceIndex + 1) % diceArray.length;
-    this.resultText.setText(`Selected ${diceArray[selectedDiceIndex].type}`);
-}
-
-function rollCustomDice() {
-    if (customDiceArray.length === 0) {
-        console.warn('No custom dice available!');
-		showAlert.call(this, 'No custom dice available!', 'warning');
-        return;
-    }
-
-    if (sfxEnabled) {
-        this.diceSound.play();
-    }
-
-    const dice = customDiceArray[selectedCustomDiceIndex];
-    const result = rollWithLuckFactor(dice.sides, dice.luckFactor);
-    this.resultText.setText(`Rolled Custom ${dice.type}: ${result}`);
-}
-
-function rollRandomCustomDice() {
-    if (customDiceArray.length === 0) {
-        console.warn('No custom dice available!');
-		showAlert.call(this, 'No custom dice available!', 'warning');
-        return;
-    }
-
-    if (sfxEnabled) {
-        this.diceSound.play();
-    }
-
-    const randomIndex = Phaser.Math.Between(0, customDiceArray.length - 1);
-    const dice = customDiceArray?.[randomIndex];
-    const result = rollWithLuckFactor(dice.sides, dice.luckFactor);
-    this.resultText.setText(`Rolled Custom ${dice.type}: ${result}`);
-}
-
-function switchCustomDiceType() {
-	if (customDiceArray.length === 0) {
-        console.warn('No custom dice available!');
-		showAlert.call(this, 'No custom dice available!', 'warning');
-        return;
-    }
-	
-    if (sfxEnabled) {
-        this.switchSound.play();
-    }
-	
-    selectedCustomDiceIndex = (selectedCustomDiceIndex + 1) % customDiceArray.length;
-    this.resultText.setText(`Selected ${customDiceArray[selectedCustomDiceIndex].type}`);
-}
-
+// -----------------------
+// Helper functions
+// -----------------------
 function rollWithLuckFactor(sides, luckFactor) {
     let roll = Phaser.Math.Between(1, sides);
-
     if (luckFactor < 1) {
         roll = Math.floor(roll * luckFactor);
         roll = Phaser.Math.Clamp(roll, 1, sides);
@@ -474,156 +599,29 @@ function rollWithLuckFactor(sides, luckFactor) {
         roll = Math.ceil(roll * luckFactor / (luckFactor + (sides - roll)));
         roll = Phaser.Math.Clamp(roll, 1, sides);
     }
-
     return roll;
 }
 
 function showAlert(message, type = 'error') {
-    let alertBox = document.getElementById('customAlert');
-    if (!alertBox) {
-        alertBox = document.createElement('div');
-        alertBox.id = 'customAlert';
-        alertBox.style.position = 'fixed';
-        alertBox.style.top = '10px';
-        alertBox.style.right = '10px';
-        alertBox.style.padding = '15px';
-        alertBox.style.borderRadius = '5px';
-        alertBox.style.color = '#fff';
-        alertBox.style.zIndex = '1000';
-		alertBox.style.fontSize = '16px';
-		alertBox.style.fontFamily = 'Verdana';
-        document.body.appendChild(alertBox);
+    // Simple DOM alert overlay that auto-hides (keeps this lightweight)
+    let el = document.getElementById('customAlert');
+    if (!el) {
+        el = document.createElement('div');
+        el.id = 'customAlert';
+        el.style.position = 'fixed';
+        el.style.top = '10px';
+        el.style.right = '10px';
+        el.style.padding = '12px 16px';
+        el.style.borderRadius = '6px';
+        el.style.zIndex = '9999';
+        el.style.fontFamily = 'Verdana';
+        el.style.fontSize = '14px';
+        document.body.appendChild(el);
     }
+    el.textContent = message;
+    el.style.display = 'block';
+    el.style.color = '#fff';
+    el.style.backgroundColor = type === 'success' ? '#28a745' : (type === 'warning' ? '#f39c12' : '#e74c3c');
 
-    if (type === 'error') {
-        alertBox.style.backgroundColor = '#f00';
-    } else if (type === 'success') {
-        alertBox.style.backgroundColor = '#0f0';
-    } else {
-        alertBox.style.backgroundColor = '#00f';
-    }
-
-    alertBox.textContent = message;
-    alertBox.style.display = 'block';
-
-    setTimeout(() => {
-        alertBox.style.display = 'none';
-    }, 3000);
-}
-
-function showSimulation() {
-    hideAllUI.call(this);
-
-    backTarget = "main";
-
-    rollRandomButton.setVisible(true);
-    rollSelectedButton.setVisible(true);
-    switchDiceButton.setVisible(true);
-    createDiceButton.setVisible(true);
-    rollCustomDiceButton.setVisible(true);
-    rollRandomCustomDiceButton.setVisible(true);
-    switchCustomDiceButton.setVisible(true);
-    backButton.setVisible(true);
-
-    this.resultText.setVisible(true);
-}
-
-function showHelp() {
-    hideAllUI.call(this);
-    backButton.setVisible(true);
-    helpText.setVisible(true);
-}
-
-function showSettings() {
-    hideAllUI.call(this);
-    backButton.setVisible(true);
-    settingsText.setVisible(true);
-
-    // SFX settings
-    if (!sfxToggleButton) {
-        sfxToggleButton = createButton.call(
-            this, 'SFX: On',
-            config.width / 2, config.height / 2 - 90,
-            toggleSFX, '24px'
-        ).setVisible(true);
-    } else {
-        sfxToggleButton.setVisible(true);
-        sfxToggleButton.setText(sfxEnabled ? 'SFX: On' : 'SFX: Off');
-    }
-
-    // BG settings
-    this.bgManager.show();
-}
-
-function toggleSFX() {
-    sfxEnabled = !sfxEnabled;
-    sfxToggleButton.setText(sfxEnabled ? 'SFX: On' : 'SFX: Off');
-
-    if (this.diceSound) {
-        this.diceSound.setMute(!sfxEnabled);
-    }
-
-    if (this.switchSound) {
-        this.switchSound.setMute(!sfxEnabled);
-    }
-}
-
-function getLuminance(hex) {
-    hex = hex.replace('#', '');
-    const r = parseInt(hex.substring(0, 2), 16) / 255;
-    const g = parseInt(hex.substring(2, 4), 16) / 255;
-    const b = parseInt(hex.substring(4, 6), 16) / 255;
-
-    // Luminance formula (WCAG standard)
-    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-}
-
-function getOptimalTextColor(bgHex) {
-    const lum = getLuminance(bgHex);
-
-    // Thresholds:
-    // >0.7 = very bright → use black
-    // >0.5 = light → use very dark gray
-    // else → use white
-    if (lum > 0.7) return '#000000';
-    if (lum > 0.5) return '#222222';
-    return '#FFFFFF';
-}
-
-function showMainMenu() {
-    hideAllUI.call(this);
-    this.playButton.setVisible(true);
-    this.helpButton.setVisible(true);
-    this.settingsButton.setVisible(true);
-    this.changelogButton.setVisible(true);
-}
-
-function handleBack() {
-    if (backTarget === "sim") {
-        showSimulation.call(this);
-    } else {
-        showMainMenu.call(this);
-    }
-
-    backTarget = "main";
-}
-
-function hideAllUI() {
-    [
-        this.playButton, this.helpButton, this.settingsButton, this.changelogButton,
-        rollRandomButton, rollSelectedButton, switchDiceButton, createDiceButton,
-        rollCustomDiceButton, rollRandomCustomDiceButton, switchCustomDiceButton,
-        helpText, settingsText, sfxToggleButton, backButton,
-        changelogText, this.resultText, this.sidesInput, this.luckInput, this.createDiceSubmitButton
-    ].forEach(element => {
-        if (element) element.setVisible(false);
-    });
-	
-	this.bgManager.hide();
-}
-
-function showChangelog() {
-    hideAllUI.call(this);
-    backButton.setVisible(true);
-    changelogText.setVisible(true);
+    setTimeout(() => el.style.display = 'none', 3000);
 }
