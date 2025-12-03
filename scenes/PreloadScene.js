@@ -1,4 +1,4 @@
-import { GameData, BackgroundManager } from '../main.js';
+import { game, GameData, BackgroundManager } from '../main.js';
 
 export default class PreloadScene extends Phaser.Scene {
     constructor() {
