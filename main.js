@@ -114,117 +114,34 @@ export class BackgroundManager {
     constructor(backgroundsArray) {
         this.backgroundsArray = backgroundsArray || [];
         this.selected = parseInt(localStorage.getItem("bgIndex")) || 0;
-
-        this.container = null;
-        this.buttons = [];
     }
 
-    attach(scene) {
-        this.scene = scene;
-
-        // First time creating buttons
-        if (!this.container) {
-            this.createMenu();
-        }
-
-        // Reparent buttons to this scene
-        this.buttons.forEach(btn => {
-            if (!btn.scene || btn.scene !== scene) {
-                scene.add.existing(btn);
-            }
-        });
-
-        // Add container to scene if missing
-        if (!this.container.scene) {
-            scene.add.existing(this.container);
-        }
-
-        this.applyBackground();
-    }
-
-    createMenu() {
-        if (!this.scene) return;
-
-        this.container = this.scene.add.container(0, 0);
-        this.container.setVisible(false);
-        this.buttons = [];
-
-        const cols = 4;
-        const startX = this.scene.scale.width / 2 - 250;
-        const startY = this.scene.scale.height / 2 - 30;
-        const spacingX = 150;
-        const spacingY = 50;
-
-        this.backgroundsArray.forEach((bg, index) => {
-            const col = index % cols;
-            const row = Math.floor(index / cols);
-            const x = startX + col * spacingX;
-            const y = startY + row * spacingY;
-
-            const btn = UIFactory.createButton(
-                this.scene,
-                bg.type,
-                x,
-                y,
-                () => this.select(index),
-                "22px"
-            );
-
-            this.buttons.push(btn);
-            this.container.add(btn);
-        });
-
-        this.updateButtonStyles();
-    }
-
-    show() { this.container?.setVisible(true); }
-    hide() { this.container?.setVisible(false); }
-
-    select(index) {
-        this.selected = index;
-        localStorage.setItem("bgIndex", index);
-        this.applyBackground();
-        this.updateButtonStyles();
-    }
-
-    applyBackground() {
-        if (!this.scene) return;
+    // Apply the background to a specific scene
+    applyBackground(scene) {
+        if (!scene) return;
 
         const bg = this.backgroundsArray[this.selected] || { colorCode: "#000000" };
         const textColor = getOptimalTextColor(bg.colorCode);
 
-        this.scene.cameras.main.setBackgroundColor(bg.colorCode);
+        scene.cameras.main.setBackgroundColor(bg.colorCode);
 
-        if (this.scene.uiElements) {
-            this.scene.uiElements.forEach(el => {
+        if (scene.uiElements) {
+            scene.uiElements.forEach(el => {
                 if (el?.setStyle) el.setStyle({ color: textColor });
             });
         }
-
-        this.updateButtonStyles();
     }
 
-    updateButtonStyles() {
-        if (!this.buttons.length) return;
+    // Change the selected background and apply it to a scene
+    select(index, scene) {
+        this.selected = index;
+        localStorage.setItem("bgIndex", index);
+        this.applyBackground(scene);
+    }
 
-        const activeColor = this.backgroundsArray[this.selected]?.colorCode ?? "#000";
-        const optimal = getOptimalTextColor(activeColor);
-
-        this.buttons.forEach((btn, idx) => {
-            if (idx === this.selected) {
-                btn.setStyle({
-                    backgroundColor: "#444",
-                    color: "#FFD700",
-                    fontWeight: "bold"
-                });
-            } else {
-                btn.setStyle({
-                    backgroundColor: "#222",
-                    color: optimal,
-                    fontWeight: "normal"
-                });
-            }
-        });
+    // Return background options data
+    getBackgroundOptions() {
+        return this.backgroundsArray;
     }
 }
 
