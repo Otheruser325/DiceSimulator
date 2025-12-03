@@ -1,3 +1,5 @@
+import { game, GameData, UIFactory } from '../main.js';
+
 export default class SettingsScene extends Phaser.Scene {
     constructor() { super({ key: 'SettingsScene' }); }
 
