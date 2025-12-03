@@ -11,11 +11,7 @@ const config = {
     width: 1280,
     height: 1640,
     parent: 'game-container',
-    scene: [PreloadScene, MainMenuScene, SettingsScene, HelpScene, ChangelogScene, DiceSimScene, CreateDiceScene],
-    scale: {
-        mode: Phaser.Scale.RESIZE,
-        autoCenter: Phaser.Scale.CENTER_BOTH
-    }
+    scene: [PreloadScene, MainMenuScene, SettingsScene, HelpScene, ChangelogScene, DiceSimScene, CreateDiceScene]
 };
 
 export const game = new Phaser.Game(config);
