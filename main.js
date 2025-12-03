@@ -9,7 +9,7 @@ import CreateDiceScene from './scenes/CreateDiceScene.js';
 const config = {
     type: Phaser.AUTO,
     width: 1280,
-    height: 1640,
+    height: 960,
     parent: 'game-container',
     scene: [PreloadScene, MainMenuScene, SettingsScene, HelpScene, ChangelogScene, DiceSimScene, CreateDiceScene]
 };
