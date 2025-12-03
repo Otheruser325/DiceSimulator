@@ -51,7 +51,7 @@ export default class DiceSimScene extends Phaser.Scene {
         if (GameData.sfxEnabled) this.sound.play('diceSound');
         const dice = diceArray[Phaser.Math.Between(0, diceArray.length - 1)];
         const result = Phaser.Math.Between(1, dice.sides);
-        this.scene.resultText.setText(`Rolled ${dice.type}: ${result}`).setVisible(true);
+        this.resultText.setText(`Rolled ${dice.type}: ${result}`).setVisible(true);
     }
 
     rollSelectedDice() {
@@ -63,7 +63,7 @@ export default class DiceSimScene extends Phaser.Scene {
         if (GameData.sfxEnabled) this.sound.play('diceSound');
         const dice = diceArray[GameData.selectedDiceIndex || 0];
         const result = Phaser.Math.Between(1, dice.sides);
-        this.scene.resultText.setText(`Rolled ${dice.type}: ${result}`).setVisible(true);
+        this.resultText.setText(`Rolled ${dice.type}: ${result}`).setVisible(true);
     }
 
     switchDiceType() {
@@ -83,7 +83,7 @@ export default class DiceSimScene extends Phaser.Scene {
             showAlert('No custom dice available!', 'warning');
             return;
         }
-        if (GameData.sfxEnabled) this.scene.sound.play('diceSound');
+        if (GameData.sfxEnabled) this.sound.play('diceSound');
         const dice = arr[GameData.selectedCustomDiceIndex || 0];
         const result = rollWithLuckFactor(dice.sides, dice.luckFactor);
         this.resultText.setText(`Rolled Custom ${dice.type}: ${result}`).setVisible(true);
