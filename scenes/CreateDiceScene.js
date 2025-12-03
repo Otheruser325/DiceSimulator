@@ -3,8 +3,6 @@ import { game, GameData, UIFactory, InputFieldFactory, showAlert } from '../main
 export default class CreateDiceScene extends Phaser.Scene {
     constructor() { super({ key: 'CreateDiceScene' }); }
     create() {
-		game.bgManager.attach(this);
-
         this.title = UIFactory.createTitle(this, this.scale.width/2, 120, "Create Custom Dice");
 
         // Input fields
@@ -52,6 +50,8 @@ export default class CreateDiceScene extends Phaser.Scene {
 
         // Group UI for bg recolor
         this.uiElements = [ this.title, this.sidesInput, this.luckInput, this.createBtn, this.backBtn ];
+		
+		game.bgManager.attach(this);
     }
 
     submitCustomDice() {

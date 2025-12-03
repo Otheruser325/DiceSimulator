@@ -3,7 +3,6 @@ import { game, GameData, UIFactory, rollWithLuckFactor, showAlert } from '../mai
 export default class DiceSimScene extends Phaser.Scene {
     constructor() { super({ key: 'DiceSimScene' }); }
     create() {
-		game.bgManager.attach(this);
         this.diceSound = this.sound.add('diceSound');
         this.switchSound = this.sound.add('switchSound');
 
@@ -28,6 +27,8 @@ export default class DiceSimScene extends Phaser.Scene {
             this.createDiceButton, this.rollCustomDiceButton, this.rollRandomCustomDiceButton,
             this.switchCustomDiceButton, this.resultText, this.backButton
         ];
+		
+		game.bgManager.attach(this);
 
         // Hide certain UI by default if desired (we show everything on entering)
         this.showUI();

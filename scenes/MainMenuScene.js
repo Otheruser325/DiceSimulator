@@ -3,7 +3,6 @@ import { game, UIFactory } from '../main.js';
 export default class MainMenuScene extends Phaser.Scene {
     constructor() { super({ key: 'MainMenuScene' }); }
     create() {
-        game.bgManager.attach(this);
         this.diceSound = this.sound.add('diceSound');
         this.switchSound = this.sound.add('switchSound');
 
@@ -18,11 +17,11 @@ export default class MainMenuScene extends Phaser.Scene {
 
         // Group UI elements for text recolor by background manager
         this.uiElements = [ this.titleText, this.playButton, this.helpButton, this.settingsButton, this.changelogButton ];
-
-        // BG menu remains hidden until settings scene opens
-        game.bgManager.hide();
+		
+		game.bgManager.attach(this);
     }
 	shutdown() {
+		// BG menu remains hidden until settings scene opens
         game.bgManager.hide();
     }
 }
