@@ -60,8 +60,8 @@ Shows updates to Dice Simulator.
         ).setOrigin(0,0);
 
         this.uiElements = [ this.title, this.content, this.backBtn ];
-
-        game.bgManager.scene = this;
-        game.bgManager.applyBackground();
+    }
+	shutdown() {
+        game.bgManager.hide();
     }
 }

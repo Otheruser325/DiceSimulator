@@ -19,12 +19,10 @@ export default class MainMenuScene extends Phaser.Scene {
         // Group UI elements for text recolor by background manager
         this.uiElements = [ this.titleText, this.playButton, this.helpButton, this.settingsButton, this.changelogButton ];
 
-        // Apply previously-chosen background immediately
-        game.bgManager.scene = this; // temporarily point manager to this scene to recolor UI
-        game.bgManager.applyBackground();
-        game.bgManager.scene = game.scene.getScene('DiceSimScene') || this; // restore a sane scene pointer
-
         // BG menu remains hidden until settings scene opens
+        game.bgManager.hide();
+    }
+	shutdown() {
         game.bgManager.hide();
     }
 }
