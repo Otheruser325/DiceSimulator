@@ -4,6 +4,7 @@ export default class SettingsScene extends Phaser.Scene {
     constructor() { super({ key: 'SettingsScene' }); }
     create() {
 		game.bgManager.attach(this);
+		game.bgManager.show();
 		
         this.title = UIFactory.createTitle(this, this.scale.width/2, 120, "Settings");
         this.content = UIFactory.createText(this, this.scale.width/2, this.scale.height/2 - 60, "Settings: \n\nAudio & Background").setOrigin(0.5);
