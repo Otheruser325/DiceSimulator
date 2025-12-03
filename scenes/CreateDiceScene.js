@@ -3,6 +3,7 @@ import { game, GameData, UIFactory, InputFieldFactory, showAlert } from '../main
 export default class CreateDiceScene extends Phaser.Scene {
     constructor() { super({ key: 'CreateDiceScene' }); }
     create() {
+		this.switchSound = this.sound.add('switchSound');
         this.title = UIFactory.createTitle(this, this.scale.width/2, 120, "Create Custom Dice");
 
         // Input fields

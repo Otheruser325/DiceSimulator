@@ -4,6 +4,7 @@ export default class HelpScene extends Phaser.Scene {
     constructor() { super({ key: 'HelpScene' }); }
 
     create() {
+		this.switchSound = this.sound.add('switchSound');
         this.title = UIFactory.createTitle(
             this,
             this.scale.width/2,
