@@ -10,13 +10,13 @@ export default class DiceSimScene extends Phaser.Scene {
         this.resultText = this.add.text(this.scale.width/2, this.scale.height/2 + 280, '', { fontSize: '24px', fontFamily: 'Verdana', color: '#fff' }).setOrigin(0.5).setVisible(false);
 
         // Buttons
-        this.rollRandomButton = UIFactory.createButton(this, 'Roll Random Dice', this.scale.width/2, this.scale.height/2 - 260, this.rollRandomDice);
-        this.rollSelectedButton = UIFactory.createButton(this, 'Roll Selected Dice', this.scale.width/2, this.scale.height/2 - 180, this.rollSelectedDice);
-        this.switchDiceButton = UIFactory.createButton(this, 'Switch Dice Type', this.scale.width/2, this.scale.height/2 - 100, this.switchDiceType);
+        this.rollRandomButton = UIFactory.createButton(this, 'Roll Random Dice', this.scale.width/2, this.scale.height/2 - 260, () => this.rollRandomDice());
+        this.rollSelectedButton = UIFactory.createButton(this, 'Roll Selected Dice', this.scale.width/2, this.scale.height/2 - 180, () => this.rollSelectedDice());
+        this.switchDiceButton = UIFactory.createButton(this, 'Switch Dice Type', this.scale.width/2, this.scale.height/2 - 100, () => this.switchDiceType());
         this.createDiceButton = UIFactory.createButton(this, 'Build a Dice!', this.scale.width/2, this.scale.height/2 - 20, () => this.scene.start('CreateDiceScene'));
-        this.rollCustomDiceButton = UIFactory.createButton(this, 'Roll Custom Dice', this.scale.width/2, this.scale.height/2 + 60, this.rollCustomDice);
-        this.rollRandomCustomDiceButton = UIFactory.createButton(this, 'Roll Random Custom Dice', this.scale.width/2, this.scale.height/2 + 140, this.rollRandomCustomDice);
-        this.switchCustomDiceButton = UIFactory.createButton(this, 'Switch Custom Dice Type', this.scale.width/2, this.scale.height/2 + 220, this.switchCustomDiceType);
+        this.rollCustomDiceButton = UIFactory.createButton(this, 'Roll Custom Dice', this.scale.width/2, this.scale.height/2 + 60, () => this.rollCustomDice());
+        this.rollRandomCustomDiceButton = UIFactory.createButton(this, 'Roll Random Custom Dice', this.scale.width/2, this.scale.height/2 + 140, () => this.rollRandomCustomDice());
+        this.switchCustomDiceButton = UIFactory.createButton(this, 'Switch Custom Dice Type', this.scale.width/2, this.scale.height/2 + 220, () => this.switchCustomDiceType());
 
         // Back button (returns to main menu)
         this.backButton = UIFactory.createButton(this, 'Back', 60, 20, () => this.scene.start('MainMenuScene'), '30px', '#f00').setOrigin(0,0);
