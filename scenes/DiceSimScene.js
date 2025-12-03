@@ -28,7 +28,8 @@ export default class DiceSimScene extends Phaser.Scene {
             this.switchCustomDiceButton, this.resultText, this.backButton
         ];
 		
-		game.bgManager.attach(this);
+		// Apply current background
+        game.bgManager.applyBackground(this);
 
         // Hide certain UI by default if desired (we show everything on entering)
         this.showUI();
@@ -111,8 +112,5 @@ export default class DiceSimScene extends Phaser.Scene {
         if (GameData.sfxEnabled) this.sound.play('switchSound');
         GameData.selectedCustomDiceIndex = (GameData.selectedCustomDiceIndex + 1) % arr.length;
         this.resultText.setText(`Selected ${arr[GameData.selectedCustomDiceIndex].type}`).setVisible(true);
-    }
-	shutdown() {
-        game.bgManager.hide();
     }
 }

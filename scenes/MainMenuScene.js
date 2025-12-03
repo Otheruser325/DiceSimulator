@@ -18,10 +18,7 @@ export default class MainMenuScene extends Phaser.Scene {
         // Group UI elements for text recolor by background manager
         this.uiElements = [ this.titleText, this.playButton, this.helpButton, this.settingsButton, this.changelogButton ];
 		
-		game.bgManager.attach(this);
-    }
-	shutdown() {
-		// BG menu remains hidden until settings scene opens
-        game.bgManager.hide();
+		// Apply current background
+        game.bgManager.applyBackground(this);
     }
 }

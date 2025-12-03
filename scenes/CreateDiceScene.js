@@ -52,7 +52,8 @@ export default class CreateDiceScene extends Phaser.Scene {
         // Group UI for bg recolor
         this.uiElements = [ this.title, this.sidesInput, this.luckInput, this.createBtn, this.backBtn ];
 		
-		game.bgManager.attach(this);
+		// Apply current background
+        game.bgManager.applyBackground(this);
     }
 
     submitCustomDice() {
@@ -69,8 +70,5 @@ export default class CreateDiceScene extends Phaser.Scene {
         GameData.customDiceArray.push({ type: `D${sidesValue}`, sides: sidesValue, luckFactor: luckValue });
         showAlert('Dice created successfully!', 'success');
         this.scene.start('DiceSimScene');
-    }
-	shutdown() {
-        game.bgManager.hide();
     }
 }
