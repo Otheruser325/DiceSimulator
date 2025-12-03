@@ -1,4 +1,4 @@
-import { GameData, UIFactory, InputFieldFactory, showAlert } from '../main.js';
+import { game, GameData, UIFactory, InputFieldFactory, showAlert } from '../main.js';
 
 export default class CreateDiceScene extends Phaser.Scene {
     constructor() { super({ key: 'CreateDiceScene' }); }

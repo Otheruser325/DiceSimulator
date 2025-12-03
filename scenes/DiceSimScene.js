@@ -1,4 +1,4 @@
-import { GameData, UIFactory, rollWithLuckFactor, showAlert } from '../main.js';
+import { game, GameData, UIFactory, rollWithLuckFactor, showAlert } from '../main.js';
 
 export default class DiceSimScene extends Phaser.Scene {
     constructor() { super({ key: 'DiceSimScene' }); }

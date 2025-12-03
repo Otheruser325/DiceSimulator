@@ -1,4 +1,4 @@
-import { UIFactory } from '../main.js';
+import { game, UIFactory } from '../main.js';
 
 export default class MainMenuScene extends Phaser.Scene {
     constructor() { super({ key: 'MainMenuScene' }); }
