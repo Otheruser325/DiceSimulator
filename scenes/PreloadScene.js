@@ -74,7 +74,7 @@ export default class PreloadScene extends Phaser.Scene {
         GameData.backgroundsArray = this.cache.json.get('backgrounds') ?? [];
 
         // Create BackgroundManager globally
-        game.bgManager = new BackgroundManager(this, GameData.backgroundsArray);
+        game.bgManager = new BackgroundManager(GameData.backgroundsArray);
 
         // Preload SFX
         this.sound.add('diceSound');

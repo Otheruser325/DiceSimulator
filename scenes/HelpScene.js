@@ -5,6 +5,7 @@ export default class HelpScene extends Phaser.Scene {
 
     create() {
         this.bgManager = game.bgManager;
+		this.bgManager.attach(this);
 
         this.title = UIFactory.createTitle(
             this,

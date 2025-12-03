@@ -115,18 +115,27 @@ export const InputFieldFactory = {
 // BackgroundManager class
 // -----------------------
 export class BackgroundManager {
-    constructor(scene, backgroundsArray) {
-        this.scene = scene;
+    constructor(backgroundsArray) {
         this.backgroundsArray = backgroundsArray || [];
         this.selected = parseInt(localStorage.getItem("bgIndex")) || 0;
-        this.buttons = [];
-        this.container = null;
 
+        this.scene = null;
+        this.container = null;
+        this.buttons = [];
+    }
+
+    attach(scene) {
+        // Swap scenes safely
+        this.scene = scene;
+
+        // Rebuild menu for this new scene
         this.createMenu();
         this.applyBackground();
     }
 
     createMenu() {
+        if (!this.scene) return;
+
         if (this.container) {
             this.container.destroy(true);
         }
@@ -147,7 +156,15 @@ export class BackgroundManager {
             const x = startX + col * spacingX;
             const y = startY + row * spacingY;
 
-            const btn = UIFactory.createButton(this.scene, bg.type, x, y, () => this.select(index), "22px");
+            const btn = UIFactory.createButton(
+                this.scene,
+                bg.type,
+                x,
+                y,
+                () => this.select(index),
+                "22px"
+            );
+
             this.buttons.push(btn);
             this.container.add(btn);
         });
@@ -155,8 +172,8 @@ export class BackgroundManager {
         this.updateButtonStyles();
     }
 
-    show() { if (this.container) this.container.setVisible(true); }
-    hide() { if (this.container) this.container.setVisible(false); }
+    show() { this.container?.setVisible(true); }
+    hide() { this.container?.setVisible(false); }
 
     select(index) {
         this.selected = index;
@@ -166,30 +183,39 @@ export class BackgroundManager {
     }
 
     applyBackground() {
+        if (!this.scene) return;
+
         const bg = this.backgroundsArray[this.selected] || { colorCode: "#000000" };
         const textColor = getOptimalTextColor(bg.colorCode);
+
         this.scene.cameras.main.setBackgroundColor(bg.colorCode);
 
-        // recolor important UI items on the scene (scene must set .uiElements array)
-        if (this.scene.uiElements && Array.isArray(this.scene.uiElements)) {
+        if (this.scene.uiElements) {
             this.scene.uiElements.forEach(el => {
                 if (el?.setStyle) el.setStyle({ color: textColor });
             });
         }
 
-        // Also update any global UI that may not be in scene.uiElements (best-effort)
         this.updateButtonStyles();
     }
 
     updateButtonStyles() {
-        const activeColor = (this.backgroundsArray[this.selected] || {}).colorCode || "#000";
+        const activeColor = this.backgroundsArray[this.selected]?.colorCode ?? "#000";
         const optimal = getOptimalTextColor(activeColor);
 
         this.buttons.forEach((btn, idx) => {
             if (idx === this.selected) {
-                btn.setStyle({ backgroundColor: "#444", color: "#FFD700", fontWeight: "bold" });
+                btn.setStyle({
+                    backgroundColor: "#444",
+                    color: "#FFD700",
+                    fontWeight: "bold"
+                });
             } else {
-                btn.setStyle({ backgroundColor: "#222", color: optimal, fontWeight: "normal" });
+                btn.setStyle({
+                    backgroundColor: "#222",
+                    color: optimal,
+                    fontWeight: "normal"
+                });
             }
         });
     }

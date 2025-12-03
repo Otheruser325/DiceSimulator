@@ -5,6 +5,8 @@ export default class MainMenuScene extends Phaser.Scene {
     create() {
         // Keep references for background manager and sounds
         this.bgManager = game.bgManager;
+		this.bgManager.attach(this);
+		
         this.diceSound = this.sound.add('diceSound');
         this.switchSound = this.sound.add('switchSound');
 
@@ -25,7 +27,6 @@ export default class MainMenuScene extends Phaser.Scene {
         this.bgManager.applyBackground();
         this.bgManager.scene = game.scene.getScene('DiceSimScene') || this; // restore a sane scene pointer
 
-        // Add little instructions to ensure BG buttons are hidden on main menu
         // BG menu remains hidden until settings scene opens
         this.bgManager.hide();
     }

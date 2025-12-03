@@ -4,6 +4,8 @@ export default class DiceSimScene extends Phaser.Scene {
     constructor() { super({ key: 'DiceSimScene' }); }
     create() {
         this.bgManager = game.bgManager;
+		this.bgManager.attach(this);
+		
         this.diceSound = this.sound.add('diceSound');
         this.switchSound = this.sound.add('switchSound');
 

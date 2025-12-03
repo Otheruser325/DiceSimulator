@@ -4,7 +4,7 @@ export default class CreateDiceScene extends Phaser.Scene {
     constructor() { super({ key: 'CreateDiceScene' }); }
     create() {
         this.bgManager = game.bgManager;
-        this.bgManager.scene = this;
+		this.bgManager.attach(this);
 
         this.title = UIFactory.createTitle(this, this.scale.width/2, 120, "Create Custom Dice");
 
