@@ -198,7 +198,7 @@ export class BackgroundManager {
 // -----------------------
 // Color utilities (same luminance logic you used)
 // -----------------------
-export function getLuminance(hex) {
+function getLuminance(hex) {
     hex = (hex || '#000000').replace('#', '');
     if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
     const r = parseInt(hex.substring(0, 2), 16) / 255;
@@ -207,7 +207,7 @@ export function getLuminance(hex) {
     return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 }
 
-export function getOptimalTextColor(bgHex) {
+function getOptimalTextColor(bgHex) {
     const lum = getLuminance(bgHex);
     if (lum > 0.7) return '#000000';
     if (lum > 0.5) return '#222222';
