@@ -44,7 +44,7 @@ export const UIFactory = {
 
         button.setInteractive({ useHandCursor: true })
             .on("pointerdown", () => {
-                scene.switchSound?.play();
+                if (GameData.sfxEnabled) scene.switchSound?.play();
                 callback.call(scene);
             })
             .on("pointerover", () => button.setStyle({ backgroundColor: "#555" }))
@@ -115,22 +115,30 @@ export class BackgroundManager {
         this.backgroundsArray = backgroundsArray || [];
         this.selected = parseInt(localStorage.getItem("bgIndex")) || 0;
 
-        this.scene = null;
         this.container = null;
         this.buttons = [];
     }
 
-    // Called by scenes AFTER create()
     attach(scene) {
         this.scene = scene;
 
-        // Clean up previous scene’s UI
-        if (this.container) {
-            this.container.destroy(true);
-            this.container = null;
+        // First time creating buttons
+        if (!this.container) {
+            this.createMenu();
         }
 
-        this.createMenu();  
+        // Reparent buttons to this scene
+        this.buttons.forEach(btn => {
+            if (!btn.scene || btn.scene !== scene) {
+                scene.add.existing(btn);
+            }
+        });
+
+        // Add container to scene if missing
+        if (!this.container.scene) {
+            scene.add.existing(this.container);
+        }
+
         this.applyBackground();
     }
 
