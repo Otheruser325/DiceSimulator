@@ -48,7 +48,7 @@ export default class DiceSimScene extends Phaser.Scene {
             showAlert('No dice available!', 'warning');
             return;
         }
-        if (GameData.sfxEnabled) this.scene.sound.play('diceSound');
+        if (GameData.sfxEnabled) this.sound.play('diceSound');
         const dice = diceArray[Phaser.Math.Between(0, diceArray.length - 1)];
         const result = Phaser.Math.Between(1, dice.sides);
         this.scene.resultText.setText(`Rolled ${dice.type}: ${result}`).setVisible(true);
@@ -60,7 +60,7 @@ export default class DiceSimScene extends Phaser.Scene {
             showAlert('No dice available!', 'warning');
             return;
         }
-        if (GameData.sfxEnabled) this.scene.sound.play('diceSound');
+        if (GameData.sfxEnabled) this.sound.play('diceSound');
         const dice = diceArray[GameData.selectedDiceIndex || 0];
         const result = Phaser.Math.Between(1, dice.sides);
         this.scene.resultText.setText(`Rolled ${dice.type}: ${result}`).setVisible(true);
@@ -72,7 +72,7 @@ export default class DiceSimScene extends Phaser.Scene {
             showAlert('No dice available!', 'warning');
             return;
         }
-        if (GameData.sfxEnabled) this.scene.sound.play('switchSound');
+        if (GameData.sfxEnabled) this.sound.play('switchSound');
         GameData.selectedDiceIndex = (GameData.selectedDiceIndex + 1) % diceArray.length;
         this.resultText.setText(`Selected ${diceArray[GameData.selectedDiceIndex].type}`).setVisible(true);
     }
@@ -95,7 +95,7 @@ export default class DiceSimScene extends Phaser.Scene {
             showAlert('No custom dice available!', 'warning');
             return;
         }
-        if (GameData.sfxEnabled) this.scene.sound.play('diceSound');
+        if (GameData.sfxEnabled) this.sound.play('diceSound');
         const idx = Phaser.Math.Between(0, arr.length - 1);
         const dice = arr[idx];
         const result = rollWithLuckFactor(dice.sides, dice.luckFactor);
@@ -108,7 +108,7 @@ export default class DiceSimScene extends Phaser.Scene {
             showAlert('No custom dice available!', 'warning');
             return;
         }
-        if (GameData.sfxEnabled) this.scene.sound.play('switchSound');
+        if (GameData.sfxEnabled) this.sound.play('switchSound');
         GameData.selectedCustomDiceIndex = (GameData.selectedCustomDiceIndex + 1) % arr.length;
         this.resultText.setText(`Selected ${arr[GameData.selectedCustomDiceIndex].type}`).setVisible(true);
     }
