@@ -124,21 +124,22 @@ export class BackgroundManager {
         this.buttons = [];
     }
 
+    // Called by scenes AFTER create()
     attach(scene) {
-        // Swap scenes safely
         this.scene = scene;
 
-        // Rebuild menu for this new scene
-        this.createMenu();
+        // Clean up previous scene’s UI
+        if (this.container) {
+            this.container.destroy(true);
+            this.container = null;
+        }
+
+        this.createMenu();  
         this.applyBackground();
     }
 
     createMenu() {
         if (!this.scene) return;
-
-        if (this.container) {
-            this.container.destroy(true);
-        }
 
         this.container = this.scene.add.container(0, 0);
         this.container.setVisible(false);
@@ -200,6 +201,8 @@ export class BackgroundManager {
     }
 
     updateButtonStyles() {
+        if (!this.buttons.length) return;
+
         const activeColor = this.backgroundsArray[this.selected]?.colorCode ?? "#000";
         const optimal = getOptimalTextColor(activeColor);
 

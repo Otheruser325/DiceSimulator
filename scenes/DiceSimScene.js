@@ -3,9 +3,7 @@ import { game, GameData, UIFactory, rollWithLuckFactor, showAlert } from '../mai
 export default class DiceSimScene extends Phaser.Scene {
     constructor() { super({ key: 'DiceSimScene' }); }
     create() {
-        this.bgManager = game.bgManager;
-		this.bgManager.attach(this);
-		
+		game.bgManager.attach(this);
         this.diceSound = this.sound.add('diceSound');
         this.switchSound = this.sound.add('switchSound');
 
@@ -35,8 +33,8 @@ export default class DiceSimScene extends Phaser.Scene {
         this.showUI();
 
         // Apply background color and recolor UI
-        this.bgManager.scene = this;
-        this.bgManager.applyBackground();
+        game.bgManager.scene = this;
+        game.bgManager.applyBackground();
     }
 
     showUI() {

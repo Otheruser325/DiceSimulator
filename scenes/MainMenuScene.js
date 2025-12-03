@@ -3,10 +3,7 @@ import { game, UIFactory } from '../main.js';
 export default class MainMenuScene extends Phaser.Scene {
     constructor() { super({ key: 'MainMenuScene' }); }
     create() {
-        // Keep references for background manager and sounds
-        this.bgManager = game.bgManager;
-		this.bgManager.attach(this);
-		
+        game.bgManager.attach(this);
         this.diceSound = this.sound.add('diceSound');
         this.switchSound = this.sound.add('switchSound');
 
@@ -23,11 +20,11 @@ export default class MainMenuScene extends Phaser.Scene {
         this.uiElements = [ this.titleText, this.playButton, this.helpButton, this.settingsButton, this.changelogButton ];
 
         // Apply previously-chosen background immediately
-        this.bgManager.scene = this; // temporarily point manager to this scene to recolor UI
-        this.bgManager.applyBackground();
-        this.bgManager.scene = game.scene.getScene('DiceSimScene') || this; // restore a sane scene pointer
+        game.bgManager.scene = this; // temporarily point manager to this scene to recolor UI
+        game.bgManager.applyBackground();
+        game.bgManager.scene = game.scene.getScene('DiceSimScene') || this; // restore a sane scene pointer
 
         // BG menu remains hidden until settings scene opens
-        this.bgManager.hide();
+        game.bgManager.hide();
     }
 }

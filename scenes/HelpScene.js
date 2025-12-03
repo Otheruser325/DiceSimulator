@@ -4,8 +4,7 @@ export default class HelpScene extends Phaser.Scene {
     constructor() { super({ key: 'HelpScene' }); }
 
     create() {
-        this.bgManager = game.bgManager;
-		this.bgManager.attach(this);
+		game.bgManager.attach(this);
 
         this.title = UIFactory.createTitle(
             this,
@@ -62,7 +61,7 @@ Shows updates to Dice Simulator.
 
         this.uiElements = [ this.title, this.content, this.backBtn ];
 
-        this.bgManager.scene = this;
-        this.bgManager.applyBackground();
+        game.bgManager.scene = this;
+        game.bgManager.applyBackground();
     }
 }
