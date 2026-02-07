@@ -1,4 +1,4 @@
-import { game, UIFactory } from '../main.js';
+import { UIFactory } from '../utils/UIManager.js';
 
 export default class MainMenuScene extends Phaser.Scene {
     constructor() { super({ key: 'MainMenuScene' }); }
@@ -19,6 +19,6 @@ export default class MainMenuScene extends Phaser.Scene {
         this.uiElements = [ this.titleText, this.playButton, this.helpButton, this.settingsButton, this.changelogButton ];
 		
 		// Apply current background
-        game.bgManager.applyBackground(this);
+        this.game.bgManager.applyBackground(this);
     }
 }

@@ -1,13 +1,52 @@
-import { game, UIFactory } from '../main.js';
+import { UIFactory } from '../utils/UIManager.js';
+import SettingsManager from '../utils/SettingsManager.js';
 
 export default class ChangelogScene extends Phaser.Scene {
     constructor() { super({ key: 'ChangelogScene' }); }
     create() {
         this.switchSound = this.sound.add('switchSound');
-        this.title = UIFactory.createTitle(this, this.scale.width/2, 120, "Changelog");
-        this.content = UIFactory.createText(this, this.scale.width/2, this.scale.height/2, "v1.3 (01/12/2025)\n- Background settings update: You can now manually change the BG colour using the button grid\n- The background of your choice is now saved consistently upon refreshing Dice Simulator\n- The back button now returns to the roll simulation if you\'re in Build-A-Dice\nv1.2 (28/11/2025)\n- Added an option to change background colour\n- Added the ability to switch custom dice\n- Fixed an error related to rolling custom dice\n- Fixed the custom dice maker displaying the input boxes when backing out\n- Improved interface\nv1.1 (19/09/2024)\n- Added custom dice creation\n- Implemented luck factor for custom dice\n- Added sound effects toggle\n- Fixed various bugs\nv1.0 (17/09/2024)\n- Dice Simulator Release").setOrigin(0.5);
+        this.title = UIFactory.createTitle(this, this.scale.width/2, 90, "Changelog");
+        this.title.setFontSize('56px');
+
+        const contentText = "v1.4 (07/02/2026)\n- New tabbed simulator UI (Normal, Custom, Calculate/WIP)\n- Custom dice are now saved to localStorage with a 100 dice cap; added an option to remove custom dice that you don't want to keep\n- Added current background indicator in the settings menu\n- Luck factor reworked for better high/low roll bias\n- Added keybinds and confirm-to-exit in simulator\n- UI layout improvements and button highlight states\nv1.3 (01/12/2025)\n- Background settings update: You can now manually change the BG colour using the button grid\n- The background of your choice is now saved consistently upon refreshing Dice Simulator\n- The back button now returns to the roll simulation if you\'re in Build-A-Dice\nv1.2 (28/11/2025)\n- Added an option to change background colour\n- Added the ability to switch custom dice\n- Fixed an error related to rolling custom dice\n- Fixed the custom dice maker displaying the input boxes when backing out\n- Improved interface\nv1.1 (19/09/2024)\n- Added custom dice creation\n- Implemented luck factor for custom dice\n- Added sound effects toggle\n- Fixed various bugs\nv1.0 (17/09/2024)\n- Dice Simulator Release";
+
+        const centerX = this.scale.width / 2;
+        const viewTop = 170;
+        const viewBottom = this.scale.height - 80;
+        const viewHeight = viewBottom - viewTop;
+
+        this.content = this.add.text(centerX, viewTop, contentText, {
+            fontFamily: 'Verdana',
+            fontSize: '20px',
+            color: '#ffffff',
+            align: 'center',
+            wordWrap: { width: this.scale.width * 0.8 }
+        }).setOrigin(0.5, 0);
+
+        const maskRect = this.add.rectangle(centerX, viewTop, this.scale.width * 0.85, viewHeight, 0x000000, 0)
+            .setOrigin(0.5, 0);
+        const mask = maskRect.createGeometryMask();
+        this.content.setMask(mask);
+
+        const scrollable = Math.max(0, this.content.height - viewHeight);
+        const minY = viewTop - scrollable;
+        const maxY = viewTop;
+
+        this.input.on('wheel', (_pointer, _objects, _dx, dy) => {
+            if (!scrollable) return;
+            this.content.y = Phaser.Math.Clamp(this.content.y - dy * 0.5, minY, maxY);
+        });
+
         this.backBtn = UIFactory.createButton(this, "Back", 60, 20, () => this.scene.start('MainMenuScene'), "30px", "#f00").setOrigin(0,0);
+
+        // ESC to back out
+        this.input.keyboard.on('keydown-ESC', (event) => {
+            event.stopPropagation();
+            if (SettingsManager.get(this).audio) this.switchSound.play();
+            this.scene.start('MainMenuScene');
+        });
+
         this.uiElements = [ this.title, this.content, this.backBtn ];
-        game.bgManager.applyBackground(this);
+        this.game.bgManager.applyBackground(this);
     }
 }

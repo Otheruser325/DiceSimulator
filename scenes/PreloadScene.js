@@ -1,4 +1,6 @@
-import { game, GameData, BackgroundManager } from '../main.js';
+import { BackgroundManager } from '../utils/UIManager.js';
+import SettingsManager from '../utils/SettingsManager.js';
+import { CustomDice } from '../utils/DiceManager.js';
 
 export default class PreloadScene extends Phaser.Scene {
     constructor() {
@@ -65,16 +67,19 @@ export default class PreloadScene extends Phaser.Scene {
     }
 
     async create() {
-        // Ensure delay is complete
         await this.fakeDelay;
 
-        // Populate global GameData
-        GameData.diceArray = this.cache.json.get('dices') ?? [];
-        GameData.customDiceArray = this.cache.json.get('customDices') ?? [];
-        GameData.backgroundsArray = this.cache.json.get('backgrounds') ?? [];
+        // Populate registry data
+        this.registry.set('diceArray', this.cache.json.get('dices') ?? []);
+        const fallbackCustom = this.cache.json.get('customDices') ?? [];
+        this.registry.set('customDiceArray', CustomDice.load(fallbackCustom));
+        this.registry.set('backgroundsArray', this.cache.json.get('backgrounds') ?? []);
+        this.registry.set('selectedDiceIndex', 0);
+        this.registry.set('selectedCustomDiceIndex', 0);
+        SettingsManager.loadInto(this);
 
         // Create BackgroundManager globally
-        game.bgManager = new BackgroundManager(GameData.backgroundsArray);
+        this.game.bgManager = new BackgroundManager(this.registry.get('backgroundsArray'), SettingsManager);
 
         // Preload SFX
         this.sound.add('diceSound');

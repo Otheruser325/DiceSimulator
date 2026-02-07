@@ -1,4 +1,5 @@
-import { game, UIFactory } from '../main.js';
+import { UIFactory } from '../utils/UIManager.js';
+import SettingsManager from '../utils/SettingsManager.js';
 
 export default class HelpScene extends Phaser.Scene {
     constructor() { super({ key: 'HelpScene' }); }
@@ -8,13 +9,12 @@ export default class HelpScene extends Phaser.Scene {
         this.title = UIFactory.createTitle(
             this,
             this.scale.width/2,
-            120,
+            90,
             "Help"
         );
+        this.title.setFontSize('56px');
 
         const helpText = `
-Help Information:
-
 Here you can learn how to use the dice simulation. Let’s explore!
 
 PLAY:
@@ -44,8 +44,9 @@ Shows updates to Dice Simulator.
         this.content = UIFactory.createText(
             this,
             this.scale.width/2,
-            this.scale.height/2,
-            helpText
+            this.scale.height/2 + 40,
+            helpText,
+            '20px'
         ).setOrigin(0.5);
 
         this.backBtn = UIFactory.createButton(
@@ -58,8 +59,25 @@ Shows updates to Dice Simulator.
             "#f00"
         ).setOrigin(0,0);
 
-        this.uiElements = [ this.title, this.content, this.backBtn ];
+        this.keybindsBtn = UIFactory.createButton(
+            this,
+            "Keybinds",
+            this.scale.width - 60,
+            20,
+            () => this.scene.start('KeybindsScene'),
+            "24px",
+            "#1b6b1b"
+        ).setOrigin(1,0);
+
+        // ESC to back out
+        this.input.keyboard.on('keydown-ESC', (event) => {
+            event.stopPropagation();
+            if (SettingsManager.get(this).audio) this.switchSound.play();
+            this.scene.start('MainMenuScene');
+        });
+
+        this.uiElements = [ this.title, this.content, this.backBtn, this.keybindsBtn ];
 		
-        game.bgManager.applyBackground(this);
+        this.game.bgManager.applyBackground(this);
     }
 }
