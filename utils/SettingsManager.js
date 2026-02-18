@@ -2,8 +2,7 @@ const DEFAULTS = {
   audio: true,
   visualEffects: true,
   language: 'English',
-  bgIndex: 0,
-  tutorials: {}
+  bgIndex: 0
 };
 
 class SettingsManager {

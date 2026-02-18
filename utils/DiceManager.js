@@ -66,3 +66,55 @@ export class CustomDice {
     return cleaned;
   }
 }
+
+function powBigInt(base, exp) {
+  let result = 1n;
+  let b = BigInt(base);
+  let e = Math.max(0, Number(exp));
+  while (e > 0) {
+    if (e % 2 === 1) result *= b;
+    b *= b;
+    e = Math.floor(e / 2);
+  }
+  return result;
+}
+
+export function getProbabilityTable(sides, luckFactor) {
+  const sidesNum = Math.max(1, Math.floor(Number(sides)));
+  if (!isFinite(sidesNum)) return null;
+
+  const { rolls, mode } = getLuckFactor(luckFactor);
+  const outcomes = [];
+
+  if (mode === 'neutral') {
+    const denominator = BigInt(sidesNum);
+    const probability = 1 / sidesNum;
+    for (let value = 1; value <= sidesNum; value += 1) {
+      outcomes.push({ value, numerator: 1n, denominator, probability });
+    }
+    return { sides: sidesNum, rolls, mode, outcomes, denominator };
+  }
+
+  const denominator = powBigInt(BigInt(sidesNum), rolls);
+  const denomFloat = Math.pow(sidesNum, rolls);
+
+  for (let value = 1; value <= sidesNum; value += 1) {
+    let numerator;
+    let probability;
+    if (mode === 'high') {
+      const highA = powBigInt(BigInt(value), rolls);
+      const highB = powBigInt(BigInt(value - 1), rolls);
+      numerator = highA - highB;
+      probability = (Math.pow(value, rolls) - Math.pow(value - 1, rolls)) / denomFloat;
+    } else {
+      const a = sidesNum - value + 1;
+      const lowA = powBigInt(BigInt(a), rolls);
+      const lowB = powBigInt(BigInt(a - 1), rolls);
+      numerator = lowA - lowB;
+      probability = (Math.pow(a, rolls) - Math.pow(a - 1, rolls)) / denomFloat;
+    }
+    outcomes.push({ value, numerator, denominator, probability });
+  }
+
+  return { sides: sidesNum, rolls, mode, outcomes, denominator };
+}

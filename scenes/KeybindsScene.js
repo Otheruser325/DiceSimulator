@@ -14,7 +14,8 @@ export default class KeybindsScene extends Phaser.Scene {
 Tabs:
 - 1: Normal
 - 2: Custom
-- 3: Calculate (WIP)
+- 3: Calculate
+- 4: Physics (WIP)
 
 Actions:
 - R: Roll Random Dice
@@ -22,9 +23,12 @@ Actions:
 - T: Switch Dice Type
 - B: Build a Dice (Custom tab)
 - Delete: Remove Selected Custom Dice
+- P: Show Probability (Calculate tab)
+- C: Choose Dice (Calculate tab)
 
 Navigation:
 - ESC: Back / Close Modals
+- Enter: Confirm / Advance Tutorial
         `;
 
         const centerX = this.scale.width / 2;

@@ -1,4 +1,4 @@
-import { UIFactory, InputFieldFactory } from '../utils/UIManager.js';
+import { UIFactory } from '../utils/UIManager.js';
 import { showAlert } from '../utils/AlertManager.js';
 import { CustomDice, MAX_CUSTOM_DICE } from '../utils/DiceManager.js';
 import SettingsManager from '../utils/SettingsManager.js';
@@ -10,42 +10,23 @@ export default class CreateDiceScene extends Phaser.Scene {
         this.title = UIFactory.createTitle(this, this.scale.width/2, 120, "Create Custom Dice");
 
         // Input fields
-        this.sidesInput = InputFieldFactory.create(this, this.scale.width/2, this.scale.height/2 - 20, "Enter sides...");
-        this.luckInput = InputFieldFactory.create(this, this.scale.width/2, this.scale.height/2 + 40, "Enter luck factor...");
-
-        // Keyboard handling: central listener to support both inputs
-        this.input.keyboard.on('keydown', (event) => {
-            // Backspace / Enter / character handling
-            const active = [this.sidesInput, this.luckInput].find(f => f.inputing);
-            if (!active) return;
-
-            if (event.key === "Backspace") {
-                active._realValue = active._realValue.slice(0, -1);
-            } else if (event.key === "Enter") {
-                active.inputing = false;
-            } else {
-                // Only numeric, allow dot for luck input
-                if (active === this.sidesInput) {
-                    if (/^[0-9]$/.test(event.key)) active._realValue += event.key;
-                } else {
-                    if (/^[0-9]$/.test(event.key)) active._realValue += event.key;
-                    else if (event.key === "." && !active._realValue.includes(".")) active._realValue += ".";
-                }
-            }
-
-            active.setText(active._realValue || active._placeholder);
-        });
-
-        // Blur detection: pointerdown on scene
-        this.input.on('pointerdown', (pointer, gameObjects) => {
-            // if click outside inputs -> blur both
-            if (!gameObjects.includes(this.sidesInput) && !gameObjects.includes(this.luckInput)) {
-                [this.sidesInput, this.luckInput].forEach(f => {
-                    f.inputing = false;
-                    if (!f._realValue) f.setText(f._placeholder);
-                });
-            }
-        });
+        this.sidesInput = UIFactory.createInputField(
+            this,
+            this.scale.width / 2,
+            this.scale.height / 2 - 20,
+            "Enter sides...",
+            {},
+            { type: 'int', maxLength: 4 }
+        );
+        this.luckInput = UIFactory.createInputField(
+            this,
+            this.scale.width / 2,
+            this.scale.height / 2 + 40,
+            "Enter luck factor...",
+            {},
+            { type: 'float', maxLength: 6 }
+        );
+        UIFactory.bindInputFields(this, [this.sidesInput, this.luckInput], { allowTab: true, loop: false });
 
         // Create button
         this.createBtn = UIFactory.createButton(this, "Create Dice", this.scale.width/2, this.scale.height/2 + 120, this.submitCustomDice.bind(this), "26px");

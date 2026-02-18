@@ -1,4 +1,4 @@
-import { BackgroundManager } from '../utils/UIManager.js';
+import { GlobalBackground } from '../utils/BackgroundManager.js';
 import SettingsManager from '../utils/SettingsManager.js';
 import { CustomDice } from '../utils/DiceManager.js';
 
@@ -79,7 +79,8 @@ export default class PreloadScene extends Phaser.Scene {
         SettingsManager.loadInto(this);
 
         // Create BackgroundManager globally
-        this.game.bgManager = new BackgroundManager(this.registry.get('backgroundsArray'), SettingsManager);
+        GlobalBackground.init(this.registry.get('backgroundsArray'), SettingsManager);
+        this.game.bgManager = GlobalBackground;
 
         // Preload SFX
         this.sound.add('diceSound');
