@@ -1,120 +1,98 @@
-export function getLuckFactor(luckFactor) {
-  const factor = Number(luckFactor);
-  if (!isFinite(factor) || factor === 1) {
-    return { rolls: 1, mode: 'neutral' };
-  }
-  if (factor > 1) {
-    return { rolls: Math.max(1, Math.round(factor)), mode: 'high' };
-  }
-  return { rolls: Math.max(1, Math.round(1 / Math.max(0.01, factor))), mode: 'low' };
+// Weighted distribution: weight(face v) = lerp(1, L, t) where t=(v-1)/(sides-1)
+// L > 1: higher faces more likely (e.g. L=3 means max face is 3x more likely than min)
+// L < 1: lower faces more likely (e.g. L=0.4 means min face is 2.5x more likely than max)
+// L = 1: all faces equal (neutral)
+export function getWeightedDistribution(sides, luckFactor) {
+    const S = Math.max(2, Math.floor(Number(sides)));
+    const L = Number(luckFactor);
+    if (!isFinite(L) || !isFinite(S)) return null;
+    const weights = [];
+    for (let v = 1; v <= S; v++) {
+        const t = S > 1 ? (v - 1) / (S - 1) : 0;
+        weights.push(Math.max(0.0001, 1 + (L - 1) * t));
+    }
+    const total = weights.reduce((a, b) => a + b, 0);
+    return weights.map((w, i) => ({
+        value: i + 1,
+        weight: w,
+        probability: w / total
+    }));
 }
 
 export class RegularDice {
-  static roll(sides) {
-    return Phaser.Math.Between(1, sides);
-  }
+    static roll(sides) {
+        return Phaser.Math.Between(1, sides);
+    }
 }
 
 const CUSTOM_STORAGE_KEY = 'diceSimulator_customDice';
 export const MAX_CUSTOM_DICE = 100;
 
 function sanitizeCustomDice(arr) {
-  if (!Array.isArray(arr)) return [];
-  return arr.slice(0, MAX_CUSTOM_DICE).filter(d => d && typeof d.sides === 'number');
+    if (!Array.isArray(arr)) return [];
+    return arr.slice(0, MAX_CUSTOM_DICE).filter(d => d && typeof d.sides === 'number');
 }
 
 export class CustomDice {
-  static roll(sides, luckFactor) {
-    const baseRoll = () => Phaser.Math.Between(1, sides);
-    const { rolls, mode } = getLuckFactor(luckFactor);
-    if (mode === 'neutral') return baseRoll();
-    if (mode === 'high') {
-      let best = 1;
-      for (let i = 0; i < rolls; i += 1) {
-        const r = baseRoll();
-        if (r > best) best = r;
-      }
-      return best;
+    static roll(sides, luckFactor) {
+        const S = Math.floor(Number(sides));
+        const L = Number(luckFactor);
+        if (!isFinite(L) || L === 1 || S <= 1) {
+            return Phaser.Math.Between(1, S);
+        }
+        const dist = getWeightedDistribution(S, L);
+        if (!dist) return Phaser.Math.Between(1, S);
+        const r = Math.random();
+        let cum = 0;
+        for (const { value, probability } of dist) {
+            cum += probability;
+            if (r < cum) return value;
+        }
+        return S;
     }
-    let worst = sides;
-    for (let i = 0; i < rolls; i += 1) {
-      const r = baseRoll();
-      if (r < worst) worst = r;
-    }
-    return worst;
-  }
 
-  static load(fallback = []) {
-    try {
-      const raw = localStorage.getItem(CUSTOM_STORAGE_KEY);
-      if (!raw) return sanitizeCustomDice(fallback);
-      const parsed = JSON.parse(raw);
-      return sanitizeCustomDice(parsed);
-    } catch (e) {
-      console.warn('[CustomDice] failed to load custom dice', e);
-      return sanitizeCustomDice(fallback);
+    static load(fallback = []) {
+        try {
+            const raw = localStorage.getItem(CUSTOM_STORAGE_KEY);
+            if (!raw) return sanitizeCustomDice(fallback);
+            const parsed = JSON.parse(raw);
+            return sanitizeCustomDice(parsed);
+        } catch (e) {
+            console.warn('[CustomDice] failed to load custom dice', e);
+            return sanitizeCustomDice(fallback);
+        }
     }
-  }
 
-  static save(arr) {
-    const cleaned = sanitizeCustomDice(arr);
-    try {
-      localStorage.setItem(CUSTOM_STORAGE_KEY, JSON.stringify(cleaned));
-    } catch (e) {
-      console.warn('[CustomDice] failed to save custom dice', e);
+    static save(arr) {
+        const cleaned = sanitizeCustomDice(arr);
+        try {
+            localStorage.setItem(CUSTOM_STORAGE_KEY, JSON.stringify(cleaned));
+        } catch (e) {
+            console.warn('[CustomDice] failed to save custom dice', e);
+        }
+        return cleaned;
     }
-    return cleaned;
-  }
-}
-
-function powBigInt(base, exp) {
-  let result = 1n;
-  let b = BigInt(base);
-  let e = Math.max(0, Number(exp));
-  while (e > 0) {
-    if (e % 2 === 1) result *= b;
-    b *= b;
-    e = Math.floor(e / 2);
-  }
-  return result;
 }
 
 export function getProbabilityTable(sides, luckFactor) {
-  const sidesNum = Math.max(1, Math.floor(Number(sides)));
-  if (!isFinite(sidesNum)) return null;
+    const S = Math.max(2, Math.floor(Number(sides)));
+    const L = Number(luckFactor);
+    if (!isFinite(S) || !isFinite(L) || L <= 0) return null;
 
-  const { rolls, mode } = getLuckFactor(luckFactor);
-  const outcomes = [];
+    const dist = getWeightedDistribution(S, L);
+    if (!dist) return null;
 
-  if (mode === 'neutral') {
-    const denominator = BigInt(sidesNum);
-    const probability = 1 / sidesNum;
-    for (let value = 1; value <= sidesNum; value += 1) {
-      outcomes.push({ value, numerator: 1n, denominator, probability });
-    }
-    return { sides: sidesNum, rolls, mode, outcomes, denominator };
-  }
+    const SCALE = 1000000;
+    const weightInts = dist.map(d => BigInt(Math.round(d.weight * SCALE)));
+    const denominator = weightInts.reduce((a, b) => a + b, 0n);
 
-  const denominator = powBigInt(BigInt(sidesNum), rolls);
-  const denomFloat = Math.pow(sidesNum, rolls);
+    const outcomes = dist.map((d, i) => ({
+        value: d.value,
+        numerator: weightInts[i],
+        denominator,
+        probability: d.probability
+    }));
 
-  for (let value = 1; value <= sidesNum; value += 1) {
-    let numerator;
-    let probability;
-    if (mode === 'high') {
-      const highA = powBigInt(BigInt(value), rolls);
-      const highB = powBigInt(BigInt(value - 1), rolls);
-      numerator = highA - highB;
-      probability = (Math.pow(value, rolls) - Math.pow(value - 1, rolls)) / denomFloat;
-    } else {
-      const a = sidesNum - value + 1;
-      const lowA = powBigInt(BigInt(a), rolls);
-      const lowB = powBigInt(BigInt(a - 1), rolls);
-      numerator = lowA - lowB;
-      probability = (Math.pow(a, rolls) - Math.pow(a - 1, rolls)) / denomFloat;
-    }
-    outcomes.push({ value, numerator, denominator, probability });
-  }
-
-  return { sides: sidesNum, rolls, mode, outcomes, denominator };
+    const luckMode = L === 1 ? 'neutral' : L > 1 ? 'high' : 'low';
+    return { sides: S, luckFactor: L, luckMode, outcomes, denominator };
 }

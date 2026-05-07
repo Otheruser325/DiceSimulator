@@ -96,21 +96,31 @@ export default class DiceSimScene extends Phaser.Scene {
         );
 
         // Calculate tab UI
-        this.calcTitleText = UIFactory.createText(this, centerX, 140, 'Probability Calculator', '30px');
-        this.calcSelectedText = UIFactory.createText(this, centerX, 185, 'Select a die to get started.', '22px');
-        this.calcSelectButton = UIFactory.createButton(this, 'Choose Dice', centerX, 240, () => this.showCalcSelectModal(), '24px', '#333');
-        this.calcShowButton = UIFactory.createButton(this, 'Show Probability!', centerX, 300, () => this.showCalcResults(), '24px', '#2d7a2d');
+        this.calcTitleText = UIFactory.createText(this, centerX, 120, 'Probability Calculator', '30px');
 
-        this.calcResultViewTop = 350;
-        this.calcResultViewBottom = this.scale.height - 70;
+        this.calcSidesLabel = this.add.text(centerX - 210, 168, 'Sides:', {
+            fontFamily: 'Verdana', fontSize: '20px', color: '#aaaaaa'
+        }).setOrigin(1, 0.5);
+        this.calcSidesInput = UIFactory.createInputField(this, centerX - 100, 168, '6', { fontSize: '22px' }, { type: 'int', maxLength: 6 });
+        this.calcLuckLabel = this.add.text(centerX + 10, 168, 'Luck:', {
+            fontFamily: 'Verdana', fontSize: '20px', color: '#aaaaaa'
+        }).setOrigin(0, 0.5);
+        this.calcLuckInput = UIFactory.createInputField(this, centerX + 130, 168, '1', { fontSize: '22px' }, { type: 'float', maxLength: 8 });
+        UIFactory.bindInputFields(this, [this.calcSidesInput, this.calcLuckInput], { allowTab: true, loop: true });
+
+        this.calcSelectButton = UIFactory.createButton(this, 'Choose Preset Die', centerX, 218, () => this.showCalcSelectModal(), '22px', '#333');
+        this.calcShowButton = UIFactory.createButton(this, 'Show Probability!', centerX, 272, () => this.showCalcResults(), '24px', '#2d7a2d');
+
+        this.calcResultViewTop = 325;
+        this.calcResultViewBottom = this.scale.height - 55;
         this.calcResultViewHeight = this.calcResultViewBottom - this.calcResultViewTop;
 
-        this.calcResultText = this.add.text(centerX, this.calcResultViewTop, 'No results yet.', {
+        this.calcResultText = this.add.text(centerX, this.calcResultViewTop, 'Enter sides & luck, then press Show Probability.', {
             fontSize: '18px',
             fontFamily: 'Verdana',
             color: '#ffffff',
             align: 'center',
-            wordWrap: { width: this.scale.width * 0.85 }
+            wordWrap: { width: this.scale.width * 0.82 }
         }).setOrigin(0.5, 0);
 
         this.calcResultMaskRect = this.add.rectangle(
@@ -125,7 +135,23 @@ export default class DiceSimScene extends Phaser.Scene {
         this.calcResultText.setMask(this.calcResultMask);
         this.updateCalcResultScroll();
 
-        this.physicsText = UIFactory.createText(this, centerX, 320, 'Coming soon...', '28px');
+        // Physics tab UI - dice physics simulation
+        this.physicsTitleText = UIFactory.createText(this, centerX, 118, 'Dice Physics', '30px');
+        this.physicsDiceInfoText = UIFactory.createText(this, centerX, 162, '', '20px');
+        this.physicsDiceCountSlider = UIFactory.createSlideBar(this, {
+            x: centerX, y: 210, min: 1, max: 5, step: 1, value: 1,
+            label: 'Dice Count', showTickLabels: true,
+            onChange: (v) => { this.physicsDiceCount = v; }
+        });
+        this.physicsDiceCount = 1;
+        this.physicsRollBtn = UIFactory.createButton(this, 'Roll Dice!', centerX, 275, () => this.runPhysicsRoll(), '26px', '#2d7a2d');
+        this.physicsFloorGraphic = this.add.rectangle(centerX, 840, 860, 22, 0x7a5c2e).setStrokeStyle(2, 0xaa8833);
+        this.physicsWallGraphic = this.add.rectangle(centerX, 582, 860, 506, 0x0a0a0a, 0.22);
+        this.physicsGraphics = this.add.graphics();
+        this.physicsResultText = this.add.text(centerX, this.scale.height - 48, '', {
+            fontFamily: 'Verdana', fontSize: '24px', color: '#ffffff', align: 'center'
+        }).setOrigin(0.5);
+        this._physicsDiceObjects = [];
 
         // Back button
         this.backButton = UIFactory.createButton(this, 'Back', 60, 20, () => this.requestExitSimulator(), '30px', '#f00').setOrigin(0,0);
@@ -159,13 +185,25 @@ export default class DiceSimScene extends Phaser.Scene {
         this.customBaseUI = [this.createDiceButton];
         this.calcUI = [
             this.calcTitleText,
-            this.calcSelectedText,
+            this.calcSidesLabel,
+            this.calcSidesInput,
+            this.calcLuckLabel,
+            this.calcLuckInput,
             this.calcSelectButton,
             this.calcShowButton,
             this.calcResultText,
             this.calcResultMaskRect
         ];
-        this.physicsUI = [this.physicsText];
+        this.physicsUI = [
+            this.physicsTitleText,
+            this.physicsDiceInfoText,
+            this.physicsDiceCountSlider,
+            this.physicsRollBtn,
+            this.physicsFloorGraphic,
+            this.physicsWallGraphic,
+            this.physicsGraphics,
+            this.physicsResultText
+        ];
         this.commonUI = [this.tabNormal, this.tabCustom, this.tabCalc, this.tabPhysics, this.resultText, this.tutorialText, this.backButton];
 
         this.uiElements = [
@@ -188,7 +226,10 @@ export default class DiceSimScene extends Phaser.Scene {
         this.bindKeyControls();
         this.updateCalcSelectionText();
         this.startGuidedTutorial();
-        this.events.once('shutdown', () => this.closeTutorialOverlay());
+        this.events.once('shutdown', () => {
+            this.closeTutorialOverlay();
+            this.clearPhysicsDice();
+        });
 
         this._calcWheel = (_pointer, _objects, _dx, dy) => {
             if (this.activeTab !== 'calc') return;
@@ -220,6 +261,10 @@ export default class DiceSimScene extends Phaser.Scene {
     setActiveTab(tab, options = {}) {
         if (this._tutorialLock && !options.force) return;
 
+        if (this.activeTab === 'physics' && tab !== 'physics') {
+            this.clearPhysicsDice();
+        }
+
         this.activeTab = tab;
         this.registry.set('diceSimActiveTab', tab);
 
@@ -245,6 +290,7 @@ export default class DiceSimScene extends Phaser.Scene {
         } else if (tab === 'physics') {
             this.setGroupVisible(this.physicsUI, true);
             this.resultText.setVisible(false);
+            this.updatePhysicsDiceInfo();
         }
 
         this.updateTabStyles();
@@ -375,7 +421,7 @@ export default class DiceSimScene extends Phaser.Scene {
 
         const physicsTargets = [
             { ref: this.tabPhysics, direction: 'down' },
-            { ref: this.physicsText, direction: 'down' }
+            { ref: this.physicsRollBtn, direction: 'down' }
         ];
 
         return [
@@ -394,13 +440,13 @@ export default class DiceSimScene extends Phaser.Scene {
             {
                 tab: 'calc',
                 title: 'Calculate Tab',
-                body: 'Choose a die and show its probability table. Press C to choose dice and P to show results.',
+                body: 'Type any sides and luck factor to see probability, or press C to load a preset. Press P to calculate.',
                 targets: calcTargets
             },
             {
                 tab: 'physics',
                 title: 'Physics Tab',
-                body: 'Physics simulation features will live here (WIP).',
+                body: 'Watch dice roll and bounce! Press T to switch type, choose a count, then hit Roll Dice!',
                 targets: physicsTargets
             }
         ];
@@ -562,27 +608,27 @@ export default class DiceSimScene extends Phaser.Scene {
 
     setCalcSelection(kind, dice) {
         this.calcSelection = { kind, dice };
-        this.updateCalcSelectionText();
+        if (this.calcSidesInput) {
+            this.calcSidesInput._realValue = `${dice.sides}`;
+            this.calcSidesInput.setText(`${dice.sides}`);
+            this.calcSidesInput.setStyle({ color: '#ffffff' });
+        }
+        if (this.calcLuckInput) {
+            const luck = kind === 'custom' ? dice.luckFactor : 1;
+            this.calcLuckInput._realValue = `${luck}`;
+            this.calcLuckInput.setText(`${luck}`);
+            this.calcLuckInput.setStyle({ color: '#ffffff' });
+        }
         this.clearCalcResults();
     }
 
     updateCalcSelectionText() {
-        if (!this.calcSelectedText) return;
-        if (!this.calcSelection || !this.calcSelection.dice) {
-            this.calcSelectedText.setText('Select a die to get started.');
-            return;
-        }
-        const { kind, dice } = this.calcSelection;
-        if (kind === 'custom') {
-            this.calcSelectedText.setText(`Selected: Custom ${dice.type} (sides: ${dice.sides}, luck: ${dice.luckFactor})`);
-        } else {
-            this.calcSelectedText.setText(`Selected: Normal ${dice.type} (sides: ${dice.sides})`);
-        }
+        // Input fields now handle selection display; no-op kept for compatibility.
     }
 
     clearCalcResults() {
         if (!this.calcResultText) return;
-        this.calcResultText.setText('No results yet.');
+        this.calcResultText.setText('Enter sides & luck, then press Show Probability.');
         this.calcResultText.y = this.calcResultViewTop;
         this.updateCalcResultScroll();
     }
@@ -595,10 +641,12 @@ export default class DiceSimScene extends Phaser.Scene {
         this.calcResultText.y = Phaser.Math.Clamp(this.calcResultText.y, this.calcResultMinY, this.calcResultMaxY);
     }
 
-    getLuckDescription(mode, rolls) {
-        if (mode === 'neutral') return 'Luck: neutral (single roll)';
-        if (mode === 'high') return `Luck: high (best of ${rolls} rolls)`;
-        return `Luck: low (worst of ${rolls} rolls)`;
+    getLuckDescription(luckFactor) {
+        const L = Number(luckFactor);
+        if (!isFinite(L) || L === 1) return 'Luck: 1  (neutral — all faces equally weighted)';
+        if (L > 1) return `Luck: ${L}  (weighted high — max face is ${L}× more likely than min)`;
+        const ratio = (1 / L).toFixed(2);
+        return `Luck: ${L}  (weighted low — min face is ${ratio}× more likely than max)`;
     }
 
     formatFraction(numerator, denominator) {
@@ -624,13 +672,21 @@ export default class DiceSimScene extends Phaser.Scene {
     }
 
     showCalcResults() {
-        if (!this.calcSelection || !this.calcSelection.dice) {
-            showAlert(this, 'Select a die first!', 'warning');
+        const sidesRaw = this.calcSidesInput ? this.calcSidesInput.getValue() : '';
+        const luckRaw = this.calcLuckInput ? this.calcLuckInput.getValue() : '';
+        const sides = parseInt(sidesRaw, 10);
+        const luck = parseFloat(luckRaw);
+
+        if (!sidesRaw || isNaN(sides) || sides < 2) {
+            showAlert(this, 'Enter a valid number of sides (min 2).', 'warning');
+            return;
+        }
+        if (!luckRaw || isNaN(luck) || luck <= 0) {
+            showAlert(this, 'Enter a valid luck factor (> 0).', 'warning');
             return;
         }
 
-        const { kind, dice } = this.calcSelection;
-        const table = getProbabilityTable(dice.sides, kind === 'custom' ? dice.luckFactor : 1);
+        const table = getProbabilityTable(sides, luck);
         if (!table) {
             showAlert(this, 'Invalid dice data.', 'error');
             return;
@@ -638,28 +694,43 @@ export default class DiceSimScene extends Phaser.Scene {
 
         let expectedValue = 0;
         let expectedNumerator = 0n;
-        table.outcomes.forEach((outcome) => {
-            expectedValue += outcome.value * outcome.probability;
-            expectedNumerator += BigInt(outcome.value) * outcome.numerator;
+        table.outcomes.forEach((o) => {
+            expectedValue += o.value * o.probability;
+            expectedNumerator += BigInt(o.value) * o.numerator;
         });
 
-        const header = kind === 'custom'
-            ? `Custom ${dice.type} (sides: ${dice.sides}, luck: ${dice.luckFactor})`
-            : `Normal ${dice.type} (sides: ${dice.sides})`;
+        const diceLabel = this.calcSelection
+            ? (this.calcSelection.kind === 'custom'
+                ? `Custom ${this.calcSelection.dice.type}`
+                : `Normal ${this.calcSelection.dice.type}`)
+            : `D${sides}`;
+
+        const maxProb = Math.max(...table.outcomes.map(o => o.probability));
+        const BAR_MAX = 16;
+        const DIV = '\u2500'.repeat(38);
 
         const lines = [
-            header,
-            this.getLuckDescription(table.mode, table.rolls),
-            `Average roll: ${expectedValue.toFixed(3)} (${this.formatFraction(expectedNumerator, table.denominator)})`,
-            '',
-            'Outcome: fraction (percent)'
+            `${diceLabel}   Sides: ${sides}   Luck: ${luck}`,
+            DIV,
+            this.getLuckDescription(luck),
+            `Average Roll: ${expectedValue.toFixed(4)}`,
+            `  (exact: ${this.formatFraction(expectedNumerator, table.denominator)})`,
+            `Min: 1   Max: ${sides}`,
+            DIV,
+            ' Face    Prob %    Bar',
+            DIV,
         ];
 
-        table.outcomes.forEach((outcome) => {
-            const fraction = this.formatFraction(outcome.numerator, outcome.denominator);
-            const percent = (outcome.probability * 100).toFixed(2);
-            lines.push(`${outcome.value}: ${fraction} (${percent}%)`);
+        table.outcomes.forEach((o) => {
+            const pct = (o.probability * 100).toFixed(2).padStart(6);
+            const barLen = Math.max(1, Math.round((o.probability / maxProb) * BAR_MAX));
+            const bar = '\u2588'.repeat(barLen);
+            const face = `${o.value}`.padStart(5);
+            lines.push(`${face}   ${pct}%   ${bar}`);
         });
+
+        lines.push(DIV);
+        if (table.outcomes.length > 14) lines.push('\u2195  scroll to see all faces');
 
         this.calcResultText.setText(lines.join('\n'));
         this.calcResultText.y = this.calcResultViewTop;
@@ -1243,6 +1314,128 @@ export default class DiceSimScene extends Phaser.Scene {
         if (this.confirmContainer) {
             this.confirmContainer.destroy(true);
             this.confirmContainer = null;
+        }
+    }
+
+    // ----- Physics tab -----
+
+    updatePhysicsDiceInfo() {
+        const diceArray = this.registry.get('diceArray') ?? [];
+        const diceIndex = this.registry.get('selectedDiceIndex') || 0;
+        const dice = diceArray[diceIndex] || { type: 'D6', sides: 6 };
+        if (this.physicsDiceInfoText) {
+            this.physicsDiceInfoText.setText(`Using: ${dice.type}  (${dice.sides} sides)   —   press T to switch`);
+        }
+    }
+
+    clearPhysicsDice() {
+        if (this._physicsDiceObjects) {
+            this._physicsDiceObjects.forEach(obj => {
+                if (obj.rect) { this.tweens.killTweensOf(obj.rect); obj.rect.destroy(); }
+                if (obj.label) { this.tweens.killTweensOf(obj.label); obj.label.destroy(); }
+            });
+            this._physicsDiceObjects = [];
+        }
+        if (this.physicsGraphics) this.physicsGraphics.clear();
+        if (this.physicsResultText) this.physicsResultText.setText('');
+    }
+
+    runPhysicsRoll() {
+        this.clearPhysicsDice();
+
+        const diceArray = this.registry.get('diceArray') ?? [];
+        const diceIndex = this.registry.get('selectedDiceIndex') || 0;
+        const dice = diceArray[diceIndex] || { type: 'D6', sides: 6 };
+        const count = Phaser.Math.Clamp(this.physicsDiceCount || 1, 1, 5);
+
+        if (SettingsManager.get(this).audio) this.sound.play('diceSound');
+
+        const dieSize = count <= 2 ? 96 : count <= 3 ? 86 : count <= 4 ? 78 : 70;
+        const floorY = 829 - dieSize / 2;
+        const areaLeft = 200;
+        const areaRight = 1060;
+        const spacing = (areaRight - areaLeft) / (count + 1);
+
+        const results = [];
+        const settled = new Array(count).fill(false);
+
+        for (let i = 0; i < count; i++) {
+            const result = Phaser.Math.Between(1, dice.sides);
+            results.push(result);
+
+            const targetX = areaLeft + (i + 1) * spacing;
+            const startY = 315;
+            const delay = i * 130;
+            const bounceH1 = Phaser.Math.Between(85, 140);
+            const bounceH2 = Math.round(bounceH1 * 0.36);
+
+            const rect = this.add.rectangle(targetX, startY, dieSize, dieSize, 0xf0ece0)
+                .setStrokeStyle(3, 0x333333)
+                .setRotation(Phaser.Math.FloatBetween(-0.8, 0.8));
+
+            const label = this.add.text(targetX, startY, '?', {
+                fontFamily: 'Verdana',
+                fontSize: `${Math.floor(dieSize * 0.48)}px`,
+                color: '#888888',
+                fontStyle: 'bold'
+            }).setOrigin(0.5);
+
+            const obj = { rect, label };
+            this._physicsDiceObjects.push(obj);
+
+            const spinAngle = Phaser.Math.Between(300, 900) * (Math.random() < 0.5 ? 1 : -1);
+            const spinDuration = 560 + delay + 250 + 160 + 180;
+            this.tweens.add({
+                targets: rect,
+                angle: `+=${spinAngle}`,
+                duration: spinDuration * 0.7,
+                delay,
+                ease: 'Quad.Out'
+            });
+
+            this.tweens.add({
+                targets: [rect, label],
+                y: floorY,
+                duration: 520,
+                delay,
+                ease: 'Quad.In',
+                onComplete: () => {
+                    this.tweens.add({
+                        targets: [rect, label],
+                        y: floorY - bounceH1,
+                        duration: 260,
+                        ease: 'Quad.Out',
+                        yoyo: true,
+                        onComplete: () => {
+                            this.tweens.add({
+                                targets: [rect, label],
+                                y: floorY - bounceH2,
+                                duration: 175,
+                                ease: 'Quad.Out',
+                                yoyo: true,
+                                onComplete: () => {
+                                    this.tweens.add({
+                                        targets: rect,
+                                        angle: Math.round(rect.angle / 90) * 90,
+                                        duration: 130,
+                                        ease: 'Quad.Out'
+                                    });
+                                    label.setText(`${result}`);
+                                    label.setStyle({ color: '#1a1a1a' });
+                                    settled[i] = true;
+                                    if (settled.every(Boolean)) {
+                                        const total = results.reduce((a, b) => a + b, 0);
+                                        const txt = count === 1
+                                            ? `Rolled ${dice.type}: ${results[0]}`
+                                            : `Rolled ${count}\u00d7 ${dice.type}: ${results.join('  ')}  \u2014  Total: ${total}`;
+                                        if (this.physicsResultText) this.physicsResultText.setText(txt);
+                                    }
+                                }
+                            });
+                        }
+                    });
+                }
+            });
         }
     }
 }
